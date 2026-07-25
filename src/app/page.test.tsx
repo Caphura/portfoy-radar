@@ -23,7 +23,7 @@ describe("Home", () => {
       data: {
         service: "supabase-postgres",
         status: "ok",
-        schemaVersion: 1,
+        schemaVersion: 3,
         locale: "tr-TR",
         timeZone: "Europe/Istanbul",
         defaultCurrency: "TRY",
@@ -42,8 +42,11 @@ describe("Home", () => {
     expect(screen.getByText("tr-TR")).toBeInTheDocument();
     expect(screen.getByText("Europe/Istanbul")).toBeInTheDocument();
     expect(screen.getByText("TRY")).toBeInTheDocument();
-    expect(screen.getByText("Şema v1")).toBeInTheDocument();
+    expect(screen.getByText("Şema v3")).toBeInTheDocument();
     expect(screen.getByText("Supabase bağlı")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Çalışma alanına gir" }),
+    ).toHaveAttribute("href", "/giris");
   });
 
   it("veritabanı yoksa Türkçe ve güvenli bekleme durumunu gösterir", async () => {

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createServerSupabaseClient } from "@/server/supabase/client";
+import { createSystemSupabaseClient } from "@/server/supabase/client";
 import { getSupabaseServerConfig } from "@/server/supabase/environment";
 
 import {
@@ -15,7 +15,7 @@ export async function getDatabaseStatus(): Promise<DatabaseStatusResult> {
     return configuration;
   }
 
-  const supabase = createServerSupabaseClient(configuration.data);
+  const supabase = createSystemSupabaseClient(configuration.data);
 
   return resolveDatabaseStatus(async () => {
     const { data, error } = await supabase

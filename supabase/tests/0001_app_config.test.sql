@@ -18,8 +18,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  1,
-  'şema sözleşmesi sürümü 1 olur'
+  4,
+  'şema sözleşmesi sürümü güncel migration ile 4 olur'
 );
 
 select is(

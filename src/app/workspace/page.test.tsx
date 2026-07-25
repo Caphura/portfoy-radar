@@ -1,0 +1,185 @@
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const { getWorkspaceAccessMock, getWorkspaceEntitySummaryMock, redirectMock } =
+  vi.hoisted(() => ({
+    getWorkspaceAccessMock: vi.fn(),
+    getWorkspaceEntitySummaryMock: vi.fn(),
+    redirectMock: vi.fn(),
+  }));
+
+vi.mock("@/server/workspace/access", () => ({
+  getWorkspaceAccess: getWorkspaceAccessMock,
+}));
+
+vi.mock("@/server/entities/get-entity-summary", () => ({
+  getWorkspaceEntitySummary: getWorkspaceEntitySummaryMock,
+}));
+
+vi.mock("next/navigation", () => ({
+  redirect: redirectMock,
+}));
+
+vi.mock("@/features/auth/actions", () => ({
+  logoutAction: vi.fn(),
+}));
+
+vi.mock("@/features/workspace/workspace-setup-form", () => ({
+  WorkspaceSetupForm: () => <form aria-label="Workspace kurulum formu" />,
+}));
+
+vi.mock("@/features/workspace/workspace-rename-form", () => ({
+  WorkspaceRenameForm: ({ currentName }: { currentName: string }) => (
+    <form aria-label="Workspace adlandırma formu" data-current-name={currentName} />
+  ),
+}));
+
+import WorkspacePage from "./page";
+
+describe("WorkspacePage", () => {
+  afterEach(() => {
+    cleanup();
+    getWorkspaceAccessMock.mockReset();
+    getWorkspaceEntitySummaryMock.mockReset();
+    redirectMock.mockReset();
+  });
+
+  it("oturumsuz kullanıcıyı girişe yönlendirir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "UNAUTHENTICATED",
+        message: "Devam etmek için giriş yapın.",
+      },
+    });
+
+    redirectMock.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+
+    await expect(WorkspacePage()).rejects.toThrow("NEXT_REDIRECT");
+
+    expect(redirectMock).toHaveBeenCalledWith("/giris");
+  });
+
+  it("üyeliksiz kullanıcıya ilk workspace kurulumunu gösterir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "WORKSPACE_REQUIRED",
+        message: "Devam etmek için çalışma alanınızı oluşturun.",
+      },
+    });
+    render(await WorkspacePage());
+
+    expect(
+      screen.getByRole("heading", { name: "Çalışma alanını oluştur" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("form", { name: "Workspace kurulum formu" }),
+    ).toBeInTheDocument();
+  });
+
+  it("yetkili kullanıcıya en küçük workspace DTO'sunu gösterir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: true,
+      userId: "10000000-0000-4000-8000-000000000001",
+      workspace: {
+        id: "a0000000-0000-4000-8000-000000000001",
+        name: "Danışmanlık Ekibi",
+      },
+      membership: {
+        role: "owner",
+      },
+    });
+    getWorkspaceEntitySummaryMock.mockResolvedValue({
+      ok: true,
+      data: {
+        contacts: 0,
+        properties: 0,
+        listings: 0,
+      },
+    });
+
+    render(await WorkspacePage());
+
+    expect(
+      screen.getByRole("heading", { name: "Danışmanlık Ekibi" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Sahip")).toBeInTheDocument();
+    expect(screen.getByText("Kayıt özeti")).toBeInTheDocument();
+    expect(
+      screen.getByText("Henüz kişi, gayrimenkul veya ilan kaydı yok."),
+    ).toBeInTheDocument();
+    expect(getWorkspaceEntitySummaryMock).toHaveBeenCalledWith(
+      "a0000000-0000-4000-8000-000000000001",
+    );
+    expect(
+      screen.getByRole("form", { name: "Workspace adlandırma formu" }),
+    ).toHaveAttribute("data-current-name", "Danışmanlık Ekibi");
+  });
+
+  it("viewer rolünde güncelleme formu yerine yetki açıklaması gösterir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: true,
+      userId: "20000000-0000-4000-8000-000000000002",
+      workspace: {
+        id: "b0000000-0000-4000-8000-000000000002",
+        name: "Salt Okunur Ekip",
+      },
+      membership: {
+        role: "viewer",
+      },
+    });
+    getWorkspaceEntitySummaryMock.mockResolvedValue({
+      ok: true,
+      data: {
+        contacts: 2,
+        properties: 1,
+        listings: 3,
+      },
+    });
+
+    render(await WorkspacePage());
+
+    expect(
+      screen.queryByRole("form", { name: "Workspace adlandırma formu" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Bu alanı yalnızca çalışma alanı sahibi değiştirebilir."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("özet servisi kullanılamıyorsa Türkçe hata durumunu gösterir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: true,
+      userId: "10000000-0000-4000-8000-000000000001",
+      workspace: {
+        id: "a0000000-0000-4000-8000-000000000001",
+        name: "Danışmanlık Ekibi",
+      },
+      membership: {
+        role: "owner",
+      },
+    });
+    getWorkspaceEntitySummaryMock.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "ENTITY_SUMMARY_UNAVAILABLE",
+        message: "Kayıt özeti şu anda yüklenemiyor. Lütfen yeniden deneyin.",
+      },
+    });
+
+    render(await WorkspacePage());
+
+    expect(
+      screen.getByRole("heading", { name: "Kayıt özeti yüklenemedi" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Kayıt özeti şu anda yüklenemiyor. Lütfen yeniden deneyin.",
+      ),
+    ).toBeInTheDocument();
+  });
+});

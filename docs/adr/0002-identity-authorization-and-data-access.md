@@ -50,3 +50,19 @@ kimlik, sürüm veya gizli yapılandırma yayımlamaz.
   katmanında reddedilecek.
 - Derleme testi service-role veya gizli anahtarların istemci paketine
   girmediğini doğrulayacak.
+
+## Uygulama durumu
+
+2026-07-26 tarihli auth/workspace altyapı diliminde Supabase SSR cookie oturumu,
+davetli giriş ve çıkış, sunucuda güncel kullanıcı doğrulaması, atomik ilk
+workspace kurulumu, üç rol ve RLS izolasyonu uygulanmıştır. Yerel doğrulama iki
+sentetik kullanıcı ve iki workspace ile gerçek Auth oturumunu sınar.
+
+RLS politika diliminde `security_invoker` kullanan en küçük workspace erişim
+görünümü, bütün açık tablolar için otomatik RLS/FORCE kapsam kontrolü ve yalnızca
+`owner` rolünün yapabildiği workspace adı güncellemesi eklenmiştir. Tarayıcı
+workspace kimliği veya rol göndermediği için sunucu üyeliği belirler; PostgreSQL
+politikası aynı yetkiyi ikinci kez uygular.
+
+Parola sıfırlama, davet yönetimi ve üyelik/rol yönetimi bu altyapının üzerinde
+ayrı, doğrulanabilir ürün dilimleri olarak uygulanacaktır.

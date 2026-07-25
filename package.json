@@ -21,13 +21,16 @@
     "supabase:status": "supabase status",
     "supabase:env": "node scripts/sync-local-supabase-env.mjs",
     "supabase:verify": "node scripts/verify-local-supabase.mjs",
+    "auth:local-user": "node scripts/create-local-auth-user.mjs",
+    "auth:verify": "node scripts/verify-local-auth-workspace.mjs",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:types": "supabase gen types typescript --local --schema public > src/types/database.generated.ts",
-    "db:verify": "pnpm db:reset && pnpm db:test && pnpm supabase:verify && pnpm db:types",
+    "db:types": "node scripts/generate-database-types.mjs",
+    "db:verify": "pnpm db:reset && pnpm db:test && pnpm supabase:verify && pnpm auth:verify && pnpm db:types",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
     "next": "16.2.11",
     "react": "19.2.4",

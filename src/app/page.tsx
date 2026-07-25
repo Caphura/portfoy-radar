@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getDatabaseStatus } from "@/server/system/get-database-status";
 import { getPublicSystemStatus } from "@/server/system/get-public-system-status";
 
@@ -73,6 +75,12 @@ export default async function Home() {
               Portföy Radar&apos;ın güvenli, test edilebilir ve Türkçe ürün modülleri için
               ihtiyaç duyduğu uygulama zemini hazır.
             </p>
+            <Link
+              className="mt-7 inline-flex min-h-12 items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-extrabold text-[var(--ink)] transition hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              href="/giris"
+            >
+              Çalışma alanına gir
+            </Link>
           </div>
 
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.07] p-5 lg:mt-0 lg:self-end">
@@ -157,7 +165,7 @@ export default async function Home() {
 
         <footer className="flex flex-col gap-1 border-t border-[var(--line)] px-1 py-5 text-xs text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
           <p>Portföy Radar · Türkiye çalışma ayarları</p>
-          <p>Sonraki adım: kimlik doğrulama ve veri katmanı</p>
+          <p>Kimlik ve workspace sınırı hazır</p>
         </footer>
       </div>
     </main>
