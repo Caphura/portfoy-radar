@@ -1,0 +1,149 @@
+// @vitest-environment node
+
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+const repositoryRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
+
+const adrFiles = [
+  "docs/adr/0001-modular-monolith-and-domain-boundaries.md",
+  "docs/adr/0002-identity-authorization-and-data-access.md",
+  "docs/adr/0003-locale-time-and-money.md",
+  "docs/adr/0004-pii-and-duplicate-detection.md",
+  "docs/adr/0005-opportunity-workflow-and-invariants.md",
+  "docs/adr/0006-mvp-operational-decisions.md",
+] as const;
+
+const businessRuleIds = Array.from(
+  { length: 12 },
+  (_, index) => `BR-${String(index + 1).padStart(2, "0")}`,
+);
+
+function readRepositoryFile(relativePath: string) {
+  return readFileSync(path.join(repositoryRoot, relativePath), "utf8");
+}
+
+describe("karar kayıtları", () => {
+  it.each(adrFiles)("%s kabul edilmiş ve tam ADR yapısındadır", (relativePath) => {
+    const absolutePath = path.join(repositoryRoot, relativePath);
+
+    expect(existsSync(absolutePath)).toBe(true);
+
+    const record = readRepositoryFile(relativePath);
+
+    expect(record).toContain("- Durum: Kabul edildi");
+    expect(record).toContain("## Bağlam");
+    expect(record).toContain("## Karar");
+    expect(record).toContain("## Sonuçlar");
+    expect(record).toContain("## Doğrulama");
+  });
+
+  it("kişi, gayrimenkul, ilan ve fırsatı ayrı alan varlıkları olarak sabitler", () => {
+    const domainDecision = readRepositoryFile(adrFiles[0]);
+
+    for (const entity of ["contacts", "properties", "listings", "opportunities"]) {
+      expect(domainDecision).toContain(`\`${entity}\``);
+    }
+
+    expect(domainDecision).toContain("aynı tablo veya kayıt");
+  });
+});
+
+describe("iş kuralı izlenebilirliği", () => {
+  const traceabilityPath = "docs/product/requirements-traceability.md";
+  const traceability = readRepositoryFile(traceabilityPath);
+
+  it("12 değişmez kuralın her birini tam bir kez içerir", () => {
+    const allRuleRows = traceability
+      .split("\n")
+      .filter((line) => /^\| BR-\d{2} \|/.test(line));
+
+    expect(allRuleRows).toHaveLength(12);
+
+    for (const ruleId of businessRuleIds) {
+      const matchingRows = allRuleRows.filter((line) => line.startsWith(`| ${ruleId} |`));
+
+      expect(matchingRows, `${ruleId} tam bir kez bulunmalı`).toHaveLength(1);
+    }
+  });
+
+  it("her kuralı arayüz, sunucu, veritabanı ve otomatik kanıta bağlar", () => {
+    for (const ruleId of businessRuleIds) {
+      const ruleRow = traceability
+        .split("\n")
+        .find((line) => line.startsWith(`| ${ruleId} |`));
+
+      expect(ruleRow).toBeDefined();
+
+      const cells = ruleRow
+        ?.split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim());
+
+      expect(cells).toHaveLength(7);
+      expect(cells?.slice(1, 6).every((cell) => cell.length > 0)).toBe(true);
+      expect(cells?.at(-1)).toBe("Planlandı");
+    }
+  });
+});
+
+describe("tehdit modeli", () => {
+  const threatModel = readRepositoryFile("docs/security/threat-model.md");
+
+  it("altı STRIDE kategorisinin tamamını kapsar", () => {
+    for (const category of [
+      "Kimlik sahteciliği",
+      "Veri tahrifi",
+      "İnkâr etme",
+      "Bilgi ifşası",
+      "Hizmet engelleme",
+      "Yetki yükseltme",
+    ]) {
+      expect(threatModel).toContain(category);
+    }
+  });
+
+  it("yayın engellerinin kapatma ölçütü ve sahibi vardır", () => {
+    const releaseBlockers = threatModel
+      .split("\n")
+      .filter(
+        (line) =>
+          line.startsWith("| Supabase Auth") ||
+          line.startsWith("| Şifreleme/KMS") ||
+          line.startsWith("| Üretim bölgesi") ||
+          line.startsWith("| Yedekten dönüş"),
+      );
+
+    expect(releaseBlockers).toHaveLength(4);
+
+    for (const blocker of releaseBlockers) {
+      const cells = blocker
+        .split("|")
+        .slice(1, -1)
+        .map((cell) => cell.trim());
+
+      expect(cells).toHaveLength(4);
+      expect(cells.every((cell) => cell.length > 0)).toBe(true);
+    }
+  });
+
+  it("belgelerde tamamlanmamış yer tutucu veya açık kişisel veri örneği bırakmaz", () => {
+    const governanceDocuments = [
+      ...adrFiles.map(readRepositoryFile),
+      readRepositoryFile("docs/product/requirements-traceability.md"),
+      threatModel,
+    ].join("\n");
+
+    expect(governanceDocuments).not.toMatch(/\b(?:TODO|TBD|FIXME|XXX)\b/);
+    expect(governanceDocuments).not.toMatch(/(?:\+90|0)5\d{9}/);
+    expect(governanceDocuments).not.toMatch(
+      /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+    );
+  });
+});

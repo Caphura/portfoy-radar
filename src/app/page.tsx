@@ -1,22 +1,28 @@
+import { getDatabaseStatus } from "@/server/system/get-database-status";
 import { getPublicSystemStatus } from "@/server/system/get-public-system-status";
 
-const readinessItems = [
-  {
-    title: "Mobil öncelikli temel",
-    description: "Arayüz küçük ekranlardan başlayarak geniş ekranlara uyum sağlar.",
-  },
-  {
-    title: "Sunucu sınırı hazır",
-    description: "Yapılandırma yalnızca sunucuda okunur ve güvenli bir DTO olarak sunulur.",
-  },
-  {
-    title: "Kalite kapıları açık",
-    description: "Tip, kod kalitesi, otomatik test ve üretim derlemesi tek komutla doğrulanır.",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
   const systemStatus = getPublicSystemStatus();
+  const databaseStatus = await getDatabaseStatus();
+  const infrastructureReady = systemStatus.ok && databaseStatus.ok;
+  const readinessItems = [
+    {
+      title: "Mobil öncelikli temel",
+      description: "Arayüz küçük ekranlardan başlayarak geniş ekranlara uyum sağlar.",
+    },
+    {
+      title: databaseStatus.ok ? "Supabase bağlı" : "Supabase bekleniyor",
+      description: databaseStatus.ok
+        ? `Yerel PostgreSQL şema sözleşmesi v${databaseStatus.data.schemaVersion} doğrulandı.`
+        : databaseStatus.error.message,
+    },
+    {
+      title: "Kalite kapıları açık",
+      description: "Tip, kod kalitesi, otomatik test ve üretim derlemesi tek komutla doğrulanır.",
+    },
+  ];
 
   return (
     <main className="min-h-dvh px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -39,19 +45,19 @@ export default function Home() {
 
           <span
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold ${
-              systemStatus.ok
+              infrastructureReady
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : "border-red-200 bg-red-50 text-red-800"
+                : "border-amber-200 bg-amber-50 text-amber-800"
             }`}
             role="status"
           >
             <span
               aria-hidden="true"
               className={`size-2 rounded-full ${
-                systemStatus.ok ? "bg-emerald-500" : "bg-red-500"
+                infrastructureReady ? "bg-emerald-500" : "bg-amber-500"
               }`}
             />
-            {systemStatus.ok ? "Altyapı hazır" : "Yapılandırma gerekli"}
+            {infrastructureReady ? "Altyapı hazır" : "Yerel ortam bekleniyor"}
           </span>
         </header>
 
@@ -74,7 +80,7 @@ export default function Home() {
               Çalışma varsayımları
             </p>
             {systemStatus.ok ? (
-              <dl className="mt-4 grid grid-cols-3 gap-2 lg:grid-cols-1">
+              <dl className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-1">
                 <div className="rounded-2xl bg-white/[0.07] p-3">
                   <dt className="text-[0.68rem] font-semibold text-white/45">Dil</dt>
                   <dd className="mt-1 text-sm font-extrabold">{systemStatus.data.locale}</dd>
@@ -91,12 +97,25 @@ export default function Home() {
                     {systemStatus.data.defaultCurrency}
                   </dd>
                 </div>
+                <div className="rounded-2xl bg-white/[0.07] p-3">
+                  <dt className="text-[0.68rem] font-semibold text-white/45">Veritabanı</dt>
+                  <dd className="mt-1 text-sm font-extrabold">
+                    {databaseStatus.ok
+                      ? `Şema v${databaseStatus.data.schemaVersion}`
+                      : "Bağlantı bekleniyor"}
+                  </dd>
+                </div>
               </dl>
             ) : (
               <p className="mt-4 rounded-2xl border border-red-300/20 bg-red-950/40 p-4 text-sm leading-6 text-red-100">
                 {systemStatus.error.message}
               </p>
             )}
+            {!databaseStatus.ok ? (
+              <p className="mt-3 rounded-2xl border border-amber-300/20 bg-amber-950/30 p-4 text-sm leading-6 text-amber-100">
+                {databaseStatus.error.message}
+              </p>
+            ) : null}
           </div>
         </section>
 
