@@ -54,6 +54,8 @@ Fırsat aşamaları sırasıyla:
   geçmişe yazılır.
 - Kritik oluşturma, değiştirme, arşivleme, PII görüntüleme, import ve export
   işlemleri audit log'a yazılır.
+- Audit olayı aktör, workspace, zaman ve request iz kimliği taşır; metadata
+  yalnız enum/durum gibi redakte yapılandırılmış değerlerden oluşur.
 - Doğrudan tablo yazımı yerine atomik domain fonksiyonu/RPC kullanılır. DB
   constraint veya trigger ile ifade edilebilen kurallar veritabanında da
   uygulanır.
@@ -67,6 +69,8 @@ Fırsat aşamaları sırasıyla:
 - Audit log iş zaman çizelgesinden ayrıdır ve ham kişisel veri içermez.
 - Geçmiş kayıtları normal uygulama rolleri tarafından güncellenemez veya
   silinemez.
+- Workspace üyeleri iş zaman çizelgesini görebilir; güvenlik audit günlüğünü
+  yalnızca owner rolü okuyabilir.
 
 ## Doğrulama
 

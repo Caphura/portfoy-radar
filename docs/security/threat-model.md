@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.3
+- Sürüm: 1.4
 - Tarih: 2026-07-26
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -71,7 +71,7 @@ Güven sınırları:
 | TM-T-01 | Veri tahrifi | İstemcinin aşamayı doğrudan değiştirip geçmiş veya sonraki işlem kuralını atlaması | Yüksek | Atomik domain RPC, DB constraint/trigger, append-only aşama geçmişi | Ayrıcalıklı DB yöneticisi |
 | TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Yalnızca aday üretimi, açık kullanıcı kararı, `duplicate_reviews`, birleşme yokluğu testi | Hatalı kullanıcı kararı |
 | TM-T-03 | Veri tahrifi | CSV formülü veya bozuk satırla veri/istemci davranışını değiştirme | Yüksek | İki aşamalı import, Zod/DB doğrulaması, 1.000 satır sınırı, formula injection koruması | Yeni dosya biçimleri |
-| TM-R-01 | İnkâr etme | Kullanıcının aşama, PII görüntüleme veya export işlemini reddetmesi | Orta | Aktör, workspace, zaman, eylem ve request kimlikli append-only audit | Paylaşılan kullanıcı hesabı |
+| TM-R-01 | İnkâr etme | Kullanıcının aşama, PII görüntüleme veya export işlemini reddetmesi | Orta | Aktör, workspace, zaman, eylem ve request kimlikli append-only audit; owner-only görünüm | Paylaşılan kullanıcı hesabı |
 | TM-I-01 | Bilgi ifşası | Telefon/e-postanın liste, log, hata veya test çıktısında görünmesi | Kritik | AES-GCM, maskeli DTO, açık görüntüleme audit'i, log redaksiyonu, güvenli Türkçe hata | Ekran görüntüsü veya omuz sörfü |
 | TM-I-02 | Bilgi ifşası | Düz telefon hash'inin numara uzayı denenerek çözülmesi | Yüksek | Ayrı gizli anahtarlı HMAC blind index, anahtar rotasyonu, index'in istemciye verilmemesi | HMAC anahtarının ele geçirilmesi |
 | TM-I-03 | Bilgi ifşası | Yetkili sayfa/API yanıtının CDN veya service worker cache'inde kalması | Yüksek | Yetkili yanıtlarda `no-store`, kullanıcılar arası ISR yok, statik-kabuk-only PWA testi | Tarayıcı eklentileri |

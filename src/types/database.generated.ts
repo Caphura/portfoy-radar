@@ -9,6 +9,64 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activity_history: {
+        Row: {
+          actor_id: string
+          audit_log_id: string
+          details: Json
+          entity_id: string
+          entity_type: string
+          event_type: string
+          id: string
+          occurred_at: string
+          workspace_id: string
+        }
+        Insert: {
+          actor_id: string
+          audit_log_id: string
+          details?: Json
+          entity_id: string
+          entity_type: string
+          event_type: string
+          id?: string
+          occurred_at?: string
+          workspace_id: string
+        }
+        Update: {
+          actor_id?: string
+          audit_log_id?: string
+          details?: Json
+          entity_id?: string
+          entity_type?: string
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_history_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_history_audit_workspace_fkey"
+            columns: ["workspace_id", "audit_log_id"]
+            isOneToOne: false
+            referencedRelation: "audit_logs"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "activity_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_config: {
         Row: {
           default_currency: string
@@ -45,6 +103,7 @@ export type Database = {
           id: string
           metadata: Json
           occurred_at: string
+          request_id: string
           workspace_id: string
         }
         Insert: {
@@ -55,6 +114,7 @@ export type Database = {
           id?: string
           metadata?: Json
           occurred_at?: string
+          request_id?: string
           workspace_id: string
         }
         Update: {
@@ -65,6 +125,7 @@ export type Database = {
           id?: string
           metadata?: Json
           occurred_at?: string
+          request_id?: string
           workspace_id?: string
         }
         Relationships: [

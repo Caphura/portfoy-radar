@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { logoutAction } from "@/features/auth/actions";
+import { HistoryPanel } from "@/features/history/history-panel";
 import { OpportunityPipeline } from "@/features/opportunities/opportunity-pipeline";
 import { PiiProtectionStatusCard } from "@/features/pii/protection-status-card";
 import { WorkspaceRenameForm } from "@/features/workspace/workspace-rename-form";
 import { WorkspaceSetupForm } from "@/features/workspace/workspace-setup-form";
 import { getWorkspaceEntitySummary } from "@/server/entities/get-entity-summary";
+import { getWorkspaceHistory } from "@/server/history/get-workspace-history";
 import { getOpportunityPipeline } from "@/server/opportunities/get-opportunity-pipeline";
 import { getPiiProtectionStatus } from "@/server/pii/get-protection-status";
 import { getWorkspaceAccess } from "@/server/workspace/access";
@@ -45,13 +47,14 @@ export default async function WorkspacePage() {
     redirect("/giris");
   }
 
-  const [entitySummary, opportunityPipeline, piiProtection] = access.ok
+  const [entitySummary, opportunityPipeline, piiProtection, history] = access.ok
     ? await Promise.all([
         getWorkspaceEntitySummary(access.workspace.id),
         getOpportunityPipeline(access.workspace.id),
         getPiiProtectionStatus(),
+        getWorkspaceHistory(access.workspace.id, access.membership.role),
       ])
-    : [null, null, null];
+    : [null, null, null, null];
 
   return (
     <main className="min-h-dvh px-4 py-5 sm:px-6 sm:py-8">
@@ -189,6 +192,8 @@ export default async function WorkspacePage() {
             {piiProtection ? (
               <PiiProtectionStatusCard result={piiProtection} />
             ) : null}
+
+            {history ? <HistoryPanel result={history} /> : null}
 
             <div className="mt-4 rounded-3xl bg-white p-5 text-[var(--ink)]">
               <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--brand)]">

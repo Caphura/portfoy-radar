@@ -2,12 +2,14 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
+  getWorkspaceHistoryMock,
   getOpportunityPipelineMock,
   getPiiProtectionStatusMock,
   getWorkspaceAccessMock,
   getWorkspaceEntitySummaryMock,
   redirectMock,
 } = vi.hoisted(() => ({
+  getWorkspaceHistoryMock: vi.fn(),
   getOpportunityPipelineMock: vi.fn(),
   getPiiProtectionStatusMock: vi.fn(),
   getWorkspaceAccessMock: vi.fn(),
@@ -21,6 +23,10 @@ vi.mock("@/server/workspace/access", () => ({
 
 vi.mock("@/server/entities/get-entity-summary", () => ({
   getWorkspaceEntitySummary: getWorkspaceEntitySummaryMock,
+}));
+
+vi.mock("@/server/history/get-workspace-history", () => ({
+  getWorkspaceHistory: getWorkspaceHistoryMock,
 }));
 
 vi.mock("@/server/opportunities/get-opportunity-pipeline", () => ({
@@ -53,6 +59,16 @@ import WorkspacePage from "./page";
 
 describe("WorkspacePage", () => {
   beforeEach(() => {
+    getWorkspaceHistoryMock.mockResolvedValue({
+      ok: true,
+      data: {
+        activity: [],
+        audit: {
+          visible: true,
+          items: [],
+        },
+      },
+    });
     getOpportunityPipelineMock.mockResolvedValue({
       ok: true,
       data: {
@@ -83,6 +99,7 @@ describe("WorkspacePage", () => {
 
   afterEach(() => {
     cleanup();
+    getWorkspaceHistoryMock.mockReset();
     getOpportunityPipelineMock.mockReset();
     getPiiProtectionStatusMock.mockReset();
     getWorkspaceAccessMock.mockReset();
@@ -164,11 +181,18 @@ describe("WorkspacePage", () => {
       "a0000000-0000-4000-8000-000000000001",
     );
     expect(getPiiProtectionStatusMock).toHaveBeenCalledOnce();
+    expect(getWorkspaceHistoryMock).toHaveBeenCalledWith(
+      "a0000000-0000-4000-8000-000000000001",
+      "owner",
+    );
     expect(
       screen.getByRole("heading", { name: "Fırsat hunisi" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Kişisel veri koruması hazır" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Geçmiş ve audit" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -210,6 +234,10 @@ describe("WorkspacePage", () => {
       screen.getByText("Bu alanı yalnızca çalışma alanı sahibi değiştirebilir."),
     ).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
+    expect(getWorkspaceHistoryMock).toHaveBeenCalledWith(
+      "b0000000-0000-4000-8000-000000000002",
+      "viewer",
+    );
   });
 
   it("özet servisi kullanılamıyorsa Türkçe hata durumunu gösterir", async () => {

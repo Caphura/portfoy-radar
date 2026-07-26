@@ -23,6 +23,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Yetkili, RLS-aware ve `private, no-store` kişi–gayrimenkul–ilan sayı özeti
 - Onaylı 11 aşamalı fırsat modeli, zorunlu sonraki işlem invariantı ve kaynak ilan bağları
 - Atomik fırsat/aşama RPC'leri, append-only aşama geçmişi ve redakte audit olayları
+- Audit kaydından ayrı, workspace üyelerine açık append-only aktivite geçmişi
+- Workspace/fırsat kritik işlemlerinde atomik aktivite + audit kaydı ve request iz kimliği
+- Owner-only, `private, no-store` audit API'si ile mobil geçmiş zaman çizelgesi
 - Mobil, yetkili ve `private, no-store` fırsat hunisi
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
@@ -128,6 +131,12 @@ pnpm test:governance
   gizli olmayan dört yapılandırma sütununu okuyabilir.
 - Workspace tablolarında RLS zorunludur; üyelik ve rol hem sunucu erişim
   katmanında hem PostgreSQL politikasında doğrulanır.
+- Aktivite geçmişi bütün workspace üyelerine, audit günlüğü yalnızca owner
+  rolüne RLS ile açıktır; iki tabloya doğrudan istemci yazması kapalıdır.
+- Audit/aktivite metadata'sında telefon, e-posta, ad, serbest not, token,
+  ciphertext ve benzeri hassas anahtarlar DB constraint'iyle reddedilir.
+- Workspace oluşturma/ad değiştirme ile fırsat oluşturma/aşama değiştirme
+  işlemleri aynı transaction içinde aktivite ve audit kaydı üretir.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,

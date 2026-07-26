@@ -83,8 +83,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  5,
-  'şema sözleşmesi sonraki fırsat migrationıyla güncel sürüm 5 olur'
+  6,
+  'şema sözleşmesi sonraki geçmiş/audit migrationıyla güncel sürüm 6 olur'
 );
 
 select ok(
