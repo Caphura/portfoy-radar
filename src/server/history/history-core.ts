@@ -88,6 +88,7 @@ const eventTitles: Record<string, string> = {
   "workspace.name_changed": "Çalışma alanı adı güncellendi",
   "opportunity.created": "Fırsat oluşturuldu",
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
+  "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
 };
 
 const entityLabels: Record<string, string> = {

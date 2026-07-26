@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.4
+- Sürüm: 1.5
 - Tarih: 2026-07-26
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -69,7 +69,7 @@ Güven sınırları:
 | TM-E-01 | Yetki yükseltme | Kullanıcının başka workspace kimliği göndererek veri okuması/yazması | Kritik | Sunucu üyelik/rol kontrolü, bütün iş tablolarında RLS, iki workspace negatif testleri | Yanlış yazılmış yeni politika |
 | TM-E-02 | Yetki yükseltme | Service-role değerinin istemci paketine girmesi | Kritik | `server-only` modül, secret manager, `NEXT_PUBLIC` yasağı, bundle/secret taraması | CI veya yönetici hesabı ihlali |
 | TM-T-01 | Veri tahrifi | İstemcinin aşamayı doğrudan değiştirip geçmiş veya sonraki işlem kuralını atlaması | Yüksek | Atomik domain RPC, DB constraint/trigger, append-only aşama geçmişi | Ayrıcalıklı DB yöneticisi |
-| TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Yalnızca aday üretimi, açık kullanıcı kararı, `duplicate_reviews`, birleşme yokluğu testi | Hatalı kullanıcı kararı |
+| TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Hızlı ekleme merge yapmaz; eşit index'ler ayrı kayıt kalır; birleşme yokluğu testi; açık karar ve `duplicate_reviews` akışı planlı | Karar ekranı tamamlanana kadar adayların manuel incelenmesi |
 | TM-T-03 | Veri tahrifi | CSV formülü veya bozuk satırla veri/istemci davranışını değiştirme | Yüksek | İki aşamalı import, Zod/DB doğrulaması, 1.000 satır sınırı, formula injection koruması | Yeni dosya biçimleri |
 | TM-R-01 | İnkâr etme | Kullanıcının aşama, PII görüntüleme veya export işlemini reddetmesi | Orta | Aktör, workspace, zaman, eylem ve request kimlikli append-only audit; owner-only görünüm | Paylaşılan kullanıcı hesabı |
 | TM-I-01 | Bilgi ifşası | Telefon/e-postanın liste, log, hata veya test çıktısında görünmesi | Kritik | AES-GCM, maskeli DTO, açık görüntüleme audit'i, log redaksiyonu, güvenli Türkçe hata | Ekran görüntüsü veya omuz sörfü |
@@ -78,7 +78,7 @@ Güven sınırları:
 | TM-I-04 | Bilgi ifşası | CSV export ile toplu PII sızıntısı | Yüksek | MVP'de yalnızca maskeli export, workspace yetkisi, audit ve indirme hız sınırı | İndirilmiş dosyanın paylaşılması |
 | TM-D-01 | Hizmet engelleme | Büyük CSV veya pahalı filtre/rapor sorgusuyla kaynak tüketme | Orta | 1.000 satır sınırı, dosya boyutu sınırı, sorgu index'leri, timeout ve rate limit | Tek workspace'in kendi kotasını tüketmesi |
 | TM-S-02 | Kimlik sahteciliği | CSRF ile kullanıcının oturumunda yazma işlemi tetikleme | Yüksek | SameSite cookie, Origin doğrulaması, yalnızca POST mutasyon, framework CSRF kontrolleri | Tarayıcı/çerçeve açığı |
-| TM-T-04 | Veri tahrifi | SQL/URL girdisiyle sorgu veya canonicalization davranışını bozma | Yüksek | Parametreli sorgu, Zod şeması, URL allowlist/canonicalizer, portal ağına istek yok | Canonicalizer uç durumları |
+| TM-T-04 | Veri tahrifi | SQL/URL girdisiyle sorgu veya canonicalization davranışını bozma | Yüksek | Parametreli atomik RPC, Zod şeması, platform-host doğrulayan yerel canonicalizer, portal ağına istek yok | Yeni platform ve URL uç durumları |
 | TM-E-03 | Yetki yükseltme | Güvensiz `SECURITY DEFINER` fonksiyonuyla RLS atlama | Kritik | Sabit `search_path`, en az grant, fonksiyon içi workspace kontrolü, migration güvenlik testi | Ayrıcalıklı migration hatası |
 | TM-I-05 | Bilgi ifşası | Anahtar veya PII'nin kaynak kodu, Git geçmişi ya da telemetry'ye girmesi | Kritik | `.env` ignore, secret taraması, redakte loglama, anahtar rotasyon prosedürü | Geliştiricinin manuel paylaşımı |
 | TM-D-02 | Hizmet/kötüye kullanım | Uygulamanın mesaj, arama veya portal tarama aracına dönüştürülmesi | Yüksek | Sağlayıcı/queue yok, otomatik gönderim ve scraping için mimari yokluk testi, ADR değişikliği zorunluluğu | Gelecekte kontrolsüz kapsam genişlemesi |

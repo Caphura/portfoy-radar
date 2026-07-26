@@ -147,6 +147,40 @@ describe("resolveWorkspaceHistory", () => {
     });
   });
 
+  it("hızlı FSBO audit olayını PII metadata taşımadan Türkçeleştirir", async () => {
+    const result = await resolveWorkspaceHistory(
+      "owner",
+      async () => ({
+        data: [],
+        error: null,
+      }),
+      async () => ({
+        data: [
+          {
+            id: auditId,
+            action: "fsbo.created",
+            actor_id: actorId,
+            entity_type: "opportunity",
+            request_id: requestId,
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.audit.items[0]).toMatchObject({
+      title: "Hızlı FSBO kaydı oluşturuldu",
+      entityLabel: "Fırsat",
+    });
+  });
+
   it("veritabanı hatasını veya bozuk sözleşmeyi ayrıntı sızdırmadan reddeder", async () => {
     const privateError = "private-history-error";
     const queryFailure = await resolveWorkspaceHistory(

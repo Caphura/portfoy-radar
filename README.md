@@ -29,15 +29,17 @@ Mevcut uygulama dilimleri şunları içerir:
 - Mobil, yetkili ve `private, no-store` fırsat hunisi
 - Sunucuda workspace yetkisi doğrulanan responsive uygulama kabuğu
 - Ana Sayfa, Radar, Ekle, Takvim ve Raporlar için erişilebilir mobil alt navigasyon
+- Kişi, şifreli telefon, gayrimenkul, ilan, ilk fiyat ve fırsatı atomik oluşturan hızlı FSBO formu
+- Yerel URL canonicalization, TRY fiyatı ve bir saat sonrası önerilen zorunlu arama planı
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
 - Sürümlü mimari kararlar, tehdit modeli ve iş kuralı izlenebilirliği
 
 Herkese açık kayıt ve alan tablolarına doğrudan istemci yazması kapalıdır.
-PII koruma çekirdeği hazırdır; kişi/iletişim yöntemi yazma komutu, audit'li açık
-değer gösterimi, hızlı FSBO ekleme ve davet/rol yönetimi sonraki onaylı
-görevlerin kapsamındadır. Bu akışlar ve üretim secret manager bağlantısı
+PII koruma çekirdeği hızlı FSBO eklemede şifreli kişi adı ve telefon yazımı için
+kullanılır. Audit'li açık değer gösterimi, mükerrer karar akışı ve davet/rol
+yönetimi sonraki onaylı görevlerin kapsamındadır. Bu akışlar ve üretim secret manager bağlantısı
 tamamlanmadan canlı kişisel veri depolanmamalıdır.
 
 ## Gereksinimler

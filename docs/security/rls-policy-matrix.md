@@ -30,6 +30,11 @@ giremez.
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
 | `current_workspace_opportunity_pipeline` | Yok | Güncel workspace için 11 aşamalı sayı DTO'su | Yok | `security_invoker=true`; boş aşamaları da sıfırla döndürür |
 
+Hızlı FSBO yazımı tablolara doğrudan grant açmaz. `create_quick_fsbo` domain
+RPC'si workspace kimliği kabul etmez; güncel kullanıcının ilk üyeliğini
+veritabanında çözer, yalnızca `owner` ve `advisor` rollerini kabul eder ve bütün
+yazımları tek transaction içinde tamamlar.
+
 ## Yeni tablo kabul kapısı
 
 `public` şemasına eklenecek her yeni iş tablosu:

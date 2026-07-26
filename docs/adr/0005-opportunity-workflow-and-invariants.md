@@ -82,3 +82,12 @@ Fırsat aşamaları sırasıyla:
   reddedilecek.
 - Bütün kurallar [izlenebilirlik matrisinde](../product/requirements-traceability.md)
   benzersiz bir `BR-*` kimliğiyle takip edilir.
+
+## Uygulama durumu
+
+2026-07-26 tarihli hızlı FSBO diliminde kişi, şifreli telefon, gayrimenkul,
+kişi–gayrimenkul bağı, ilan, ilk fiyat, kaynak ilan bağı ve `Yeni` fırsat tek
+PostgreSQL transaction'ında oluşturulur. İşlem türü `Ara` olarak sabittir;
+Türkiye saatiyle bir saat sonrası arayüzde görünür önerilir ve geçmiş zaman hem
+sunucu doğrulamasında hem domain RPC'sinde reddedilir. Hızlı oluşturma ile
+fırsat audit olayları aynı request kimliğini paylaşır ve PII metadata taşımaz.

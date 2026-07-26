@@ -942,6 +942,42 @@ export type Database = {
           stage: Database["public"]["Enums"]["opportunity_stage"]
         }[]
       }
+      create_quick_fsbo: {
+        Args: {
+          requested_asking_price: number
+          requested_canonical_url: string
+          requested_city: string
+          requested_display_name_algorithm: string
+          requested_display_name_auth_tag: string
+          requested_display_name_ciphertext: string
+          requested_display_name_key_version: number
+          requested_display_name_nonce: string
+          requested_district: string
+          requested_external_listing_id: string
+          requested_gross_area_sqm: number
+          requested_living_room_count: number
+          requested_neighborhood: string
+          requested_net_area_sqm: number
+          requested_next_action_at: string
+          requested_phone_algorithm: string
+          requested_phone_auth_tag: string
+          requested_phone_blind_index: string
+          requested_phone_blind_index_key_version: number
+          requested_phone_ciphertext: string
+          requested_phone_key_version: number
+          requested_phone_nonce: string
+          requested_platform: string
+          requested_property_type: Database["public"]["Enums"]["property_type"]
+          requested_room_count: number
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          listing_id: string
+          next_action_at: string
+          opportunity_id: string
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+        }[]
+      }
       transition_opportunity_stage: {
         Args: {
           requested_next_action_at?: string

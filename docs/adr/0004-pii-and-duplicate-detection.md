@@ -87,3 +87,13 @@ saklanır.
 - Mükerrer fixture testleri beş adımın sırasını ve otomatik birleşme olmadığını
   doğrulayacak.
 - DTO testleri normal liste yanıtında açık PII bulunmadığını denetleyecek.
+
+## Uygulama durumu
+
+2026-07-26 tarihli hızlı FSBO diliminde kişi adı ve Türkiye telefonu yalnız
+sunucuda AES-256-GCM ile şifrelenir; telefon HMAC blind index'i ayrı anahtarla
+üretilir. Canonical ilan URL'si portal ağına istek yapılmadan platform hostu,
+izleme parametreleri ve sıralı sorgu parametreleri üzerinden normalize edilir.
+Domain komutu aynı platform/ilan numarası veya blind index sinyalini otomatik
+birleştirmez. Beş kademeli aday listesi ve `duplicate_reviews` karar akışı ayrı
+onaylı görev olarak kalır.
