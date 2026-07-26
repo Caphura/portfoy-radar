@@ -14,7 +14,9 @@ export type PiiPurpose =
   | "contact.display_name"
   | "contact.email"
   | "contact.phone"
-  | "duplicate.review.reason";
+  | "duplicate.review.reason"
+  | "conversation.note"
+  | "conversation.follow_up_purpose";
 
 export type PiiEnvelope = {
   ciphertext: Buffer;

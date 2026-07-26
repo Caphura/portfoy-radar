@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import {
+  defaultConversationFollowUpAt,
+  defaultConversationOccurredAt,
+} from "@/features/conversations/conversation-validation";
 import { OpportunityDetailView } from "@/features/opportunity-detail/opportunity-detail-view";
 import { getOpportunityDetail } from "@/server/opportunity-detail/get-opportunity-detail";
 import { getWorkspaceAccess } from "@/server/workspace/access";
@@ -30,10 +34,18 @@ export default async function OpportunityDetailPage({
     redirect("/giris");
   }
 
+  const now = new Date();
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       {access.ok ? (
         <OpportunityDetailView
+          canRecordConversation={
+            access.membership.role === "owner" ||
+            access.membership.role === "advisor"
+          }
+          defaultConversationFollowUpAt={defaultConversationFollowUpAt(now)}
+          defaultConversationOccurredAt={defaultConversationOccurredAt(now)}
           result={await getOpportunityDetail(
             access.workspace.id,
             resolvedParams.opportunityId,

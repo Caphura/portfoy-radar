@@ -38,6 +38,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Mobil öncelikli Radar kart/liste görünümü ile aşama, işlem ve gayrimenkul filtreleri
 - RLS korumalı fırsat detay okuma modeli ve en yeni 50 olaydan oluşan PII'siz iş zaman çizelgesi
 - Radar'dan açılan mobil fırsat özeti, gayrimenkul bilgisi ve Türkçe aşama timeline'ı
+- Fırsattan manuel görüşme kaydı; kanal, sonuç, zaman ve isteğe bağlı şifreli not
+- Takip gerektiren görüşmede şifreli amaç, açık görev ve fırsat sonraki işlemini atomik oluşturan akış
+- Ayrı, RLS/FORCE korumalı `conversations` ve `tasks` tabloları ile redakte görüşme timeline olayı
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
@@ -159,6 +162,12 @@ pnpm test:governance
 - Fırsat detay görünümü aynı RLS sınırını korur; yalnız fırsata bağlı redakte
   aktivite olaylarını döndürür, audit kimliklerini ve serbest aşama nedenini
   kullanıcı DTO'suna taşımaz.
+- Görüşme notu ve takip amacı farklı kriptografik amaçlarla AES-256-GCM
+  kullanılarak şifrelenir. İstemci bu zarf sütunlarını okuyamaz; timeline ve
+  audit yalnız kanal, sonuç ve takip zamanı gibi yapılandırılmış metadata taşır.
+- Görüşme ve takip görevi doğrudan tablo yazımıyla değil, üyelik ve
+  `owner`/`advisor` rolünü yeniden doğrulayan tek bir atomik RPC ile oluşturulur.
+  `Ulaşılamadı` yalnız görüşme sonucudur ve fırsat aşamasını otomatik değiştirmez.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,

@@ -278,6 +278,111 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          channel: Database["public"]["Enums"]["conversation_channel"]
+          created_at: string
+          created_by: string
+          follow_up_at: string | null
+          follow_up_purpose_algorithm: string | null
+          follow_up_purpose_auth_tag: string | null
+          follow_up_purpose_ciphertext: string | null
+          follow_up_purpose_key_version: number | null
+          follow_up_purpose_nonce: string | null
+          id: string
+          note_algorithm: string | null
+          note_auth_tag: string | null
+          note_ciphertext: string | null
+          note_key_version: number | null
+          note_nonce: string | null
+          occurred_at: string
+          opportunity_id: string
+          requires_follow_up: boolean
+          result: Database["public"]["Enums"]["conversation_result"]
+          workspace_id: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["conversation_channel"]
+          created_at?: string
+          created_by: string
+          follow_up_at?: string | null
+          follow_up_purpose_algorithm?: string | null
+          follow_up_purpose_auth_tag?: string | null
+          follow_up_purpose_ciphertext?: string | null
+          follow_up_purpose_key_version?: number | null
+          follow_up_purpose_nonce?: string | null
+          id?: string
+          note_algorithm?: string | null
+          note_auth_tag?: string | null
+          note_ciphertext?: string | null
+          note_key_version?: number | null
+          note_nonce?: string | null
+          occurred_at: string
+          opportunity_id: string
+          requires_follow_up?: boolean
+          result: Database["public"]["Enums"]["conversation_result"]
+          workspace_id: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["conversation_channel"]
+          created_at?: string
+          created_by?: string
+          follow_up_at?: string | null
+          follow_up_purpose_algorithm?: string | null
+          follow_up_purpose_auth_tag?: string | null
+          follow_up_purpose_ciphertext?: string | null
+          follow_up_purpose_key_version?: number | null
+          follow_up_purpose_nonce?: string | null
+          id?: string
+          note_algorithm?: string | null
+          note_auth_tag?: string | null
+          note_ciphertext?: string | null
+          note_key_version?: number | null
+          note_nonce?: string | null
+          occurred_at?: string
+          opportunity_id?: string
+          requires_follow_up?: boolean
+          result?: Database["public"]["Enums"]["conversation_result"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "conversations_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "conversations_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "conversations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       duplicate_reviews: {
         Row: {
           candidate_count: number
@@ -963,6 +1068,71 @@ export type Database = {
           },
         ]
       }
+      tasks: {
+        Row: {
+          created_at: string
+          created_by: string
+          due_at: string
+          id: string
+          opportunity_id: string
+          source_conversation_id: string
+          status: Database["public"]["Enums"]["task_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          due_at: string
+          id?: string
+          opportunity_id: string
+          source_conversation_id: string
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          due_at?: string
+          id?: string
+          opportunity_id?: string
+          source_conversation_id?: string
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_conversation_opportunity_workspace_fkey"
+            columns: [
+              "workspace_id",
+              "source_conversation_id",
+              "opportunity_id",
+            ]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["workspace_id", "id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
@@ -1303,6 +1473,35 @@ export type Database = {
           transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
         }[]
       }
+      record_conversation: {
+        Args: {
+          requested_channel: Database["public"]["Enums"]["conversation_channel"]
+          requested_follow_up_at?: string
+          requested_follow_up_purpose_algorithm?: string
+          requested_follow_up_purpose_auth_tag?: string
+          requested_follow_up_purpose_ciphertext?: string
+          requested_follow_up_purpose_key_version?: number
+          requested_follow_up_purpose_nonce?: string
+          requested_note_algorithm?: string
+          requested_note_auth_tag?: string
+          requested_note_ciphertext?: string
+          requested_note_key_version?: number
+          requested_note_nonce?: string
+          requested_occurred_at: string
+          requested_opportunity_id: string
+          requested_requires_follow_up: boolean
+          requested_result: Database["public"]["Enums"]["conversation_result"]
+        }
+        Returns: {
+          conversation_id: string
+          follow_up_task_id: string
+          next_action_at: string
+          next_action_type: Database["public"]["Enums"]["opportunity_next_action_type"]
+          occurred_at: string
+          opportunity_id: string
+          requires_follow_up: boolean
+        }[]
+      }
       resolve_quick_fsbo_duplicate: {
         Args: {
           requested_asking_price: number
@@ -1367,6 +1566,14 @@ export type Database = {
     }
     Enums: {
       contact_method_type: "phone" | "email"
+      conversation_channel: "phone" | "in_person" | "video" | "email" | "other"
+      conversation_result:
+        | "reached"
+        | "unreachable"
+        | "interested"
+        | "not_interested"
+        | "wrong_number"
+        | "other"
       duplicate_match_kind:
         | "platform_listing"
         | "canonical_url"
@@ -1416,6 +1623,8 @@ export type Database = {
         | "used_existing"
         | "linked_existing_property"
         | "created_separate"
+      task_status: "open" | "completed" | "cancelled"
+      task_type: "conversation_follow_up"
       workspace_role: "owner" | "advisor" | "viewer"
     }
     CompositeTypes: {
@@ -1545,6 +1754,15 @@ export const Constants = {
   public: {
     Enums: {
       contact_method_type: ["phone", "email"],
+      conversation_channel: ["phone", "in_person", "video", "email", "other"],
+      conversation_result: [
+        "reached",
+        "unreachable",
+        "interested",
+        "not_interested",
+        "wrong_number",
+        "other",
+      ],
       duplicate_match_kind: [
         "platform_listing",
         "canonical_url",
@@ -1601,6 +1819,8 @@ export const Constants = {
         "linked_existing_property",
         "created_separate",
       ],
+      task_status: ["open", "completed", "cancelled"],
+      task_type: ["conversation_follow_up"],
       workspace_role: ["owner", "advisor", "viewer"],
     },
   },

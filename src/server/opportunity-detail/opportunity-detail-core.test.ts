@@ -130,6 +130,42 @@ describe("resolveOpportunityDetail", () => {
     }
   });
 
+  it("Ulaşılamadı sonucunu aşamaya çevirmeden takip planıyla Türkçeleştirir", async () => {
+    const result = await resolveOpportunityDetail(async () => ({
+      data: {
+        ...detailRow,
+        timeline: [
+          {
+            id: "50000000-0000-4000-8000-000000000004",
+            event_type: "conversation.recorded",
+            details: {
+              channel: "phone",
+              result: "unreachable",
+              requires_follow_up: true,
+              follow_up_at: "2026-07-28T10:00:00+03:00",
+              private_summary: "ham-not-gosterilmemeli",
+            },
+            occurred_at: "2026-07-26T11:00:00+03:00",
+          },
+        ],
+      },
+      error: null,
+    }));
+
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.data.opportunity.stage).toBe("follow_up");
+      expect(result.data.timeline[0]).toMatchObject({
+        title: "Görüşme kaydedildi",
+        detail: expect.stringContaining(
+          "Ulaşılamadı · Telefon · Takip:",
+        ),
+      });
+      expect(JSON.stringify(result)).not.toContain("ham-not-gosterilmemeli");
+    }
+  });
+
   it("başka workspace ile ayırt edilemeyen boş sonucu güvenli bulunamadı durumuna çevirir", async () => {
     const result = await resolveOpportunityDetail(async () => ({
       data: null,

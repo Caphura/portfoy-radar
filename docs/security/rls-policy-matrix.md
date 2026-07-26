@@ -26,6 +26,8 @@ giremez.
 | `current_workspace_entity_counts` | Yok | Güncel workspace için üç sayılık DTO | Yok | `security_invoker=true`, PII ve kayıt kimliği içermez |
 | `opportunities` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Açık/kapanmış sonraki işlem constraint'i; doğrudan yazma grant'i yok |
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
+| `conversations` | Yok | Üye olduğu workspace için yalnız kanal, sonuç, zaman ve takip metadata'sı | Yalnızca `record_conversation` RPC | RLS/FORCE; not ve takip amacı şifreli zarf sütunları authenticated role kapalı; fırsat bağı bileşik workspace FK'li |
+| `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation` RPC | RLS/FORCE; kaynak görüşme ve fırsat bağları bileşik workspace FK'li; bu dilimde yalnız açık takip görevi üretilir |
 | `opportunity_stage_history` | Yok | Yalnızca üye olduğu workspace | Yok | Trigger üretir; authenticated ve service-role update/delete yapamaz |
 | `activity_history` | Yok | Yalnızca üye olduğu workspace | Yok | Audit'ten ayrı kullanıcı zaman çizelgesi; trigger üretir, metadata PII anahtarlarını reddeder |
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
@@ -40,6 +42,12 @@ kabul etmez; güncel kullanıcının ilk üyeliğini veritabanında çözer ve y
 `owner` ile `advisor` rollerini kabul eder. Karar RPC'si adayları advisory
 transaction kilidi altında yeniden hesaplayıp bütün yazımları tek transaction
 içinde tamamlar.
+
+`record_conversation` workspace kimliği kabul etmez; güncel kullanıcının
+üyeliğini veritabanında çözer ve yalnızca `owner` ile `advisor` rollerini kabul
+eder. Takip gereken kayıtta görüşme, görev, fırsatın sonraki işlemi, redakte
+aktivite olayı ve audit olayı aynı transaction içinde yazılır. `viewer` ve
+başka workspace fırsatları hem RPC kontrolünde hem RLS altında reddedilir.
 
 ## Yeni tablo kabul kapısı
 

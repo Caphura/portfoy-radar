@@ -97,3 +97,11 @@ yalnız o fırsata bağlı en yeni 50 `activity_history` olayı
 `security_invoker`/`security_barrier` görünümünde birleştirilir. Kullanıcı
 timeline'ı audit günlüğünden ayrıdır; kişi kimliği, iletişim bilgisi, audit
 kimliği, ham metadata ve serbest aşama nedeni sunucu DTO'suna taşınmaz.
+
+Aynı tarihli görüşme kaydı diliminde görüşme ve takip görevi ayrı, RLS/FORCE
+korumalı tablolarda tutulur. Takip işaretlenmişse gelecekteki takip zamanı ve
+şifreli amaç hem sunucu hem DB seviyesinde zorunludur; görüşme, açık görev,
+fırsatın `Takip et` sonraki işlemi, redakte aktivite ve audit olayı tek atomik
+RPC'de yazılır. `Ulaşılamadı` yalnız sonuç enum'udur; hiçbir aşama geçişi
+tetiklemez. Owner ve danışman yazabilir, viewer yalnız güvenli metadata'yı
+okuyabilir; serbest notlar ve amaçlar timeline'a ya da audit'e taşınmaz.

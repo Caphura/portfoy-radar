@@ -16,6 +16,10 @@ vi.mock("@/server/workspace/access", () => ({
   getWorkspaceAccess: getWorkspaceAccessMock,
 }));
 
+vi.mock("@/features/conversations/conversation-form", () => ({
+  ConversationForm: () => <section aria-label="Görüşme kayıt formu" />,
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
 }));

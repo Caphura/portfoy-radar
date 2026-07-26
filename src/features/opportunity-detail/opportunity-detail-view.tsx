@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConversationForm } from "@/features/conversations/conversation-form";
 import type {
   OpportunityDetailResult,
   OpportunityTimelineItem,
@@ -8,6 +9,9 @@ import type { RadarOpportunity } from "@/server/radar/radar-core";
 
 type OpportunityDetailViewProps = {
   result: OpportunityDetailResult;
+  canRecordConversation?: boolean;
+  defaultConversationOccurredAt?: string;
+  defaultConversationFollowUpAt?: string;
 };
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
@@ -116,6 +120,9 @@ function TimelineItem({ item }: { item: OpportunityTimelineItem }) {
 
 export function OpportunityDetailView({
   result,
+  canRecordConversation = false,
+  defaultConversationOccurredAt = "",
+  defaultConversationFollowUpAt = "",
 }: OpportunityDetailViewProps) {
   if (!result.ok) {
     const notFound = result.error.code === "NOT_FOUND";
@@ -214,6 +221,24 @@ export function OpportunityDetailView({
               </div>
             </dl>
           </section>
+
+          {canRecordConversation ? (
+            <ConversationForm
+              defaultFollowUpAt={defaultConversationFollowUpAt}
+              defaultOccurredAt={defaultConversationOccurredAt}
+              opportunityClosed={opportunity.closed}
+              opportunityId={opportunity.id}
+            />
+          ) : (
+            <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
+              <h2 className="text-lg font-black text-[var(--ink)]">
+                Görüşme kaydı
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                Görüşme kaydetmek için sahip veya danışman rolü gerekir.
+              </p>
+            </section>
+          )}
 
           <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
             <h2 className="text-lg font-black text-[var(--ink)]">

@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 import {
+  conversationChannelLabels,
+  conversationChannelValues,
+  conversationResultLabels,
+  conversationResultValues,
+} from "@/features/conversations/conversation-options";
+import {
   opportunityStageLabels,
   opportunityStageValues,
 } from "@/features/opportunities/stages";
@@ -37,6 +43,12 @@ const fsboDetailsSchema = z.object({
   ]),
   transaction_type: z.enum(["sale", "rent"]),
   currency: z.string().regex(/^[A-Z]{3}$/),
+});
+const conversationDetailsSchema = z.object({
+  channel: z.enum(conversationChannelValues),
+  result: z.enum(conversationResultValues),
+  requires_follow_up: z.boolean(),
+  follow_up_at: z.iso.datetime({ offset: true }).nullable(),
 });
 
 type OpportunityDetailQueryResult = {
@@ -80,9 +92,42 @@ const eventTitles: Record<string, string> = {
   "opportunity.created": "Fırsat oluşturuldu",
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
+  "conversation.recorded": "Görüşme kaydedildi",
 };
 
+const eventDateFormatter = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: "Europe/Istanbul",
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
 function eventDetail(eventType: string, details: unknown): string | null {
+  if (eventType === "conversation.recorded") {
+    const parsedDetails = conversationDetailsSchema.safeParse(details);
+
+    if (!parsedDetails.success) {
+      return null;
+    }
+
+    const summary = [
+      conversationResultLabels[parsedDetails.data.result],
+      conversationChannelLabels[parsedDetails.data.channel],
+    ];
+
+    if (
+      parsedDetails.data.requires_follow_up &&
+      parsedDetails.data.follow_up_at
+    ) {
+      summary.push(
+        `Takip: ${eventDateFormatter.format(
+          new Date(parsedDetails.data.follow_up_at),
+        )}`,
+      );
+    }
+
+    return summary.join(" · ");
+  }
+
   if (
     eventType === "opportunity.created" ||
     eventType === "opportunity.stage_changed"

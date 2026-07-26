@@ -1,5 +1,14 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/features/conversations/conversation-form", () => ({
+  ConversationForm: ({ opportunityId }: { opportunityId: string }) => (
+    <section>
+      <h2>Görüşme kaydet</h2>
+      <input name="opportunityId" readOnly value={opportunityId} />
+    </section>
+  ),
+}));
 
 import type { OpportunityDetailResult } from "@/server/opportunity-detail/opportunity-detail-core";
 
@@ -109,6 +118,25 @@ describe("OpportunityDetailView", () => {
     expect(
       screen.getByText("Bu fırsat için henüz gösterilebilir bir işlem yok."),
     ).toBeInTheDocument();
+  });
+
+  it("owner veya danışman için mobil görüşme formunu fırsata bağlar", () => {
+    render(
+      <OpportunityDetailView
+        canRecordConversation
+        defaultConversationFollowUpAt="2026-07-27T12:00"
+        defaultConversationOccurredAt="2026-07-26T12:00"
+        result={successResult}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Görüşme kaydet" }),
+    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue(successResult.data.opportunity.id)).toHaveAttribute(
+      "name",
+      "opportunityId",
+    );
   });
 
   it("bulunamadı ile servis hatasını ayrı ve güvenli durumlarda gösterir", () => {
