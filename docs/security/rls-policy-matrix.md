@@ -30,6 +30,7 @@ giremez.
 | `activity_history` | Yok | Yalnızca üye olduğu workspace | Yok | Audit'ten ayrı kullanıcı zaman çizelgesi; trigger üretir, metadata PII anahtarlarını reddeder |
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
 | `current_workspace_opportunity_pipeline` | Yok | Güncel workspace için 11 aşamalı sayı DTO'su | Yok | `security_invoker=true`; boş aşamaları da sıfırla döndürür |
+| `current_workspace_radar` | Yok | Güncel workspace için fırsat, gayrimenkul ve tek kaynak ilan DTO'su | Yok | `security_invoker=true`, `security_barrier=true`; kişi, telefon, e-posta, blind index ve canonical URL içermez |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
 `create_quick_fsbo` komutu `authenticated` role kapalıdır.

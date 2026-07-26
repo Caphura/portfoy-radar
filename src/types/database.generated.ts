@@ -367,6 +367,13 @@ export type Database = {
             foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
             columns: ["workspace_id", "result_opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
+            columns: ["workspace_id", "result_opportunity_id"]
+            isOneToOne: false
             referencedRelation: "opportunities"
             referencedColumns: ["workspace_id", "id"]
           },
@@ -397,6 +404,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "listings"
             referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
+            columns: ["workspace_id", "selected_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
             foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
@@ -682,6 +696,13 @@ export type Database = {
             foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
             referencedRelation: "opportunities"
             referencedColumns: ["workspace_id", "id"]
           },
@@ -738,6 +759,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
             foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
@@ -1052,6 +1080,48 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      current_workspace_radar: {
+        Row: {
+          asking_price: number | null
+          city: string | null
+          closed_at: string | null
+          created_at: string | null
+          currency: string | null
+          district: string | null
+          external_listing_id: string | null
+          gross_area_sqm: number | null
+          last_seen_at: string | null
+          listing_id: string | null
+          listing_status: Database["public"]["Enums"]["listing_status"] | null
+          living_room_count: number | null
+          neighborhood: string | null
+          net_area_sqm: number | null
+          next_action_at: string | null
+          next_action_type:
+            | Database["public"]["Enums"]["opportunity_next_action_type"]
+            | null
+          opportunity_id: string | null
+          platform: string | null
+          property_id: string | null
+          property_type: Database["public"]["Enums"]["property_type"] | null
+          room_count: number | null
+          stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          transaction_type:
+            | Database["public"]["Enums"]["listing_transaction_type"]
+            | null
+          updated_at: string | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"

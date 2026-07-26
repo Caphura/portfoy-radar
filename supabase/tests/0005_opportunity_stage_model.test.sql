@@ -40,7 +40,7 @@ select set_eq(
 
 select is(
   (select schema_version from public.app_config),
-  8,
+  9,
   'şema sözleşmesi sonraki geçmiş/audit migrationıyla sürüm 6 olur'
 );
 

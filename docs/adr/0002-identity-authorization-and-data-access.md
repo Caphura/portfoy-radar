@@ -64,5 +64,11 @@ görünümü, bütün açık tablolar için otomatik RLS/FORCE kapsam kontrolü 
 workspace kimliği veya rol göndermediği için sunucu üyeliği belirler; PostgreSQL
 politikası aynı yetkiyi ikinci kez uygular.
 
+Radar diliminde fırsat, gayrimenkul ve tek kaynak ilanı birleştiren
+`current_workspace_radar` görünümü `security_invoker` ve `security_barrier`
+ile eklenmiştir. Görünüm kişi kimliği, ad, telefon, e-posta, blind index veya
+canonical URL döndürmez; sunucu ayrıca workspace filtresini uygular ve sonucu
+dar bir DTO sözleşmesiyle doğrular.
+
 Parola sıfırlama, davet yönetimi ve üyelik/rol yönetimi bu altyapının üzerinde
 ayrı, doğrulanabilir ürün dilimleri olarak uygulanacaktır.

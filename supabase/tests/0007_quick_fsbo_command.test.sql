@@ -537,7 +537,7 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  8,
+  9,
   'mükerrer denetimi migrationı şema sözleşmesini 8 yapar'
 );
 

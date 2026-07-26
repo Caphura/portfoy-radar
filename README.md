@@ -34,6 +34,8 @@ Mevcut uygulama dilimleri şunları içerir:
 - Beş kademeli, açıklanabilir ve workspace-izole mükerrer aday denetimi
 - Mevcut kaydı kullanma, mevcut gayrimenkule bağlama veya şifreli gerekçeyle ayrı kayıt kararları
 - Append-only mükerrer karar geçmişi ile redakte aktivite ve audit olayları
+- RLS korumalı, kişi/telefon/e-posta içermeyen Radar okuma modeli
+- Mobil öncelikli Radar kart/liste görünümü ile aşama, işlem ve gayrimenkul filtreleri
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
@@ -150,6 +152,8 @@ pnpm test:governance
   gayrimenkul benzerliği ve son 12 aylık kapanmış ilan sırasıyla değerlendirilir.
   Kesin karar transaction içinde yeniden doğrulanır ve kullanıcı onayı olmadan
   kayıt birleştirilmez.
+- Radar görünümü `security_invoker` ile alttaki RLS politikalarını uygular; kişi
+  kimliği, ad, telefon, e-posta, blind index ve canonical URL döndürmez.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,
