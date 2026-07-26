@@ -71,8 +71,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  9,
-  'Radar migrationı şema sözleşmesini 9 yapar'
+  10,
+  'sonraki fırsat detay migrationı şema sözleşmesini 10 yapar'
 );
 
 insert into auth.users (

@@ -80,6 +80,9 @@ describe("RadarBoard", () => {
         "Kişi ve telefon bilgileri Radar listesine dahil edilmez.",
       ),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Fırsat detayını aç" }),
+    ).toHaveAttribute("href", `/workspace/radar/${opportunity.id}`);
     expect(screen.queryByText(/private-phone/i)).not.toBeInTheDocument();
   });
 
@@ -107,6 +110,9 @@ describe("RadarBoard", () => {
     expect(screen.getByLabelText("Aşama")).toHaveValue("ready_to_call");
     expect(screen.getByLabelText("İşlem türü")).toHaveValue("sale");
     expect(screen.getByLabelText("Gayrimenkul")).toHaveValue("apartment");
+    expect(
+      screen.getByRole("link", { name: "Fırsat detayını aç" }),
+    ).toHaveAttribute("href", `/workspace/radar/${opportunity.id}`);
   });
 
   it("filtreli boş sonucu temizleme eylemiyle açıklar", () => {

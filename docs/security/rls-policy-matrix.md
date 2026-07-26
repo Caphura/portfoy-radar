@@ -31,6 +31,7 @@ giremez.
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
 | `current_workspace_opportunity_pipeline` | Yok | Güncel workspace için 11 aşamalı sayı DTO'su | Yok | `security_invoker=true`; boş aşamaları da sıfırla döndürür |
 | `current_workspace_radar` | Yok | Güncel workspace için fırsat, gayrimenkul ve tek kaynak ilan DTO'su | Yok | `security_invoker=true`, `security_barrier=true`; kişi, telefon, e-posta, blind index ve canonical URL içermez |
+| `current_workspace_opportunity_detail` | Yok | Üye olduğu workspace içindeki tek fırsatın güvenli özeti ve en yeni 50 aktivite olayı | Yok | `security_invoker=true`, `security_barrier=true`; PII, audit kimliği ve serbest aşama nedeni içermez; kaynak tabloların RLS'sini uygular |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
 `create_quick_fsbo` komutu `authenticated` role kapalıdır.

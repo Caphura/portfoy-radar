@@ -91,3 +91,9 @@ PostgreSQL transaction'ında oluşturulur. İşlem türü `Ara` olarak sabittir;
 Türkiye saatiyle bir saat sonrası arayüzde görünür önerilir ve geçmiş zaman hem
 sunucu doğrulamasında hem domain RPC'sinde reddedilir. Hızlı oluşturma ile
 fırsat audit olayları aynı request kimliğini paylaşır ve PII metadata taşımaz.
+
+Aynı tarihli fırsat detay diliminde güncel fırsat/gayrimenkul/ilan özeti ile
+yalnız o fırsata bağlı en yeni 50 `activity_history` olayı
+`security_invoker`/`security_barrier` görünümünde birleştirilir. Kullanıcı
+timeline'ı audit günlüğünden ayrıdır; kişi kimliği, iletişim bilgisi, audit
+kimliği, ham metadata ve serbest aşama nedeni sunucu DTO'suna taşınmaz.

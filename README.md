@@ -36,6 +36,8 @@ Mevcut uygulama dilimleri şunları içerir:
 - Append-only mükerrer karar geçmişi ile redakte aktivite ve audit olayları
 - RLS korumalı, kişi/telefon/e-posta içermeyen Radar okuma modeli
 - Mobil öncelikli Radar kart/liste görünümü ile aşama, işlem ve gayrimenkul filtreleri
+- RLS korumalı fırsat detay okuma modeli ve en yeni 50 olaydan oluşan PII'siz iş zaman çizelgesi
+- Radar'dan açılan mobil fırsat özeti, gayrimenkul bilgisi ve Türkçe aşama timeline'ı
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
@@ -154,6 +156,9 @@ pnpm test:governance
   kayıt birleştirilmez.
 - Radar görünümü `security_invoker` ile alttaki RLS politikalarını uygular; kişi
   kimliği, ad, telefon, e-posta, blind index ve canonical URL döndürmez.
+- Fırsat detay görünümü aynı RLS sınırını korur; yalnız fırsata bağlı redakte
+  aktivite olaylarını döndürür, audit kimliklerini ve serbest aşama nedenini
+  kullanıcı DTO'suna taşımaz.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,

@@ -486,8 +486,8 @@ reset role;
 
 select is(
   (select schema_version from public.app_config),
-  9,
-  'şema sözleşmesi geçmiş ve audit migrationıyla sürüm 6 olur'
+  10,
+  'şema sözleşmesi sonraki fırsat detay migrationıyla sürüm 10 olur'
 );
 
 select * from finish();

@@ -179,6 +179,12 @@ function RadarCard({ opportunity }: { opportunity: RadarOpportunity }) {
       <p className="mt-4 text-xs font-semibold leading-5 text-[var(--muted)]">
         Kişi ve telefon bilgileri Radar listesine dahil edilmez.
       </p>
+      <Link
+        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-[var(--line)] px-4 text-sm font-extrabold text-[var(--brand)]"
+        href={`/workspace/radar/${opportunity.id}`}
+      >
+        Fırsat detayını aç
+      </Link>
     </li>
   );
 }
@@ -186,7 +192,7 @@ function RadarCard({ opportunity }: { opportunity: RadarOpportunity }) {
 function RadarListRow({ opportunity }: { opportunity: RadarOpportunity }) {
   return (
     <li className="rounded-2xl border border-[var(--line)] bg-white px-4 py-4 shadow-[0_8px_24px_rgba(18,37,29,0.04)]">
-      <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1.5fr)_minmax(9rem,0.8fr)_minmax(10rem,0.9fr)_auto] sm:items-center">
+      <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1.5fr)_minmax(9rem,0.8fr)_minmax(10rem,0.9fr)_auto_auto] sm:items-center">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold uppercase tracking-[0.1em] text-[var(--muted)]">
             {formatSource(opportunity)}
@@ -205,6 +211,12 @@ function RadarListRow({ opportunity }: { opportunity: RadarOpportunity }) {
           <NextAction opportunity={opportunity} />
         </dl>
         <StageBadge opportunity={opportunity} />
+        <Link
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[var(--line)] px-4 text-sm font-extrabold text-[var(--brand)]"
+          href={`/workspace/radar/${opportunity.id}`}
+        >
+          Fırsat detayını aç
+        </Link>
       </div>
     </li>
   );

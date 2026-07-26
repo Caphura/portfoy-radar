@@ -147,6 +147,66 @@ const unavailableResult: RadarResult = {
   },
 };
 
+function toRadarOpportunity(
+  row: z.infer<typeof radarRowSchema>,
+): RadarOpportunity {
+  return {
+    id: row.opportunity_id,
+    stage: row.stage,
+    stageLabel: opportunityStageLabels[row.stage],
+    closed: isClosedOpportunityStage(row.stage),
+    nextAction:
+      row.next_action_type && row.next_action_at
+        ? {
+            type: row.next_action_type,
+            label: opportunityNextActionLabels[row.next_action_type],
+            at: row.next_action_at,
+          }
+        : null,
+    closedAt: row.closed_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    property: {
+      id: row.property_id,
+      type: row.property_type,
+      typeLabel: propertyTypeLabels[row.property_type],
+      city: row.city,
+      district: row.district,
+      neighborhood: row.neighborhood,
+      roomCount: row.room_count,
+      livingRoomCount: row.living_room_count,
+      netAreaSqm: row.net_area_sqm,
+      grossAreaSqm: row.gross_area_sqm,
+    },
+    listing:
+      row.listing_id &&
+      row.platform &&
+      row.external_listing_id &&
+      row.transaction_type &&
+      row.listing_status &&
+      row.asking_price &&
+      row.currency &&
+      row.last_seen_at
+        ? {
+            id: row.listing_id,
+            platform: row.platform,
+            externalListingId: row.external_listing_id,
+            transactionType: row.transaction_type,
+            status: row.listing_status,
+            askingPrice: row.asking_price,
+            currency: row.currency,
+            lastSeenAt: row.last_seen_at,
+          }
+        : null,
+  };
+}
+
+export function parseRadarOpportunity(row: unknown): RadarOpportunity | null {
+  const parsedRow = radarRowSchema.safeParse(row);
+
+  return parsedRow.success ? toRadarOpportunity(parsedRow.data) : null;
+}
+
 export async function resolveRadarRows(
   query: () => Promise<RadarQueryResult>,
 ): Promise<RadarResult> {
@@ -189,55 +249,7 @@ export async function resolveRadarRows(
     ok: true,
     data: {
       truncated: rows.data.length > 50,
-      opportunities: rows.data.slice(0, 50).map((row) => ({
-        id: row.opportunity_id,
-        stage: row.stage,
-        stageLabel: opportunityStageLabels[row.stage],
-        closed: isClosedOpportunityStage(row.stage),
-        nextAction:
-          row.next_action_type && row.next_action_at
-            ? {
-                type: row.next_action_type,
-                label: opportunityNextActionLabels[row.next_action_type],
-                at: row.next_action_at,
-              }
-            : null,
-        closedAt: row.closed_at,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        property: {
-          id: row.property_id,
-          type: row.property_type,
-          typeLabel: propertyTypeLabels[row.property_type],
-          city: row.city,
-          district: row.district,
-          neighborhood: row.neighborhood,
-          roomCount: row.room_count,
-          livingRoomCount: row.living_room_count,
-          netAreaSqm: row.net_area_sqm,
-          grossAreaSqm: row.gross_area_sqm,
-        },
-        listing:
-          row.listing_id &&
-          row.platform &&
-          row.external_listing_id &&
-          row.transaction_type &&
-          row.listing_status &&
-          row.asking_price &&
-          row.currency &&
-          row.last_seen_at
-            ? {
-                id: row.listing_id,
-                platform: row.platform,
-                externalListingId: row.external_listing_id,
-                transactionType: row.transaction_type,
-                status: row.listing_status,
-                askingPrice: row.asking_price,
-                currency: row.currency,
-                lastSeenAt: row.last_seen_at,
-              }
-            : null,
-      })),
+      opportunities: rows.data.slice(0, 50).map(toRadarOpportunity),
     },
   };
 }
