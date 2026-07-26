@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.5
+- Sürüm: 1.6
 - Tarih: 2026-07-26
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -69,7 +69,7 @@ Güven sınırları:
 | TM-E-01 | Yetki yükseltme | Kullanıcının başka workspace kimliği göndererek veri okuması/yazması | Kritik | Sunucu üyelik/rol kontrolü, bütün iş tablolarında RLS, iki workspace negatif testleri | Yanlış yazılmış yeni politika |
 | TM-E-02 | Yetki yükseltme | Service-role değerinin istemci paketine girmesi | Kritik | `server-only` modül, secret manager, `NEXT_PUBLIC` yasağı, bundle/secret taraması | CI veya yönetici hesabı ihlali |
 | TM-T-01 | Veri tahrifi | İstemcinin aşamayı doğrudan değiştirip geçmiş veya sonraki işlem kuralını atlaması | Yüksek | Atomik domain RPC, DB constraint/trigger, append-only aşama geçmişi | Ayrıcalıklı DB yöneticisi |
-| TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Hızlı ekleme merge yapmaz; eşit index'ler ayrı kayıt kalır; birleşme yokluğu testi; açık karar ve `duplicate_reviews` akışı planlı | Karar ekranı tamamlanana kadar adayların manuel incelenmesi |
+| TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Beş kademeli PII'siz aday DTO'su; açık mobil karar; transaction içinde yeniden denetim ve advisory kilit; eski doğrudan komuta grant yok; append-only `duplicate_reviews`; workspace negatif testleri | Benzerlik eşiklerinden kaynaklanan yanlış pozitif/negatif adaylar |
 | TM-T-03 | Veri tahrifi | CSV formülü veya bozuk satırla veri/istemci davranışını değiştirme | Yüksek | İki aşamalı import, Zod/DB doğrulaması, 1.000 satır sınırı, formula injection koruması | Yeni dosya biçimleri |
 | TM-R-01 | İnkâr etme | Kullanıcının aşama, PII görüntüleme veya export işlemini reddetmesi | Orta | Aktör, workspace, zaman, eylem ve request kimlikli append-only audit; owner-only görünüm | Paylaşılan kullanıcı hesabı |
 | TM-I-01 | Bilgi ifşası | Telefon/e-postanın liste, log, hata veya test çıktısında görünmesi | Kritik | AES-GCM, maskeli DTO, açık görüntüleme audit'i, log redaksiyonu, güvenli Türkçe hata | Ekran görüntüsü veya omuz sörfü |

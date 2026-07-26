@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
 
 import { SubmitButton } from "@/components/forms/submit-button";
+import { opportunityStageLabels } from "@/features/opportunities/stages";
 
 import { createQuickFsboAction } from "./actions";
+import {
+  duplicateMatchLabels,
+  duplicateRankLabels,
+  type DuplicateCandidate,
+} from "./duplicate-review";
 import {
   propertyTypeOptions,
   quickFsboPlatformOptions,
@@ -48,16 +55,20 @@ function SuccessSummary({
   maskedPhone,
   nextActionAt,
   message,
+  detail,
 }: {
-  maskedPhone: string;
-  nextActionAt: string;
+  maskedPhone: string | null;
+  nextActionAt: string | null;
   message: string;
+  detail: string;
 }) {
-  const formattedNextAction = new Intl.DateTimeFormat("tr-TR", {
-    timeZone: "Europe/Istanbul",
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(nextActionAt));
+  const formattedNextAction = nextActionAt
+    ? new Intl.DateTimeFormat("tr-TR", {
+        timeZone: "Europe/Istanbul",
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(nextActionAt))
+    : null;
 
   return (
     <section
@@ -68,16 +79,25 @@ function SuccessSummary({
         Kayıt tamamlandı
       </p>
       <h2 className="mt-2 text-lg font-black">{message}</h2>
-      <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-        <div className="rounded-2xl bg-white/75 px-4 py-3">
-          <dt className="font-semibold text-emerald-800">Telefon</dt>
-          <dd className="mt-1 font-extrabold">{maskedPhone}</dd>
-        </div>
-        <div className="rounded-2xl bg-white/75 px-4 py-3">
-          <dt className="font-semibold text-emerald-800">Sonraki işlem</dt>
-          <dd className="mt-1 font-extrabold">Ara · {formattedNextAction}</dd>
-        </div>
-      </dl>
+      <p className="mt-2 text-sm leading-6 text-emerald-900/80">{detail}</p>
+      {maskedPhone || formattedNextAction ? (
+        <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+          {maskedPhone ? (
+            <div className="rounded-2xl bg-white/75 px-4 py-3">
+              <dt className="font-semibold text-emerald-800">Telefon</dt>
+              <dd className="mt-1 font-extrabold">{maskedPhone}</dd>
+            </div>
+          ) : null}
+          {formattedNextAction ? (
+            <div className="rounded-2xl bg-white/75 px-4 py-3">
+              <dt className="font-semibold text-emerald-800">Sonraki işlem</dt>
+              <dd className="mt-1 font-extrabold">
+                Ara · {formattedNextAction}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : null}
       <Link
         className="mt-4 inline-flex min-h-11 items-center justify-center rounded-2xl bg-emerald-800 px-4 py-2 text-sm font-extrabold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
         href="/workspace"
@@ -96,6 +116,238 @@ function SuccessSummary({
   );
 }
 
+function formatCandidatePrice(candidate: DuplicateCandidate) {
+  if (!candidate.listing.askingPrice || !candidate.listing.currency) {
+    return null;
+  }
+
+  return new Intl.NumberFormat("tr-TR", {
+    style: "currency",
+    currency: candidate.listing.currency,
+    maximumFractionDigits: 0,
+  }).format(candidate.listing.askingPrice);
+}
+
+function DuplicateDecisionButton({
+  children,
+  decision,
+  disabled = false,
+  variant = "primary",
+}: {
+  children: React.ReactNode;
+  decision:
+    | "use_existing"
+    | "link_existing_property"
+    | "keep_separate"
+    | "review_again";
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "danger";
+}) {
+  const { pending } = useFormStatus();
+  const styles = {
+    primary:
+      "bg-[var(--brand)] text-white shadow-[0_8px_20px_rgba(24,93,69,0.18)]",
+    secondary: "border border-[var(--line)] bg-white text-[var(--ink)]",
+    danger: "border border-amber-300 bg-amber-50 text-amber-950",
+  };
+
+  return (
+    <button
+      className={`inline-flex min-h-12 w-full items-center justify-center rounded-2xl px-4 py-3 text-sm font-extrabold transition disabled:cursor-not-allowed disabled:opacity-55 ${styles[variant]}`}
+      disabled={pending || disabled}
+      name="duplicateDecision"
+      type="submit"
+      value={decision}
+    >
+      {pending ? "Karar güvenli biçimde uygulanıyor…" : children}
+    </button>
+  );
+}
+
+function DuplicateReviewPanel({
+  candidates,
+  maskedPhone,
+  selectedCandidateKey,
+  onSelectedCandidateChange,
+  separationReasonError,
+}: {
+  candidates: DuplicateCandidate[];
+  maskedPhone: string;
+  selectedCandidateKey: string;
+  onSelectedCandidateChange: (candidateKey: string) => void;
+  separationReasonError: string | null;
+}) {
+  const effectiveSelectedKey =
+    selectedCandidateKey || candidates[0]?.key || "";
+  const selectedCandidate = candidates.find(
+    (candidate) => candidate.key === effectiveSelectedKey,
+  );
+
+  return (
+    <section
+      aria-labelledby="duplicate-review-title"
+      className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-4 sm:p-5"
+    >
+      <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-amber-700">
+        Kayıttan önce karar gerekli
+      </p>
+      <h2
+        className="mt-2 text-xl font-black text-amber-950"
+        id="duplicate-review-title"
+      >
+        {candidates.length} olası mükerrer bulundu
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-amber-950/75">
+        Telefon {maskedPhone} olarak maskelendi. Açık telefon ve kişi adı aday
+        sonuçlarında gösterilmez. Sistem hiçbir kaydı otomatik birleştirmez.
+      </p>
+
+      <fieldset className="mt-5 space-y-3">
+        <legend className="text-sm font-black text-amber-950">
+          İncelenecek adayı seçin
+        </legend>
+        {candidates.map((candidate) => {
+          const price = formatCandidatePrice(candidate);
+          const location = [
+            candidate.property.neighborhood,
+            candidate.property.district,
+            candidate.property.city,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          const rooms =
+            candidate.property.roomCount !== null &&
+            candidate.property.livingRoomCount !== null
+              ? `${candidate.property.roomCount}+${candidate.property.livingRoomCount}`
+              : null;
+          const area =
+            candidate.property.netAreaSqm ?? candidate.property.grossAreaSqm;
+          const checked = effectiveSelectedKey === candidate.key;
+
+          return (
+            <label
+              className={`block cursor-pointer rounded-2xl border p-4 transition ${
+                checked
+                  ? "border-amber-500 bg-white shadow-sm"
+                  : "border-amber-200 bg-white/60"
+              }`}
+              key={candidate.key}
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  checked={checked}
+                  className="mt-1 size-5 accent-amber-700"
+                  name="duplicateCandidate"
+                  onChange={() => onSelectedCandidateChange(candidate.key)}
+                  type="radio"
+                  value={candidate.key}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-black text-amber-950">
+                    {candidate.rank}. {duplicateRankLabels[candidate.rank]}
+                  </span>
+                  <span className="mt-1 block text-xs font-bold leading-5 text-amber-800">
+                    {candidate.matchKinds
+                      .map((kind) => duplicateMatchLabels[kind])
+                      .join(" · ")}
+                  </span>
+                  <span className="mt-3 grid gap-1 text-sm text-[var(--ink)] sm:grid-cols-2">
+                    <span>
+                      {candidate.listing.platform &&
+                      candidate.listing.externalListingId
+                        ? `${candidate.listing.platform} · #${candidate.listing.externalListingId}`
+                        : "Mevcut kişi kaydı"}
+                    </span>
+                    <span>{location || "Konum bilgisi yok"}</span>
+                    <span>
+                      {[rooms, area ? `${area} m²` : null]
+                        .filter(Boolean)
+                        .join(" · ") || "Mülk detayı yok"}
+                    </span>
+                    <span>
+                      {[
+                        price,
+                        candidate.opportunity.stage
+                          ? opportunityStageLabels[
+                              candidate.opportunity.stage
+                            ]
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Fırsat bilgisi yok"}
+                    </span>
+                  </span>
+                </span>
+              </div>
+            </label>
+          );
+        })}
+      </fieldset>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <DuplicateDecisionButton decision="use_existing">
+          Mevcut kaydı kullan
+        </DuplicateDecisionButton>
+        <DuplicateDecisionButton
+          decision="link_existing_property"
+          disabled={!selectedCandidate?.linkable}
+          variant="secondary"
+        >
+          Yeni ilanı bu gayrimenkule bağla
+        </DuplicateDecisionButton>
+      </div>
+      {!selectedCandidate?.linkable ? (
+        <p className="mt-2 text-xs font-semibold leading-5 text-amber-800">
+          Seçilen adayda kişi–gayrimenkul bağı bulunmadığı için bağlama seçeneği
+          kullanılamıyor.
+        </p>
+      ) : null}
+
+      <div className="mt-5 rounded-2xl border border-amber-200 bg-white/70 p-4">
+        <label
+          className="text-sm font-black text-amber-950"
+          htmlFor="separationReason"
+        >
+          Ayrı kayıt gerekçesi
+        </label>
+        <textarea
+          aria-describedby={
+            separationReasonError ? "separationReason-error" : undefined
+          }
+          aria-invalid={Boolean(separationReasonError)}
+          className={`${inputClassName} min-h-28 py-3`}
+          id="separationReason"
+          maxLength={500}
+          name="separationReason"
+          placeholder="Örn. Malik ve adres bilgileri farklı doğrulandı."
+        />
+        {separationReasonError ? (
+          <p
+            className="mt-2 text-sm font-semibold text-red-700"
+            id="separationReason-error"
+          >
+            {separationReasonError}
+          </p>
+        ) : null}
+        <p className="mt-2 text-xs leading-5 text-amber-800">
+          Gerekçe şifrelenerek saklanır; audit kaydına veya aday özetine yazılmaz.
+        </p>
+        <div className="mt-3">
+          <DuplicateDecisionButton decision="keep_separate" variant="danger">
+            Gerekçeyle ayrı kayıt oluştur
+          </DuplicateDecisionButton>
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <DuplicateDecisionButton decision="review_again" variant="secondary">
+          Değişiklikleri yeniden denetle
+        </DuplicateDecisionButton>
+      </div>
+    </section>
+  );
+}
+
 export function QuickFsboForm({
   defaultNextActionAt,
 }: QuickFsboFormProps) {
@@ -103,6 +355,7 @@ export function QuickFsboForm({
     createQuickFsboAction,
     initialQuickFsboActionState,
   );
+  const [selectedCandidateKey, setSelectedCandidateKey] = useState("");
 
   if (state.success) {
     return <SuccessSummary {...state.success} />;
@@ -122,6 +375,16 @@ export function QuickFsboForm({
           >
             {state.formError}
           </p>
+        ) : null}
+
+        {state.review ? (
+          <DuplicateReviewPanel
+            candidates={state.review.candidates}
+            maskedPhone={state.review.maskedPhone}
+            onSelectedCandidateChange={setSelectedCandidateKey}
+            selectedCandidateKey={selectedCandidateKey}
+            separationReasonError={state.separationReasonError}
+          />
         ) : null}
 
         <fieldset className="rounded-3xl border border-[var(--line)] bg-white p-4 sm:p-5">
@@ -499,11 +762,17 @@ export function QuickFsboForm({
             Kişi, gayrimenkul, ilan, ilk fiyat ve fırsat ayrı kayıtlar olarak tek
             işlemde oluşturulur. Mükerrer sinyaller kayıtları otomatik birleştirmez.
           </p>
-          <div className="mt-5">
-            <SubmitButton pendingLabel="Güvenli biçimde kaydediliyor…">
-              FSBO fırsatını oluştur
-            </SubmitButton>
-          </div>
+          {state.review ? (
+            <p className="mt-4 text-sm font-bold text-amber-200">
+              Yukarıdaki mükerrer aday için karar vermeden kayıt oluşturulmaz.
+            </p>
+          ) : (
+            <div className="mt-5">
+              <SubmitButton pendingLabel="Mükerrer kayıtlar denetleniyor…">
+                Denetle ve FSBO fırsatını oluştur
+              </SubmitButton>
+            </div>
+          )}
         </div>
     </form>
   );

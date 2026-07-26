@@ -13,7 +13,8 @@ export const phoneBlindIndexAlgorithm = "HMAC-SHA-256" as const;
 export type PiiPurpose =
   | "contact.display_name"
   | "contact.email"
-  | "contact.phone";
+  | "contact.phone"
+  | "duplicate.review.reason";
 
 export type PiiEnvelope = {
   ciphertext: Buffer;

@@ -278,6 +278,149 @@ export type Database = {
           },
         ]
       }
+      duplicate_reviews: {
+        Row: {
+          candidate_count: number
+          created_at: string
+          decision: Database["public"]["Enums"]["duplicate_review_decision"]
+          id: string
+          match_kinds: Database["public"]["Enums"]["duplicate_match_kind"][]
+          primary_match_rank: number
+          result_contact_id: string | null
+          result_listing_id: string | null
+          result_opportunity_id: string | null
+          result_property_id: string | null
+          reviewed_by: string
+          selected_contact_id: string | null
+          selected_listing_id: string | null
+          selected_opportunity_id: string | null
+          selected_property_id: string | null
+          separation_reason_algorithm: string | null
+          separation_reason_auth_tag: string | null
+          separation_reason_ciphertext: string | null
+          separation_reason_key_version: number | null
+          separation_reason_nonce: string | null
+          workspace_id: string
+        }
+        Insert: {
+          candidate_count: number
+          created_at?: string
+          decision: Database["public"]["Enums"]["duplicate_review_decision"]
+          id?: string
+          match_kinds: Database["public"]["Enums"]["duplicate_match_kind"][]
+          primary_match_rank: number
+          result_contact_id?: string | null
+          result_listing_id?: string | null
+          result_opportunity_id?: string | null
+          result_property_id?: string | null
+          reviewed_by: string
+          selected_contact_id?: string | null
+          selected_listing_id?: string | null
+          selected_opportunity_id?: string | null
+          selected_property_id?: string | null
+          separation_reason_algorithm?: string | null
+          separation_reason_auth_tag?: string | null
+          separation_reason_ciphertext?: string | null
+          separation_reason_key_version?: number | null
+          separation_reason_nonce?: string | null
+          workspace_id: string
+        }
+        Update: {
+          candidate_count?: number
+          created_at?: string
+          decision?: Database["public"]["Enums"]["duplicate_review_decision"]
+          id?: string
+          match_kinds?: Database["public"]["Enums"]["duplicate_match_kind"][]
+          primary_match_rank?: number
+          result_contact_id?: string | null
+          result_listing_id?: string | null
+          result_opportunity_id?: string | null
+          result_property_id?: string | null
+          reviewed_by?: string
+          selected_contact_id?: string | null
+          selected_listing_id?: string | null
+          selected_opportunity_id?: string | null
+          selected_property_id?: string | null
+          separation_reason_algorithm?: string | null
+          separation_reason_auth_tag?: string | null
+          separation_reason_ciphertext?: string | null
+          separation_reason_key_version?: number | null
+          separation_reason_nonce?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duplicate_reviews_result_contact_workspace_fkey"
+            columns: ["workspace_id", "result_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_listing_workspace_fkey"
+            columns: ["workspace_id", "result_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
+            columns: ["workspace_id", "result_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_property_workspace_fkey"
+            columns: ["workspace_id", "result_property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_contact_workspace_fkey"
+            columns: ["workspace_id", "selected_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_listing_workspace_fkey"
+            columns: ["workspace_id", "selected_listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
+            columns: ["workspace_id", "selected_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_property_workspace_fkey"
+            columns: ["workspace_id", "selected_property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_price_history: {
         Row: {
           amount: number
@@ -978,6 +1121,92 @@ export type Database = {
           stage: Database["public"]["Enums"]["opportunity_stage"]
         }[]
       }
+      find_quick_fsbo_duplicates: {
+        Args: {
+          requested_asking_price: number
+          requested_canonical_url: string
+          requested_external_listing_id: string
+          requested_gross_area_sqm: number
+          requested_living_room_count: number
+          requested_neighborhood: string
+          requested_net_area_sqm: number
+          requested_phone_blind_index: string
+          requested_phone_blind_index_key_version: number
+          requested_platform: string
+          requested_room_count: number
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          asking_price: number
+          candidate_key: string
+          city: string
+          contact_id: string
+          currency: string
+          district: string
+          external_listing_id: string
+          gross_area_sqm: number
+          last_seen_at: string
+          listing_id: string
+          listing_status: Database["public"]["Enums"]["listing_status"]
+          living_room_count: number
+          match_kinds: Database["public"]["Enums"]["duplicate_match_kind"][]
+          match_rank: number
+          neighborhood: string
+          net_area_sqm: number
+          next_action_at: string
+          opportunity_id: string
+          opportunity_stage: Database["public"]["Enums"]["opportunity_stage"]
+          platform: string
+          property_id: string
+          room_count: number
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }[]
+      }
+      resolve_quick_fsbo_duplicate: {
+        Args: {
+          requested_asking_price: number
+          requested_candidate_key?: string
+          requested_canonical_url: string
+          requested_city: string
+          requested_display_name_algorithm: string
+          requested_display_name_auth_tag: string
+          requested_display_name_ciphertext: string
+          requested_display_name_key_version: number
+          requested_display_name_nonce: string
+          requested_district: string
+          requested_duplicate_decision?: Database["public"]["Enums"]["duplicate_review_decision"]
+          requested_external_listing_id: string
+          requested_gross_area_sqm: number
+          requested_living_room_count: number
+          requested_neighborhood: string
+          requested_net_area_sqm: number
+          requested_next_action_at: string
+          requested_phone_algorithm: string
+          requested_phone_auth_tag: string
+          requested_phone_blind_index: string
+          requested_phone_blind_index_key_version: number
+          requested_phone_ciphertext: string
+          requested_phone_key_version: number
+          requested_phone_nonce: string
+          requested_platform: string
+          requested_property_type: Database["public"]["Enums"]["property_type"]
+          requested_room_count: number
+          requested_separation_reason_algorithm?: string
+          requested_separation_reason_auth_tag?: string
+          requested_separation_reason_ciphertext?: string
+          requested_separation_reason_key_version?: number
+          requested_separation_reason_nonce?: string
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          duplicate_review_id: string
+          listing_id: string
+          next_action_at: string
+          opportunity_id: string
+          outcome: Database["public"]["Enums"]["quick_fsbo_resolution_outcome"]
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+        }[]
+      }
       transition_opportunity_stage: {
         Args: {
           requested_next_action_at?: string
@@ -997,6 +1226,16 @@ export type Database = {
     }
     Enums: {
       contact_method_type: "phone" | "email"
+      duplicate_match_kind:
+        | "platform_listing"
+        | "canonical_url"
+        | "phone"
+        | "property_similarity"
+        | "closed_similar_listing"
+      duplicate_review_decision:
+        | "use_existing"
+        | "link_existing_property"
+        | "keep_separate"
       listing_status: "active" | "inactive" | "closed"
       listing_transaction_type: "sale" | "rent"
       opportunity_next_action_type:
@@ -1031,6 +1270,11 @@ export type Database = {
         | "commercial"
         | "land"
         | "other"
+      quick_fsbo_resolution_outcome:
+        | "created_new"
+        | "used_existing"
+        | "linked_existing_property"
+        | "created_separate"
       workspace_role: "owner" | "advisor" | "viewer"
     }
     CompositeTypes: {
@@ -1160,6 +1404,18 @@ export const Constants = {
   public: {
     Enums: {
       contact_method_type: ["phone", "email"],
+      duplicate_match_kind: [
+        "platform_listing",
+        "canonical_url",
+        "phone",
+        "property_similarity",
+        "closed_similar_listing",
+      ],
+      duplicate_review_decision: [
+        "use_existing",
+        "link_existing_property",
+        "keep_separate",
+      ],
       listing_status: ["active", "inactive", "closed"],
       listing_transaction_type: ["sale", "rent"],
       opportunity_next_action_type: [
@@ -1197,6 +1453,12 @@ export const Constants = {
         "commercial",
         "land",
         "other",
+      ],
+      quick_fsbo_resolution_outcome: [
+        "created_new",
+        "used_existing",
+        "linked_existing_property",
+        "created_separate",
       ],
       workspace_role: ["owner", "advisor", "viewer"],
     },

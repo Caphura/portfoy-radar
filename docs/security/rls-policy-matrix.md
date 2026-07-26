@@ -22,6 +22,7 @@ giremez.
 | `property_contacts` | Yok | Yalnızca üye olduğu workspace | Yok | İki uç da bileşik workspace yabancı anahtarıyla doğrulanır |
 | `listings` | Yok | Yalnızca üye olduğu workspace | Yok | Platform/ilan no, canonical URL ve emsal index'leri benzersiz değildir |
 | `listing_price_history` | Yok | Yalnızca üye olduğu workspace | Yok | İlan bağı bileşik workspace FK; fiyat exact `numeric` |
+| `duplicate_reviews` | Yok | Yalnızca üye olduğu workspace için redakte karar sütunları | Yalnızca atomik RPC | Şifreli gerekçe sütun grant'ine kapalı; kayıt append-only, seçilen/sonuç varlıkları bileşik workspace FK'li |
 | `current_workspace_entity_counts` | Yok | Güncel workspace için üç sayılık DTO | Yok | `security_invoker=true`, PII ve kayıt kimliği içermez |
 | `opportunities` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Açık/kapanmış sonraki işlem constraint'i; doğrudan yazma grant'i yok |
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
@@ -30,10 +31,13 @@ giremez.
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
 | `current_workspace_opportunity_pipeline` | Yok | Güncel workspace için 11 aşamalı sayı DTO'su | Yok | `security_invoker=true`; boş aşamaları da sıfırla döndürür |
 
-Hızlı FSBO yazımı tablolara doğrudan grant açmaz. `create_quick_fsbo` domain
-RPC'si workspace kimliği kabul etmez; güncel kullanıcının ilk üyeliğini
-veritabanında çözer, yalnızca `owner` ve `advisor` rollerini kabul eder ve bütün
-yazımları tek transaction içinde tamamlar.
+Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
+`create_quick_fsbo` komutu `authenticated` role kapalıdır.
+`find_quick_fsbo_duplicates` ve `resolve_quick_fsbo_duplicate` workspace kimliği
+kabul etmez; güncel kullanıcının ilk üyeliğini veritabanında çözer ve yalnızca
+`owner` ile `advisor` rollerini kabul eder. Karar RPC'si adayları advisory
+transaction kilidi altında yeniden hesaplayıp bütün yazımları tek transaction
+içinde tamamlar.
 
 ## Yeni tablo kabul kapısı
 

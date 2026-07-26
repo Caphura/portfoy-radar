@@ -90,10 +90,16 @@ saklanır.
 
 ## Uygulama durumu
 
-2026-07-26 tarihli hızlı FSBO diliminde kişi adı ve Türkiye telefonu yalnız
-sunucuda AES-256-GCM ile şifrelenir; telefon HMAC blind index'i ayrı anahtarla
-üretilir. Canonical ilan URL'si portal ağına istek yapılmadan platform hostu,
-izleme parametreleri ve sıralı sorgu parametreleri üzerinden normalize edilir.
-Domain komutu aynı platform/ilan numarası veya blind index sinyalini otomatik
-birleştirmez. Beş kademeli aday listesi ve `duplicate_reviews` karar akışı ayrı
-onaylı görev olarak kalır.
+2026-07-26 tarihli hızlı FSBO ve mükerrer denetimi dilimlerinde kişi adı ve
+Türkiye telefonu yalnız sunucuda AES-256-GCM ile şifrelenir; telefon HMAC blind
+index'i ayrı anahtarla üretilir. Canonical ilan URL'si portal ağına istek
+yapılmadan platform hostu, izleme parametreleri ve sıralı sorgu parametreleri
+üzerinden normalize edilir.
+
+Beş kademe veritabanında sabit sırayla aday üretir. Aday DTO'su açık kişi adı,
+telefon veya blind index taşımaz. Kullanıcı mevcut kaydı kullanabilir, yeni
+ilanı seçilen kişi–gayrimenkul bağına ekleyebilir veya AES-256-GCM ile şifrelenen
+3-500 karakter gerekçeyle ayrı kayıt oluşturabilir. Karar RPC'si adayları
+transaction içinde yeniden hesaplar; eski doğrudan hızlı ekleme RPC'si
+`authenticated` role kapalıdır. Karar, eşleşme türleri, aktör ve redakte sonuç
+bağları append-only `duplicate_reviews`, aktivite ve audit kayıtlarında saklanır.

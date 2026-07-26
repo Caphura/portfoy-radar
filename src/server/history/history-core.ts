@@ -89,11 +89,13 @@ const eventTitles: Record<string, string> = {
   "opportunity.created": "Fırsat oluşturuldu",
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
+  "duplicate.resolved": "Mükerrer kararı kaydedildi",
 };
 
 const entityLabels: Record<string, string> = {
   workspace: "Çalışma alanı",
   opportunity: "Fırsat",
+  duplicate_review: "Mükerrer denetimi",
 };
 
 function eventTitle(eventType: string): string {

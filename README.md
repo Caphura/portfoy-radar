@@ -31,6 +31,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Ana Sayfa, Radar, Ekle, Takvim ve Raporlar için erişilebilir mobil alt navigasyon
 - Kişi, şifreli telefon, gayrimenkul, ilan, ilk fiyat ve fırsatı atomik oluşturan hızlı FSBO formu
 - Yerel URL canonicalization, TRY fiyatı ve bir saat sonrası önerilen zorunlu arama planı
+- Beş kademeli, açıklanabilir ve workspace-izole mükerrer aday denetimi
+- Mevcut kaydı kullanma, mevcut gayrimenkule bağlama veya şifreli gerekçeyle ayrı kayıt kararları
+- Append-only mükerrer karar geçmişi ile redakte aktivite ve audit olayları
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
@@ -38,9 +41,11 @@ Mevcut uygulama dilimleri şunları içerir:
 
 Herkese açık kayıt ve alan tablolarına doğrudan istemci yazması kapalıdır.
 PII koruma çekirdeği hızlı FSBO eklemede şifreli kişi adı ve telefon yazımı için
-kullanılır. Audit'li açık değer gösterimi, mükerrer karar akışı ve davet/rol
-yönetimi sonraki onaylı görevlerin kapsamındadır. Bu akışlar ve üretim secret manager bağlantısı
-tamamlanmadan canlı kişisel veri depolanmamalıdır.
+kullanılır. Mükerrer denetimi yalnız telefon HMAC'i ve gayrimenkul/ilan
+özellikleriyle çalışır; açık telefon veya kişi adı aday DTO'suna girmez. Audit'li
+açık değer gösterimi ve davet/rol yönetimi sonraki onaylı görevlerin
+kapsamındadır. Bu akışlar ve üretim secret manager bağlantısı tamamlanmadan
+canlı kişisel veri depolanmamalıdır.
 
 ## Gereksinimler
 
@@ -141,6 +146,10 @@ pnpm test:governance
   ciphertext ve benzeri hassas anahtarlar DB constraint'iyle reddedilir.
 - Workspace oluşturma/ad değiştirme ile fırsat oluşturma/aşama değiştirme
   işlemleri aynı transaction içinde aktivite ve audit kaydı üretir.
+- Mükerrer adaylar platform/ilan numarası, canonical URL, telefon HMAC'i,
+  gayrimenkul benzerliği ve son 12 aylık kapanmış ilan sırasıyla değerlendirilir.
+  Kesin karar transaction içinde yeniden doğrulanır ve kullanıcı onayı olmadan
+  kayıt birleştirilmez.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,

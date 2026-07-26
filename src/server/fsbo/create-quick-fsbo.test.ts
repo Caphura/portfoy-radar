@@ -12,12 +12,14 @@ const {
   createSessionSupabaseClientMock,
   getWorkspaceAccessMock,
   protectContactNameMock,
+  protectDuplicateReasonMock,
   protectTurkishPhoneMock,
   rpcMock,
 } = vi.hoisted(() => ({
   createSessionSupabaseClientMock: vi.fn(),
   getWorkspaceAccessMock: vi.fn(),
   protectContactNameMock: vi.fn(),
+  protectDuplicateReasonMock: vi.fn(),
   protectTurkishPhoneMock: vi.fn(),
   rpcMock: vi.fn(),
 }));
@@ -36,6 +38,10 @@ vi.mock("@/server/pii/protect-contact-name", () => ({
 
 vi.mock("@/server/pii/protect-phone", () => ({
   protectTurkishPhone: protectTurkishPhoneMock,
+}));
+
+vi.mock("@/server/pii/protect-duplicate-reason", () => ({
+  protectDuplicateReason: protectDuplicateReasonMock,
 }));
 
 import { createQuickFsbo } from "./create-quick-fsbo";
@@ -93,6 +99,7 @@ describe("createQuickFsbo", () => {
     createSessionSupabaseClientMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     protectContactNameMock.mockReset();
+    protectDuplicateReasonMock.mockReset();
     protectTurkishPhoneMock.mockReset();
     rpcMock.mockReset();
   });
@@ -111,10 +118,12 @@ describe("createQuickFsbo", () => {
     rpcMock.mockResolvedValue({
       data: [
         {
+          outcome: "created_new",
           opportunity_id: "11000000-0000-4000-8000-000000000001",
           listing_id: "12000000-0000-4000-8000-000000000001",
           stage: "new",
           next_action_at: "2026-07-26T08:00:00+00:00",
+          duplicate_review_id: null,
         },
       ],
       error: null,
@@ -134,6 +143,7 @@ describe("createQuickFsbo", () => {
         stage: "new",
         nextActionAt: "2026-07-26T08:00:00+00:00",
         maskedPhone: "+90 ••• ••• •• 00",
+        outcome: "created_new",
       },
     });
     expect(getWorkspaceAccessMock).toHaveBeenCalledWith({
@@ -143,7 +153,7 @@ describe("createQuickFsbo", () => {
     const serializedArguments = JSON.stringify(rpcArguments);
 
     expect(rpcMock).toHaveBeenCalledWith(
-      "create_quick_fsbo",
+      "resolve_quick_fsbo_duplicate",
       expect.objectContaining({
         requested_phone_ciphertext: expect.stringMatching(/^\\x[0-9a-f]+$/),
         requested_phone_blind_index: expect.stringMatching(/^\\x[0-9a-f]{64}$/),
@@ -156,6 +166,69 @@ describe("createQuickFsbo", () => {
     expect(rpcArguments).not.toHaveProperty("workspace_id");
     expect(serializedArguments).not.toContain(input.phone);
     expect(serializedArguments).not.toContain(input.contactName);
+  });
+
+  it("ayrı kayıt gerekçesini açık metin taşımadan karar RPCsine ekler", async () => {
+    const privateReason = "Sentetik farklı kayıt gerekçesi";
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: true,
+      userId: "10000000-0000-4000-8000-000000000001",
+      workspace: {
+        id: "a0000000-0000-4000-8000-000000000001",
+        name: "Fixture",
+      },
+      membership: { role: "owner" },
+    });
+    mockProtectedPii();
+    protectDuplicateReasonMock.mockReturnValue({
+      ok: true,
+      data: {
+        ciphertext: Buffer.alloc(20, 8),
+        nonce: Buffer.alloc(12, 9),
+        authTag: Buffer.alloc(16, 10),
+        algorithm: "AES-256-GCM",
+        keyVersion: 2,
+      },
+    });
+    rpcMock.mockResolvedValue({
+      data: [
+        {
+          outcome: "created_separate",
+          opportunity_id: "11000000-0000-4000-8000-000000000002",
+          listing_id: "12000000-0000-4000-8000-000000000002",
+          stage: "new",
+          next_action_at: "2026-07-26T08:00:00+00:00",
+          duplicate_review_id: "13000000-0000-4000-8000-000000000002",
+        },
+      ],
+      error: null,
+    });
+    createSessionSupabaseClientMock.mockResolvedValue({
+      ok: true,
+      client: { rpc: rpcMock },
+    });
+
+    const result = await createQuickFsbo(input, {
+      decision: "keep_separate",
+      candidateKey: [
+        "21000000-0000-4000-8000-000000000001",
+        "22000000-0000-4000-8000-000000000001",
+        "23000000-0000-4000-8000-000000000001",
+        "-",
+      ].join(":"),
+      separationReason: privateReason,
+    });
+
+    expect(result.ok).toBe(true);
+    const rpcArguments = rpcMock.mock.calls[0]?.[1];
+    expect(rpcArguments).toMatchObject({
+      requested_duplicate_decision: "keep_separate",
+      requested_separation_reason_ciphertext: expect.stringMatching(
+        /^\\x[0-9a-f]+$/,
+      ),
+    });
+    expect(JSON.stringify(rpcArguments)).not.toContain(privateReason);
+    expect(protectDuplicateReasonMock).toHaveBeenCalledWith(privateReason);
   });
 
   it("viewer veya workspace hatasında PII işleme ve RPC çalıştırmaz", async () => {
@@ -178,6 +251,7 @@ describe("createQuickFsbo", () => {
     });
     expect(protectTurkishPhoneMock).not.toHaveBeenCalled();
     expect(protectContactNameMock).not.toHaveBeenCalled();
+    expect(protectDuplicateReasonMock).not.toHaveBeenCalled();
     expect(rpcMock).not.toHaveBeenCalled();
   });
 

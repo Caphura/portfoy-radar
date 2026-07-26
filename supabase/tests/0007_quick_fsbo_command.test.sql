@@ -40,12 +40,12 @@ select has_function(
 );
 
 select ok(
-  has_function_privilege(
+  not has_function_privilege(
     'authenticated',
     'public.create_quick_fsbo(bytea,bytea,bytea,text,smallint,bytea,bytea,bytea,text,smallint,bytea,smallint,public.property_type,text,text,text,smallint,smallint,numeric,numeric,text,text,text,public.listing_transaction_type,numeric,timestamptz)',
     'execute'
   ),
-  'yalnız authenticated rol domain komutunu çağırabilir'
+  'mükerrer karar kapısı eski doğrudan hızlı ekleme komutunu authenticated role kapatır'
 );
 
 select ok(
@@ -65,6 +65,38 @@ select ok(
   ),
   'service role kullanıcı bağlamı olmadan hızlı FSBO komutunu çağıramaz'
 );
+
+-- Migration 0008 bu düşük seviyeli komutu dış erişime kapatır. Bu dosya,
+-- komutun atomiklik sözleşmesini izole test etmek için transaction içinde
+-- geçici yürütme yetkisi verir; rollback üretim yetki durumunu geri yükler.
+grant execute on function public.create_quick_fsbo(
+  bytea,
+  bytea,
+  bytea,
+  text,
+  smallint,
+  bytea,
+  bytea,
+  bytea,
+  text,
+  smallint,
+  bytea,
+  smallint,
+  public.property_type,
+  text,
+  text,
+  text,
+  smallint,
+  smallint,
+  numeric,
+  numeric,
+  text,
+  text,
+  text,
+  public.listing_transaction_type,
+  numeric,
+  timestamptz
+) to authenticated;
 
 insert into auth.users (
   id,
@@ -505,8 +537,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  7,
-  'hızlı FSBO migrationı şema sözleşmesini 7 yapar'
+  8,
+  'mükerrer denetimi migrationı şema sözleşmesini 8 yapar'
 );
 
 select * from finish();

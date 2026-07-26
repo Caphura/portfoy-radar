@@ -181,6 +181,61 @@ describe("resolveWorkspaceHistory", () => {
     });
   });
 
+  it("mükerrer kararını gerekçe veya aday ayrıntısı taşımadan Türkçeleştirir", async () => {
+    const result = await resolveWorkspaceHistory(
+      "owner",
+      async () => ({
+        data: [
+          {
+            id: activityId,
+            event_type: "duplicate.resolved",
+            entity_type: "duplicate_review",
+            details: {
+              decision: "keep_separate",
+              match_kinds: ["phone"],
+              primary_match_rank: 3,
+            },
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+      async () => ({
+        data: [
+          {
+            id: auditId,
+            action: "duplicate.resolved",
+            actor_id: actorId,
+            entity_type: "duplicate_review",
+            request_id: requestId,
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.activity[0]).toEqual({
+      id: activityId,
+      title: "Mükerrer kararı kaydedildi",
+      detail: null,
+      entityLabel: "Mükerrer denetimi",
+      occurredAt,
+    });
+    expect(result.data.audit.items[0]).toMatchObject({
+      title: "Mükerrer kararı kaydedildi",
+      entityLabel: "Mükerrer denetimi",
+    });
+    expect(JSON.stringify(result)).not.toContain("keep_separate");
+    expect(JSON.stringify(result)).not.toContain("phone");
+  });
+
   it("veritabanı hatasını veya bozuk sözleşmeyi ayrıntı sızdırmadan reddeder", async () => {
     const privateError = "private-history-error";
     const queryFailure = await resolveWorkspaceHistory(

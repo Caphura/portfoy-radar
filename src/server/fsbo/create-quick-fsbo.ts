@@ -2,28 +2,68 @@ import "server-only";
 
 import { z } from "zod";
 
+import type { DuplicateDecision } from "@/features/fsbo/duplicate-review";
 import type { QuickFsboInput } from "@/features/fsbo/quick-fsbo-validation";
 import { protectContactName } from "@/server/pii/protect-contact-name";
+import { protectDuplicateReason } from "@/server/pii/protect-duplicate-reason";
 import { protectTurkishPhone } from "@/server/pii/protect-phone";
 import { createSessionSupabaseClient } from "@/server/supabase/server-client";
 import { getWorkspaceAccess } from "@/server/workspace/access";
 
 const createdRowSchema = z.object({
-  opportunity_id: z.uuid(),
-  listing_id: z.uuid(),
-  stage: z.literal("new"),
-  next_action_at: z.iso.datetime({ offset: true }),
+  outcome: z.enum([
+    "created_new",
+    "used_existing",
+    "linked_existing_property",
+    "created_separate",
+  ]),
+  opportunity_id: z.uuid().nullable(),
+  listing_id: z.uuid().nullable(),
+  stage: z
+    .enum([
+      "new",
+      "verifying",
+      "ready_to_call",
+      "contacted",
+      "follow_up",
+      "analysis_preparing",
+      "appointment",
+      "authorization_pending",
+      "converted",
+      "lost",
+      "do_not_call",
+    ])
+    .nullable(),
+  next_action_at: z.iso.datetime({ offset: true }).nullable(),
+  duplicate_review_id: z.uuid().nullable(),
 });
 
 export type CreateQuickFsboResult =
   | {
       ok: true;
       data: {
-        opportunityId: string;
-        listingId: string;
-        stage: "new";
-        nextActionAt: string;
-        maskedPhone: string;
+        opportunityId: string | null;
+        listingId: string | null;
+        stage:
+          | "new"
+          | "verifying"
+          | "ready_to_call"
+          | "contacted"
+          | "follow_up"
+          | "analysis_preparing"
+          | "appointment"
+          | "authorization_pending"
+          | "converted"
+          | "lost"
+          | "do_not_call"
+          | null;
+        nextActionAt: string | null;
+        maskedPhone: string | null;
+        outcome:
+          | "created_new"
+          | "used_existing"
+          | "linked_existing_property"
+          | "created_separate";
       };
     }
   | {
@@ -34,6 +74,8 @@ export type CreateQuickFsboResult =
           | "WORKSPACE_REQUIRED"
           | "FORBIDDEN"
           | "PII_PROTECTION_UNAVAILABLE"
+          | "DUPLICATE_REVIEW_REQUIRED"
+          | "STALE_DUPLICATE_REVIEW"
           | "QUICK_FSBO_UNAVAILABLE";
         message: string;
       };
@@ -45,6 +87,7 @@ function toPostgresBytea(value: Buffer) {
 
 export async function createQuickFsbo(
   input: QuickFsboInput,
+  duplicateDecision: DuplicateDecision | null = null,
 ): Promise<CreateQuickFsboResult> {
   const access = await getWorkspaceAccess({
     allowedRoles: ["owner", "advisor"],
@@ -89,8 +132,17 @@ export async function createQuickFsbo(
 
   const protectedPhone = protectTurkishPhone(input.phone);
   const protectedName = protectContactName(input.contactName);
+  const protectedReason =
+    duplicateDecision?.decision === "keep_separate" &&
+    duplicateDecision.separationReason
+      ? protectDuplicateReason(duplicateDecision.separationReason)
+      : null;
 
-  if (!protectedPhone.ok || !protectedName.ok) {
+  if (
+    !protectedPhone.ok ||
+    !protectedName.ok ||
+    (protectedReason && !protectedReason.ok)
+  ) {
     return {
       ok: false,
       error: {
@@ -115,7 +167,33 @@ export async function createQuickFsbo(
 
   const { envelope: phoneEnvelope } = protectedPhone.data;
   const nameEnvelope = protectedName.data;
-  const { data, error } = await clientResult.client.rpc("create_quick_fsbo", {
+  const reasonEnvelope =
+    protectedReason && protectedReason.ok ? protectedReason.data : null;
+  const duplicateArguments = duplicateDecision
+    ? {
+        requested_candidate_key: duplicateDecision.candidateKey,
+        requested_duplicate_decision: duplicateDecision.decision,
+        ...(reasonEnvelope
+          ? {
+              requested_separation_reason_algorithm: reasonEnvelope.algorithm,
+              requested_separation_reason_auth_tag: toPostgresBytea(
+                reasonEnvelope.authTag,
+              ),
+              requested_separation_reason_ciphertext: toPostgresBytea(
+                reasonEnvelope.ciphertext,
+              ),
+              requested_separation_reason_key_version: reasonEnvelope.keyVersion,
+              requested_separation_reason_nonce: toPostgresBytea(
+                reasonEnvelope.nonce,
+              ),
+            }
+          : {}),
+      }
+    : {};
+  const { data, error } = await clientResult.client.rpc(
+    "resolve_quick_fsbo_duplicate",
+    {
+      ...duplicateArguments,
     requested_asking_price: input.askingPrice,
     requested_canonical_url: input.canonicalUrl,
     requested_city: input.city,
@@ -145,7 +223,8 @@ export async function createQuickFsbo(
     requested_property_type: input.propertyType,
     requested_room_count: input.roomCount,
     requested_transaction_type: input.transactionType,
-  });
+    },
+  );
 
   if (error) {
     if (error.code === "42501") {
@@ -154,6 +233,28 @@ export async function createQuickFsbo(
         error: {
           code: "FORBIDDEN",
           message: "FSBO fırsatı oluşturmak için yetkiniz bulunmuyor.",
+        },
+      };
+    }
+
+    if (error.code === "P0001") {
+      return {
+        ok: false,
+        error: {
+          code: "DUPLICATE_REVIEW_REQUIRED",
+          message:
+            "Mükerrer aday bulundu. Kullanıcı kararı olmadan kayıt oluşturulamaz.",
+        },
+      };
+    }
+
+    if (error.code === "22023") {
+      return {
+        ok: false,
+        error: {
+          code: "STALE_DUPLICATE_REVIEW",
+          message:
+            "Seçilen mükerrer aday artık geçerli değil. Denetimi yenileyin.",
         },
       };
     }
@@ -191,6 +292,22 @@ export async function createQuickFsbo(
     };
   }
 
+  if (
+    created.outcome !== "used_existing" &&
+    (!created.opportunity_id ||
+      !created.listing_id ||
+      !created.stage ||
+      !created.next_action_at)
+  ) {
+    return {
+      ok: false,
+      error: {
+        code: "QUICK_FSBO_UNAVAILABLE",
+        message: "FSBO kaydı şu anda oluşturulamıyor. Lütfen yeniden deneyin.",
+      },
+    };
+  }
+
   return {
     ok: true,
     data: {
@@ -198,7 +315,12 @@ export async function createQuickFsbo(
       listingId: created.listing_id,
       stage: created.stage,
       nextActionAt: created.next_action_at,
-      maskedPhone: protectedPhone.data.maskedValue,
+      maskedPhone:
+        created.outcome === "created_new" ||
+        created.outcome === "created_separate"
+          ? protectedPhone.data.maskedValue
+          : null,
+      outcome: created.outcome,
     },
   };
 }

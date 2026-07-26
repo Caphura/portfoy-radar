@@ -102,7 +102,7 @@ try {
 const contract =
   Array.isArray(rows) && rows.length === 1 ? rows[0] : undefined;
 const contractIsValid =
-  contract?.schema_version === 7 &&
+  contract?.schema_version === 8 &&
   contract?.locale === "tr-TR" &&
   contract?.time_zone === "Europe/Istanbul" &&
   contract?.default_currency === "TRY";
