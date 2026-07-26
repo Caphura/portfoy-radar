@@ -126,8 +126,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  12,
-  'iletişim engeli migrationı şema sözleşmesini 12 yapar'
+  13,
+  'görev kuyruğu migrationı şema sözleşmesini 13 yapar'
 );
 
 insert into auth.users (

@@ -121,8 +121,8 @@ describe("resolveWorkspaceHistory", () => {
       data: [
         {
           id: activityId,
-          event_type: "task.completed",
-          entity_type: "task",
+          event_type: "record.archived",
+          entity_type: "record",
           details: {
             safe_status: "done",
           },
@@ -145,6 +145,51 @@ describe("resolveWorkspaceHistory", () => {
       entityLabel: "Kayıt",
       occurredAt,
     });
+  });
+
+  it("görev audit ve aktivite olaylarını Türkçeleştirir", async () => {
+    const result = await resolveWorkspaceHistory(
+      "owner",
+      async () => ({
+        data: [
+          {
+            id: activityId,
+            event_type: "task.rescheduled",
+            entity_type: "opportunity",
+            details: { task_id: "private-task-reference" },
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+      async () => ({
+        data: [
+          {
+            id: auditId,
+            action: "task.completed",
+            actor_id: actorId,
+            entity_type: "task",
+            request_id: requestId,
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.data.activity[0]).toMatchObject({
+        title: "Görev tarihi güncellendi",
+        entityLabel: "Fırsat",
+      });
+      expect(result.data.audit.items[0]).toMatchObject({
+        title: "Görev tamamlandı",
+        entityLabel: "Görev",
+      });
+      expect(JSON.stringify(result)).not.toContain("private-task-reference");
+    }
   });
 
   it("hızlı FSBO audit olayını PII metadata taşımadan Türkçeleştirir", async () => {

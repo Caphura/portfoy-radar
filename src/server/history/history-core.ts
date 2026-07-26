@@ -92,6 +92,8 @@ const eventTitles: Record<string, string> = {
   "duplicate.resolved": "Mükerrer kararı kaydedildi",
   "contact.communication_blocked": "Kişi Aranmayacak olarak işaretlendi",
   "contact.communication_block_lifted": "İletişim engeli kaldırıldı",
+  "task.rescheduled": "Görev tarihi güncellendi",
+  "task.completed": "Görev tamamlandı",
 };
 
 const entityLabels: Record<string, string> = {
@@ -99,6 +101,7 @@ const entityLabels: Record<string, string> = {
   opportunity: "Fırsat",
   duplicate_review: "Mükerrer denetimi",
   contact: "Kişi",
+  task: "Görev",
 };
 
 function eventTitle(eventType: string): string {

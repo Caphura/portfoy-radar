@@ -97,6 +97,8 @@ const eventTitles: Record<string, string> = {
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
   "conversation.recorded": "Görüşme kaydedildi",
+  "task.rescheduled": "Görev tarihi güncellendi",
+  "task.completed": "Görev tamamlandı",
 };
 
 const eventDateFormatter = new Intl.DateTimeFormat("tr-TR", {

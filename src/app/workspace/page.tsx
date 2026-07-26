@@ -4,13 +4,16 @@ import { redirect } from "next/navigation";
 import { HistoryPanel } from "@/features/history/history-panel";
 import { OpportunityPipeline } from "@/features/opportunities/opportunity-pipeline";
 import { PiiProtectionStatusCard } from "@/features/pii/protection-status-card";
+import { TaskQueuePanel } from "@/features/tasks/task-queue-panel";
 import { WorkspaceRenameForm } from "@/features/workspace/workspace-rename-form";
 import { WorkspaceSetupForm } from "@/features/workspace/workspace-setup-form";
 import { getWorkspaceEntitySummary } from "@/server/entities/get-entity-summary";
 import { getWorkspaceHistory } from "@/server/history/get-workspace-history";
 import { getOpportunityPipeline } from "@/server/opportunities/get-opportunity-pipeline";
 import { getPiiProtectionStatus } from "@/server/pii/get-protection-status";
+import { getTaskQueue } from "@/server/tasks/get-task-queue";
 import { getWorkspaceAccess } from "@/server/workspace/access";
+import { defaultIstanbulTaskActionAt } from "@/shared/time/istanbul";
 
 export const metadata: Metadata = {
   title: "Çalışma alanı",
@@ -26,14 +29,15 @@ export default async function WorkspacePage() {
     redirect("/giris");
   }
 
-  const [entitySummary, opportunityPipeline, piiProtection, history] = access.ok
+  const [entitySummary, opportunityPipeline, taskQueue, piiProtection, history] = access.ok
     ? await Promise.all([
         getWorkspaceEntitySummary(access.workspace.id),
         getOpportunityPipeline(access.workspace.id),
+        getTaskQueue(access.workspace.id),
         getPiiProtectionStatus(),
         getWorkspaceHistory(access.workspace.id, access.membership.role),
       ])
-    : [null, null, null, null];
+    : [null, null, null, null, null];
 
   return (
     <div className="px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -150,6 +154,14 @@ export default async function WorkspacePage() {
 
             {opportunityPipeline ? (
               <OpportunityPipeline result={opportunityPipeline} />
+            ) : null}
+
+            {taskQueue ? (
+              <TaskQueuePanel
+                canManage={access.membership.role !== "viewer"}
+                defaultActionAt={defaultIstanbulTaskActionAt()}
+                result={taskQueue}
+              />
             ) : null}
 
             {piiProtection ? (

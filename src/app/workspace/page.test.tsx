@@ -5,6 +5,7 @@ const {
   getWorkspaceHistoryMock,
   getOpportunityPipelineMock,
   getPiiProtectionStatusMock,
+  getTaskQueueMock,
   getWorkspaceAccessMock,
   getWorkspaceEntitySummaryMock,
   redirectMock,
@@ -12,6 +13,7 @@ const {
   getWorkspaceHistoryMock: vi.fn(),
   getOpportunityPipelineMock: vi.fn(),
   getPiiProtectionStatusMock: vi.fn(),
+  getTaskQueueMock: vi.fn(),
   getWorkspaceAccessMock: vi.fn(),
   getWorkspaceEntitySummaryMock: vi.fn(),
   redirectMock: vi.fn(),
@@ -37,6 +39,10 @@ vi.mock("@/server/pii/get-protection-status", () => ({
   getPiiProtectionStatus: getPiiProtectionStatusMock,
 }));
 
+vi.mock("@/server/tasks/get-task-queue", () => ({
+  getTaskQueue: getTaskQueueMock,
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
 }));
@@ -52,6 +58,19 @@ vi.mock("@/features/workspace/workspace-setup-form", () => ({
 vi.mock("@/features/workspace/workspace-rename-form", () => ({
   WorkspaceRenameForm: ({ currentName }: { currentName: string }) => (
     <form aria-label="Workspace adlandırma formu" data-current-name={currentName} />
+  ),
+}));
+
+vi.mock("@/features/tasks/task-queue-panel", () => ({
+  TaskQueuePanel: ({
+    canManage,
+  }: {
+    canManage: boolean;
+  }) => (
+    <section
+      aria-label="Görevler ve gecikmiş takipler"
+      data-can-manage={String(canManage)}
+    />
   ),
 }));
 
@@ -95,6 +114,16 @@ describe("WorkspacePage", () => {
         keyRotation: "Sürümlü",
       },
     });
+    getTaskQueueMock.mockResolvedValue({
+      ok: true,
+      data: {
+        overdue: [],
+        today: [],
+        upcoming: [],
+        total: 0,
+        truncated: false,
+      },
+    });
   });
 
   afterEach(() => {
@@ -102,6 +131,7 @@ describe("WorkspacePage", () => {
     getWorkspaceHistoryMock.mockReset();
     getOpportunityPipelineMock.mockReset();
     getPiiProtectionStatusMock.mockReset();
+    getTaskQueueMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     getWorkspaceEntitySummaryMock.mockReset();
     redirectMock.mockReset();
@@ -181,6 +211,9 @@ describe("WorkspacePage", () => {
       "a0000000-0000-4000-8000-000000000001",
     );
     expect(getPiiProtectionStatusMock).toHaveBeenCalledOnce();
+    expect(getTaskQueueMock).toHaveBeenCalledWith(
+      "a0000000-0000-4000-8000-000000000001",
+    );
     expect(getWorkspaceHistoryMock).toHaveBeenCalledWith(
       "a0000000-0000-4000-8000-000000000001",
       "owner",
@@ -194,6 +227,11 @@ describe("WorkspacePage", () => {
     expect(
       screen.getByRole("heading", { name: "Geçmiş ve audit" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", {
+        name: "Görevler ve gecikmiş takipler",
+      }),
+    ).toHaveAttribute("data-can-manage", "true");
     expect(
       screen.getByText(
         "Henüz fırsat yok. İlk fırsat eklendiğinde aşama dağılımı burada görünecek.",
@@ -238,6 +276,11 @@ describe("WorkspacePage", () => {
       "b0000000-0000-4000-8000-000000000002",
       "viewer",
     );
+    expect(
+      screen.getByRole("region", {
+        name: "Görevler ve gecikmiş takipler",
+      }),
+    ).toHaveAttribute("data-can-manage", "false");
   });
 
   it("özet servisi kullanılamıyorsa Türkçe hata durumunu gösterir", async () => {

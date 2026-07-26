@@ -118,7 +118,7 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi ve iletişim engeli çekirdeği hazır; kalan alan tabloları henüz yok | Hazır alan tabloları RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi kuyruğu ve iletişim engeli çekirdeği hazır; kalan alan tabloları henüz yok | Hazır alan tabloları RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |

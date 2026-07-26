@@ -130,7 +130,7 @@ describe("resolveOpportunityDetail", () => {
         timeline: [
           {
             id: "50000000-0000-4000-8000-000000000003",
-            event_type: "task.completed",
+            event_type: "record.completed",
             details: { safe_status: "private-value" },
             occurred_at: "2026-07-26T11:00:00+03:00",
           },
@@ -147,6 +147,49 @@ describe("resolveOpportunityDetail", () => {
         detail: null,
       });
       expect(JSON.stringify(result)).not.toContain("private-value");
+    }
+  });
+
+  it("görev erteleme ve tamamlama olaylarını ham metadata olmadan Türkçeleştirir", async () => {
+    const result = await resolveOpportunityDetail(async () => ({
+      data: {
+        ...detailRow,
+        timeline: [
+          {
+            id: "50000000-0000-4000-8000-000000000005",
+            event_type: "task.rescheduled",
+            details: { task_id: "private-task-reference" },
+            occurred_at: "2026-07-26T11:00:00+03:00",
+          },
+          {
+            id: "50000000-0000-4000-8000-000000000006",
+            event_type: "task.completed",
+            details: { task_id: "private-task-reference" },
+            occurred_at: "2026-07-26T12:00:00+03:00",
+          },
+        ],
+      },
+      error: null,
+    }));
+
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.data.timeline).toEqual([
+        {
+          id: "50000000-0000-4000-8000-000000000005",
+          title: "Görev tarihi güncellendi",
+          detail: null,
+          occurredAt: "2026-07-26T11:00:00+03:00",
+        },
+        {
+          id: "50000000-0000-4000-8000-000000000006",
+          title: "Görev tamamlandı",
+          detail: null,
+          occurredAt: "2026-07-26T12:00:00+03:00",
+        },
+      ]);
+      expect(JSON.stringify(result)).not.toContain("private-task-reference");
     }
   });
 

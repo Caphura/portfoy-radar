@@ -1194,6 +1194,8 @@ export type Database = {
       }
       tasks: {
         Row: {
+          completed_at: string | null
+          completed_by: string | null
           created_at: string
           created_by: string
           due_at: string
@@ -1206,6 +1208,8 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
           created_by: string
           due_at: string
@@ -1218,6 +1222,8 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
           created_by?: string
           due_at?: string
@@ -1230,6 +1236,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_conversation_opportunity_workspace_fkey"
             columns: [
@@ -1425,6 +1438,33 @@ export type Database = {
           },
         ]
       }
+      current_workspace_open_tasks: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          district: string | null
+          due_at: string | null
+          is_current_next_action: boolean | null
+          neighborhood: string | null
+          opportunity_id: string | null
+          property_id: string | null
+          property_type: Database["public"]["Enums"]["property_type"] | null
+          stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          task_id: string | null
+          task_status: Database["public"]["Enums"]["task_status"] | null
+          task_type: Database["public"]["Enums"]["task_type"] | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_workspace_opportunity_detail: {
         Row: {
           asking_price: number | null
@@ -1536,6 +1576,21 @@ export type Database = {
           membership_role: Database["public"]["Enums"]["workspace_role"]
           workspace_id: string
           workspace_name: string
+        }[]
+      }
+      complete_task: {
+        Args: {
+          requested_next_action_at?: string
+          requested_next_action_type?: Database["public"]["Enums"]["opportunity_next_action_type"]
+          requested_task_id: string
+        }
+        Returns: {
+          completed_at: string
+          next_action_at: string
+          next_action_type: Database["public"]["Enums"]["opportunity_next_action_type"]
+          opportunity_id: string
+          replaced_current_action: boolean
+          task_id: string
         }[]
       }
       create_opportunity: {
@@ -1692,6 +1747,15 @@ export type Database = {
           occurred_at: string
           opportunity_id: string
           requires_follow_up: boolean
+        }[]
+      }
+      reschedule_task: {
+        Args: { requested_due_at: string; requested_task_id: string }
+        Returns: {
+          due_at: string
+          opportunity_id: string
+          task_id: string
+          updated_current_action: boolean
         }[]
       }
       resolve_quick_fsbo_duplicate: {
