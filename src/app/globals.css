@@ -21,6 +21,7 @@ html {
 body {
   min-height: 100dvh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--ink);
   background:
     radial-gradient(circle at 85% 6%, rgba(72, 164, 119, 0.12), transparent 27rem),
@@ -39,4 +40,18 @@ a {
 ::selection {
   color: white;
   background: var(--brand);
+}
+
+.mobile-safe-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.app-shell-content {
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 64rem) {
+  .app-shell-content {
+    padding-bottom: 0;
+  }
 }

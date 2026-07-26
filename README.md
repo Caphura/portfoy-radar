@@ -27,6 +27,8 @@ Mevcut uygulama dilimleri şunları içerir:
 - Workspace/fırsat kritik işlemlerinde atomik aktivite + audit kaydı ve request iz kimliği
 - Owner-only, `private, no-store` audit API'si ile mobil geçmiş zaman çizelgesi
 - Mobil, yetkili ve `private, no-store` fırsat hunisi
+- Sunucuda workspace yetkisi doğrulanan responsive uygulama kabuğu
+- Ana Sayfa, Radar, Ekle, Takvim ve Raporlar için erişilebilir mobil alt navigasyon
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları

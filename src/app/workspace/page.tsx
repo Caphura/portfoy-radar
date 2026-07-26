@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { logoutAction } from "@/features/auth/actions";
 import { HistoryPanel } from "@/features/history/history-panel";
 import { OpportunityPipeline } from "@/features/opportunities/opportunity-pipeline";
 import { PiiProtectionStatusCard } from "@/features/pii/protection-status-card";
@@ -12,7 +11,6 @@ import { getWorkspaceHistory } from "@/server/history/get-workspace-history";
 import { getOpportunityPipeline } from "@/server/opportunities/get-opportunity-pipeline";
 import { getPiiProtectionStatus } from "@/server/pii/get-protection-status";
 import { getWorkspaceAccess } from "@/server/workspace/access";
-import type { WorkspaceRole } from "@/server/workspace/roles";
 
 export const metadata: Metadata = {
   title: "Çalışma alanı",
@@ -20,25 +18,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const roleLabels: Record<WorkspaceRole, string> = {
-  owner: "Sahip",
-  advisor: "Danışman",
-  viewer: "Görüntüleyici",
-};
-
-function SignOutForm() {
-  return (
-    <form action={logoutAction}>
-      <button
-        className="min-h-11 rounded-2xl border border-[var(--line)] bg-white/75 px-4 text-sm font-bold text-[var(--ink)] transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand)]"
-        type="submit"
-      >
-        Çıkış yap
-      </button>
-    </form>
-  );
-}
 
 export default async function WorkspacePage() {
   const access = await getWorkspaceAccess();
@@ -57,28 +36,8 @@ export default async function WorkspacePage() {
     : [null, null, null, null];
 
   return (
-    <main className="min-h-dvh px-4 py-5 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-4xl">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[var(--brand)] text-sm font-black text-white"
-            >
-              PR
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-base font-extrabold text-[var(--ink)]">
-                Portföy Radar
-              </p>
-              <p className="truncate text-xs font-medium text-[var(--muted)]">
-                Güvenli çalışma alanı
-              </p>
-            </div>
-          </div>
-          <SignOutForm />
-        </header>
-
+    <div className="px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+      <div className="mx-auto w-full max-w-5xl">
         {!access.ok && access.error.code === "WORKSPACE_REQUIRED" ? (
           <section className="mt-8 rounded-[2rem] border border-white/80 bg-white/85 p-5 shadow-[0_24px_70px_rgba(18,37,29,0.12)] backdrop-blur sm:p-8">
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[var(--brand)]">
@@ -118,18 +77,22 @@ export default async function WorkspacePage() {
         ) : null}
 
         {access.ok ? (
-          <section className="mt-8 overflow-hidden rounded-[2rem] bg-[var(--ink)] p-5 text-white shadow-[0_24px_70px_rgba(18,37,29,0.15)] sm:p-8">
+          <section className="overflow-hidden rounded-[2rem] bg-[var(--ink)] p-5 text-white shadow-[0_24px_70px_rgba(18,37,29,0.15)] sm:p-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-emerald-300">
-                  Aktif çalışma alanı
+                  Ana Sayfa
                 </p>
                 <h1 className="mt-2 break-words text-3xl font-black tracking-[-0.05em]">
                   {access.workspace.name}
                 </h1>
               </div>
               <span className="w-fit rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-bold">
-                {roleLabels[access.membership.role]}
+                {access.membership.role === "owner"
+                  ? "Sahip"
+                  : access.membership.role === "advisor"
+                    ? "Danışman"
+                    : "Görüntüleyici"}
               </span>
             </div>
 
@@ -217,6 +180,6 @@ export default async function WorkspacePage() {
           </section>
         ) : null}
       </div>
-    </main>
+    </div>
   );
 }
