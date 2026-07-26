@@ -236,6 +236,58 @@ describe("resolveWorkspaceHistory", () => {
     expect(JSON.stringify(result)).not.toContain("phone");
   });
 
+  it("iletişim engeli olayını serbest neden taşımadan Türkçeleştirir", async () => {
+    const result = await resolveWorkspaceHistory(
+      "owner",
+      async () => ({
+        data: [
+          {
+            id: activityId,
+            event_type: "contact.communication_blocked",
+            entity_type: "contact",
+            details: {
+              status: "active",
+              affected_opportunity_count: 2,
+              cancelled_task_count: 1,
+            },
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+      async () => ({
+        data: [
+          {
+            id: auditId,
+            action: "contact.communication_blocked",
+            actor_id: actorId,
+            entity_type: "contact",
+            request_id: requestId,
+            occurred_at: occurredAt,
+          },
+        ],
+        error: null,
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.data.activity[0]).toMatchObject({
+      title: "Kişi Aranmayacak olarak işaretlendi",
+      detail: null,
+      entityLabel: "Kişi",
+    });
+    expect(result.data.audit.items[0]).toMatchObject({
+      title: "Kişi Aranmayacak olarak işaretlendi",
+      entityLabel: "Kişi",
+    });
+    expect(JSON.stringify(result)).not.toContain("reason");
+  });
+
   it("veritabanı hatasını veya bozuk sözleşmeyi ayrıntı sızdırmadan reddeder", async () => {
     const privateError = "private-history-error";
     const queryFailure = await resolveWorkspaceHistory(

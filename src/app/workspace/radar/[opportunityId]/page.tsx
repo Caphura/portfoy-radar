@@ -40,6 +40,10 @@ export default async function OpportunityDetailPage({
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       {access.ok ? (
         <OpportunityDetailView
+          canManageCommunicationBlock={
+            access.membership.role === "owner" ||
+            access.membership.role === "advisor"
+          }
           canRecordConversation={
             access.membership.role === "owner" ||
             access.membership.role === "advisor"

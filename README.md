@@ -41,6 +41,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Fırsattan manuel görüşme kaydı; kanal, sonuç, zaman ve isteğe bağlı şifreli not
 - Takip gerektiren görüşmede şifreli amaç, açık görev ve fırsat sonraki işlemini atomik oluşturan akış
 - Ayrı, RLS/FORCE korumalı `conversations` ve `tasks` tabloları ile redakte görüşme timeline olayı
+- Kişi düzeyinde, geçmişi korunan ve nedeni şifreli `Aranmayacak` iletişim engeli
+- Aynı kişinin bütün açık fırsatlarını kapatan, açık görevlerini iptal eden ve audit üreten atomik işlem
+- Engel kaldırıldığında eski fırsat/görevleri açmayan, aktif engellileri merkezi uygunluk görünümünden eleyen altyapı
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
@@ -168,6 +171,13 @@ pnpm test:governance
 - Görüşme ve takip görevi doğrudan tablo yazımıyla değil, üyelik ve
   `owner`/`advisor` rolünü yeniden doğrulayan tek bir atomik RPC ile oluşturulur.
   `Ulaşılamadı` yalnız görüşme sonucudur ve fırsat aşamasını otomatik değiştirmez.
+- `Aranmayacak` tek fırsat geçişi değildir. Kişi düzeyindeki aktif iletişim
+  engeli aynı workspace içindeki bütün açık fırsatları kapatır, sonraki işlemleri
+  temizler ve açık görevleri iptal eder. Engel varken DB trigger'ları yeni açık
+  fırsat/görev oluşmasını da reddeder.
+- Engel ve kaldırma nedenleri ayrı AES-256-GCM amaçlarıyla şifrelenir; normal
+  kullanıcı sütun grant'ine, timeline'a veya audit metadata'sına girmez. Engel
+  kaldırılınca eski fırsatlar ve görevler otomatik açılmaz.
 - Oturum yenilemesi `proxy.ts` ile yapılır; nihai kullanıcı doğrulaması sunucu
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,

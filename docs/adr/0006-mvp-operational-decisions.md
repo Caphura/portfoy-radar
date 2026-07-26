@@ -29,6 +29,11 @@ Eşitlikte önce `next_action_at`, sonra fırsat oluşturma zamanı, sonra UUID
 sıralanır. Arayüz toplamın yanında her bileşeni Türkçe gösterir. Puan tek başına
 otomatik arama veya mesaj başlatamaz.
 
+İletişime uygun aday kümesi tekil ekran sorgularıyla yeniden hesaplanmaz.
+`current_workspace_contactable_opportunities` merkezi allowlist'i; aktif kişi
+engeli olan ve kapanmış fırsatları RLS altında eler. Günlük sıra ve otomatik
+görev önerileri yalnızca bu sözleşmeye katılacaktır.
+
 ### Pazar analizi
 
 - Emsaller yalnızca kullanıcı tarafından manuel girilir veya onaylanmış CSV ile

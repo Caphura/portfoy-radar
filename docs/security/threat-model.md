@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.7
+- Sürüm: 1.8
 - Tarih: 2026-07-26
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -83,6 +83,9 @@ Güven sınırları:
 | TM-I-05 | Bilgi ifşası | Anahtar veya PII'nin kaynak kodu, Git geçmişi ya da telemetry'ye girmesi | Kritik | `.env` ignore, secret taraması, redakte loglama, anahtar rotasyon prosedürü | Geliştiricinin manuel paylaşımı |
 | TM-T-05 | Veri tahrifi | Takip gereken görüşmenin görev veya sonraki işlem olmadan kısmi kaydedilmesi | Yüksek | Paylaşılan Zod doğrulaması, DB CHECK'leri, rol kontrollü atomik RPC ve rollback testi | Ayrıcalıklı DB yöneticisi |
 | TM-I-06 | Bilgi ifşası | Serbest görüşme notu veya takip amacının timeline, audit ya da istemci sütun grant'i üzerinden açığa çıkması | Kritik | Alan bazlı AES-GCM amaç ayrımı, şifreli sütunlara grant yok, redakte metadata constraint'i ve DTO testi | Uygulama sunucusu veya keyring ihlali |
+| TM-T-06 | Veri tahrifi | Tek fırsatı Aranmayacak yapıp aynı kişinin diğer fırsatlarından iletişime devam edilmesi | Kritik | Kişi düzeyinde tek aktif engel, bütün açık fırsatları kapatan atomik RPC, aktif engelde açık fırsat/görev yasağı ve çok fırsatlı DB testi | Aynı gerçek kişinin kullanıcı onayıyla ayrı kişi kayıtlarında tutulması |
+| TM-R-02 | İnkâr etme | Kullanıcının iletişim engeli koyduğunu veya kaldırdığını reddetmesi | Yüksek | Şifreli neden, aktör/zaman, ortak request izli append-only audit ve kaldırmada eski kayıtları açmama | Paylaşılan kullanıcı hesabı |
+| TM-I-07 | Bilgi ifşası | Aranmayacak veya kaldırma serbest nedeninin listede, audit metadata'sında ya da hata çıktısında görünmesi | Kritik | Ayrı AES-GCM amaçları, şifreli sütun grant yasağı, sabit aşama nedeni, redakte audit ve servis hata testleri | Uygulama sunucusu veya keyring ihlali |
 | TM-D-02 | Hizmet/kötüye kullanım | Uygulamanın mesaj, arama veya portal tarama aracına dönüştürülmesi | Yüksek | Sağlayıcı/queue yok, otomatik gönderim ve scraping için mimari yokluk testi, ADR değişikliği zorunluluğu | Gelecekte kontrolsüz kapsam genişlemesi |
 
 ## Güvenlik gereksinimleri
@@ -115,7 +118,7 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama ve görüşme/takip görevi çekirdeği hazır; kalan alan tabloları henüz yok | Hazır alan tabloları RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat ve görüşme yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi ve iletişim engeli çekirdeği hazır; kalan alan tabloları henüz yok | Hazır alan tabloları RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |

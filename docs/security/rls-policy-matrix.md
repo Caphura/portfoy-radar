@@ -28,12 +28,14 @@ giremez.
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
 | `conversations` | Yok | Üye olduğu workspace için yalnız kanal, sonuç, zaman ve takip metadata'sı | Yalnızca `record_conversation` RPC | RLS/FORCE; not ve takip amacı şifreli zarf sütunları authenticated role kapalı; fırsat bağı bileşik workspace FK'li |
 | `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation` RPC | RLS/FORCE; kaynak görüşme ve fırsat bağları bileşik workspace FK'li; bu dilimde yalnız açık takip görevi üretilir |
+| `communication_blocks` | Yok | Üye olduğu workspace için aktör/zaman ve aktiflik metadata'sı | Yalnızca engelleme/kaldırma RPC'leri | RLS/FORCE; engel ve kaldırma nedenlerinin şifreli zarfları authenticated sütun grant'ine kapalı; kişi bağı bileşik workspace FK'li; kişi başına tek aktif engel |
 | `opportunity_stage_history` | Yok | Yalnızca üye olduğu workspace | Yok | Trigger üretir; authenticated ve service-role update/delete yapamaz |
 | `activity_history` | Yok | Yalnızca üye olduğu workspace | Yok | Audit'ten ayrı kullanıcı zaman çizelgesi; trigger üretir, metadata PII anahtarlarını reddeder |
 | `audit_logs` | Yok | Yalnızca `owner` | Yok | Request UUID ve redakte metadata; authenticated ve service-role update/delete yapamaz |
 | `current_workspace_opportunity_pipeline` | Yok | Güncel workspace için 11 aşamalı sayı DTO'su | Yok | `security_invoker=true`; boş aşamaları da sıfırla döndürür |
 | `current_workspace_radar` | Yok | Güncel workspace için fırsat, gayrimenkul ve tek kaynak ilan DTO'su | Yok | `security_invoker=true`, `security_barrier=true`; kişi, telefon, e-posta, blind index ve canonical URL içermez |
 | `current_workspace_opportunity_detail` | Yok | Üye olduğu workspace içindeki tek fırsatın güvenli özeti ve en yeni 50 aktivite olayı | Yok | `security_invoker=true`, `security_barrier=true`; PII, audit kimliği ve serbest aşama nedeni içermez; kaynak tabloların RLS'sini uygular |
+| `current_workspace_contactable_opportunities` | Yok | Üye olduğu workspace için yalnız iletişime uygun açık fırsat/kişi kimlikleri | Yok | `security_invoker=true`, `security_barrier=true`; kapanmış ve aktif engelli kişileri merkezi olarak eler; arama sırası ve otomatik görev önerileri bu allowlist'i kullanır |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
 `create_quick_fsbo` komutu `authenticated` role kapalıdır.
@@ -48,6 +50,13 @@ içinde tamamlar.
 eder. Takip gereken kayıtta görüşme, görev, fırsatın sonraki işlemi, redakte
 aktivite olayı ve audit olayı aynı transaction içinde yazılır. `viewer` ve
 başka workspace fırsatları hem RPC kontrolünde hem RLS altında reddedilir.
+
+`mark_contact_do_not_call` ve `lift_contact_communication_block` workspace
+kimliği veya kişi kimliği kabul etmez; kişi bağını erişilebilir fırsattan çözer.
+Yalnızca `owner` ve `advisor` çalıştırabilir. Engelleme; kişi engeli, bütün açık
+fırsat geçişleri, açık görev iptalleri ve redakte geçmişleri tek transaction'da
+yazar. Kaldırma eski fırsat veya görevleri yeniden açmaz. Aktif engelde açık
+fırsat ve görev oluşması ayrıca DB trigger'larıyla reddedilir.
 
 ## Yeni tablo kabul kapısı
 

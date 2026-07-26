@@ -20,6 +20,10 @@ vi.mock("@/features/conversations/conversation-form", () => ({
   ConversationForm: () => <section aria-label="Görüşme kayıt formu" />,
 }));
 
+vi.mock("@/features/communication-blocks/do-not-call-control", () => ({
+  DoNotCallControl: () => <section aria-label="Aranmayacak yönetimi" />,
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
 }));

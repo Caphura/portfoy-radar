@@ -145,6 +145,95 @@ export type Database = {
           },
         ]
       }
+      communication_blocks: {
+        Row: {
+          blocked_at: string
+          blocked_by: string
+          contact_id: string
+          id: string
+          lift_reason_algorithm: string | null
+          lift_reason_auth_tag: string | null
+          lift_reason_ciphertext: string | null
+          lift_reason_key_version: number | null
+          lift_reason_nonce: string | null
+          lifted_at: string | null
+          lifted_by: string | null
+          reason_algorithm: string
+          reason_auth_tag: string
+          reason_ciphertext: string
+          reason_key_version: number
+          reason_nonce: string
+          workspace_id: string
+        }
+        Insert: {
+          blocked_at?: string
+          blocked_by: string
+          contact_id: string
+          id?: string
+          lift_reason_algorithm?: string | null
+          lift_reason_auth_tag?: string | null
+          lift_reason_ciphertext?: string | null
+          lift_reason_key_version?: number | null
+          lift_reason_nonce?: string | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason_algorithm: string
+          reason_auth_tag: string
+          reason_ciphertext: string
+          reason_key_version: number
+          reason_nonce: string
+          workspace_id: string
+        }
+        Update: {
+          blocked_at?: string
+          blocked_by?: string
+          contact_id?: string
+          id?: string
+          lift_reason_algorithm?: string | null
+          lift_reason_auth_tag?: string | null
+          lift_reason_ciphertext?: string | null
+          lift_reason_key_version?: number | null
+          lift_reason_nonce?: string | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason_algorithm?: string
+          reason_auth_tag?: string
+          reason_ciphertext?: string
+          reason_key_version?: number
+          reason_nonce?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_blocks_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_blocks_contact_workspace_fkey"
+            columns: ["workspace_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "communication_blocks_lifted_by_fkey"
+            columns: ["lifted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_blocks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_methods: {
         Row: {
           blind_index: string | null
@@ -357,6 +446,13 @@ export type Database = {
             foreignKeyName: "conversations_opportunity_workspace_fkey"
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "conversations_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_opportunity_detail"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -472,6 +568,13 @@ export type Database = {
             foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
             columns: ["workspace_id", "result_opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
+            columns: ["workspace_id", "result_opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_opportunity_detail"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -516,6 +619,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "listings"
             referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
+            columns: ["workspace_id", "selected_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
             foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
@@ -815,6 +925,13 @@ export type Database = {
             foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_opportunity_detail"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -885,6 +1002,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
             foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
@@ -1251,6 +1375,39 @@ export type Database = {
           },
         ]
       }
+      current_workspace_contactable_opportunities: {
+        Row: {
+          contact_id: string | null
+          opportunity_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          opportunity_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          opportunity_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_contact_workspace_fkey"
+            columns: ["workspace_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunities_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_workspace_entity_counts: {
         Row: {
           contact_count: number | null
@@ -1273,6 +1430,7 @@ export type Database = {
           asking_price: number | null
           city: string | null
           closed_at: string | null
+          communication_block_active: boolean | null
           created_at: string | null
           currency: string | null
           district: string | null
@@ -1471,6 +1629,40 @@ export type Database = {
           property_id: string
           room_count: number
           transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }[]
+      }
+      lift_contact_communication_block: {
+        Args: {
+          requested_lift_reason_algorithm: string
+          requested_lift_reason_auth_tag: string
+          requested_lift_reason_ciphertext: string
+          requested_lift_reason_key_version: number
+          requested_lift_reason_nonce: string
+          requested_opportunity_id: string
+        }
+        Returns: {
+          communication_block_active: boolean
+          communication_block_id: string
+          origin_opportunity_id: string
+          reopened_opportunity_count: number
+          reopened_task_count: number
+        }[]
+      }
+      mark_contact_do_not_call: {
+        Args: {
+          requested_opportunity_id: string
+          requested_reason_algorithm: string
+          requested_reason_auth_tag: string
+          requested_reason_ciphertext: string
+          requested_reason_key_version: number
+          requested_reason_nonce: string
+        }
+        Returns: {
+          affected_opportunity_count: number
+          cancelled_task_count: number
+          communication_block_active: boolean
+          communication_block_id: string
+          origin_opportunity_id: string
         }[]
       }
       record_conversation: {

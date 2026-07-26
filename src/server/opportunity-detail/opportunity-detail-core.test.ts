@@ -28,6 +28,7 @@ const detailRow = {
   asking_price: 5000000,
   currency: "TRY",
   last_seen_at: "2026-07-26T09:00:00+03:00",
+  communication_block_active: false,
   timeline: [
     {
       id: "50000000-0000-4000-8000-000000000002",
@@ -81,6 +82,7 @@ describe("resolveOpportunityDetail", () => {
         neighborhood: "Moda",
       },
     });
+    expect(result.data.communicationBlock).toEqual({ active: false });
     expect(result.data.timeline).toEqual([
       {
         id: "50000000-0000-4000-8000-000000000002",
@@ -101,6 +103,24 @@ describe("resolveOpportunityDetail", () => {
     expect(serialized).not.toContain("detayda-gosterilmemeli");
     expect(serialized).not.toContain("contact_id");
     expect(serialized).not.toContain("audit_log_id");
+  });
+
+  it("aktif iletişim engelini kişi kimliği olmadan güvenli boolean DTOya taşır", async () => {
+    const result = await resolveOpportunityDetail(async () => ({
+      data: {
+        ...detailRow,
+        communication_block_active: true,
+        contact_id: "60000000-0000-4000-8000-000000000001",
+      },
+      error: null,
+    }));
+
+    expect(result.ok).toBe(true);
+
+    if (result.ok) {
+      expect(result.data.communicationBlock).toEqual({ active: true });
+      expect(JSON.stringify(result)).not.toContain("contact_id");
+    }
   });
 
   it("bilinmeyen güvenli olayı ham metadata taşımadan genel etiketler", async () => {

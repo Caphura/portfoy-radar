@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DoNotCallControl } from "@/features/communication-blocks/do-not-call-control";
 import { ConversationForm } from "@/features/conversations/conversation-form";
 import type {
   OpportunityDetailResult,
@@ -12,6 +13,7 @@ type OpportunityDetailViewProps = {
   canRecordConversation?: boolean;
   defaultConversationOccurredAt?: string;
   defaultConversationFollowUpAt?: string;
+  canManageCommunicationBlock?: boolean;
 };
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
@@ -123,6 +125,7 @@ export function OpportunityDetailView({
   canRecordConversation = false,
   defaultConversationOccurredAt = "",
   defaultConversationFollowUpAt = "",
+  canManageCommunicationBlock = false,
 }: OpportunityDetailViewProps) {
   if (!result.ok) {
     const notFound = result.error.code === "NOT_FOUND";
@@ -153,7 +156,7 @@ export function OpportunityDetailView({
     );
   }
 
-  const { opportunity, timeline } = result.data;
+  const { communicationBlock, opportunity, timeline } = result.data;
   const location = formatLocation(opportunity);
 
   return (
@@ -221,6 +224,12 @@ export function OpportunityDetailView({
               </div>
             </dl>
           </section>
+
+          <DoNotCallControl
+            active={communicationBlock.active}
+            canManage={canManageCommunicationBlock}
+            opportunityId={opportunity.id}
+          />
 
           {canRecordConversation ? (
             <ConversationForm

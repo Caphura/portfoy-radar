@@ -26,6 +26,7 @@ const timelineEventSchema = z.object({
   occurred_at: z.iso.datetime({ offset: true }),
 });
 const detailRowSchema = z.object({
+  communication_block_active: z.boolean(),
   timeline: z.array(timelineEventSchema).max(50),
 });
 const stageDetailsSchema = z.object({
@@ -65,6 +66,9 @@ export type OpportunityTimelineItem = {
 
 export type OpportunityDetail = {
   opportunity: RadarOpportunity;
+  communicationBlock: {
+    active: boolean;
+  };
   timeline: OpportunityTimelineItem[];
 };
 
@@ -226,6 +230,9 @@ export async function resolveOpportunityDetail(
     ok: true,
     data: {
       opportunity,
+      communicationBlock: {
+        active: parsedDetail.data.communication_block_active,
+      },
       timeline: parsedDetail.data.timeline.map((event) => ({
         id: event.id,
         title: eventTitles[event.event_type] ?? "İşlem kaydedildi",

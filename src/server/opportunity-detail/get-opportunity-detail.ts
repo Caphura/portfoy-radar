@@ -46,7 +46,7 @@ export async function getOpportunityDetail(
     clientResult.client
       .from("current_workspace_opportunity_detail")
       .select(
-        "workspace_id, opportunity_id, stage, next_action_type, next_action_at, closed_at, created_at, updated_at, property_id, property_type, city, district, neighborhood, room_count, living_room_count, net_area_sqm, gross_area_sqm, listing_id, platform, external_listing_id, transaction_type, listing_status, asking_price, currency, last_seen_at, timeline",
+        "workspace_id, opportunity_id, stage, next_action_type, next_action_at, closed_at, created_at, updated_at, property_id, property_type, city, district, neighborhood, room_count, living_room_count, net_area_sqm, gross_area_sqm, listing_id, platform, external_listing_id, transaction_type, listing_status, asking_price, currency, last_seen_at, timeline, communication_block_active",
       )
       .eq("workspace_id", parsedWorkspaceId.data)
       .eq("opportunity_id", parsedOpportunityId.data)

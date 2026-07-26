@@ -537,8 +537,8 @@ select is(
 
 select is(
   (select schema_version from public.app_config),
-  11,
-  'sonraki görüşme migrationı şema sözleşmesini 11 yapar'
+  12,
+  'sonraki iletişim engeli migrationı şema sözleşmesini 12 yapar'
 );
 
 select * from finish();

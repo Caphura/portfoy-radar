@@ -105,3 +105,14 @@ fırsatın `Takip et` sonraki işlemi, redakte aktivite ve audit olayı tek atom
 RPC'de yazılır. `Ulaşılamadı` yalnız sonuç enum'udur; hiçbir aşama geçişi
 tetiklemez. Owner ve danışman yazabilir, viewer yalnız güvenli metadata'yı
 okuyabilir; serbest notlar ve amaçlar timeline'a ya da audit'e taşınmaz.
+
+Aynı tarihli `Aranmayacak` diliminde iletişim engeli kişi ve fırsattan ayrı,
+RLS/FORCE korumalı geçmiş kaydıdır. Owner veya danışman, etkisini açıkça
+onaylayıp şifreli neden sağladığında kişinin bütün açık fırsatları
+`Aranmayacak` aşamasında kapanır, sonraki işlemleri temizlenir ve açık takip
+görevleri aynı transaction'da iptal edilir. Aktif engelde yeni/açık fırsat ve
+açık görev oluşması DB trigger'larıyla reddedilir. Merkezi
+`current_workspace_contactable_opportunities` görünümü kapanmış veya aktif
+engelli kayıtları arama sırası ve görev önerilerinden eler. Engel kaldırma ayrı
+şifreli neden ve audit olayı üretir; eski fırsatları veya görevleri otomatik
+açmaz.

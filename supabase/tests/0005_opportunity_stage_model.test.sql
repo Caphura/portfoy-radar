@@ -40,8 +40,8 @@ select set_eq(
 
 select is(
   (select schema_version from public.app_config),
-  11,
-  'şema sözleşmesi sonraki görüşme migrationıyla sürüm 11 olur'
+  12,
+  'şema sözleşmesi sonraki iletişim engeli migrationıyla sürüm 12 olur'
 );
 
 select ok(

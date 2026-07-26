@@ -90,12 +90,15 @@ const eventTitles: Record<string, string> = {
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
   "duplicate.resolved": "Mükerrer kararı kaydedildi",
+  "contact.communication_blocked": "Kişi Aranmayacak olarak işaretlendi",
+  "contact.communication_block_lifted": "İletişim engeli kaldırıldı",
 };
 
 const entityLabels: Record<string, string> = {
   workspace: "Çalışma alanı",
   opportunity: "Fırsat",
   duplicate_review: "Mükerrer denetimi",
+  contact: "Kişi",
 };
 
 function eventTitle(eventType: string): string {

@@ -1,11 +1,26 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/features/conversations/conversation-form", () => ({
   ConversationForm: ({ opportunityId }: { opportunityId: string }) => (
-    <section>
+    <section aria-label="Görüşme kayıt formu">
       <h2>Görüşme kaydet</h2>
       <input name="opportunityId" readOnly value={opportunityId} />
+    </section>
+  ),
+}));
+
+vi.mock("@/features/communication-blocks/do-not-call-control", () => ({
+  DoNotCallControl: ({
+    active,
+    opportunityId,
+  }: {
+    active: boolean;
+    opportunityId: string;
+  }) => (
+    <section aria-label="Aranmayacak yönetimi">
+      <span>{active ? "Engel aktif" : "Engel yok"}</span>
+      <input name="blockOpportunityId" readOnly value={opportunityId} />
     </section>
   ),
 }));
@@ -17,6 +32,9 @@ import { OpportunityDetailView } from "./opportunity-detail-view";
 const successResult: OpportunityDetailResult = {
   ok: true,
   data: {
+    communicationBlock: {
+      active: false,
+    },
     opportunity: {
       id: "20000000-0000-4000-8000-000000000001",
       stage: "follow_up",
@@ -133,10 +151,33 @@ describe("OpportunityDetailView", () => {
     expect(
       screen.getByRole("heading", { name: "Görüşme kaydet" }),
     ).toBeInTheDocument();
-    expect(screen.getByDisplayValue(successResult.data.opportunity.id)).toHaveAttribute(
-      "name",
-      "opportunityId",
+    expect(
+      within(
+        screen.getByRole("region", { name: "Görüşme kayıt formu" }),
+      ).getByDisplayValue(successResult.data.opportunity.id),
+    ).toHaveAttribute("name", "opportunityId");
+  });
+
+  it("iletişim engeli durumunu mobil yönetim alanına fırsat kimliğiyle bağlar", () => {
+    render(
+      <OpportunityDetailView
+        canManageCommunicationBlock
+        result={{
+          ok: true,
+          data: {
+            ...successResult.data,
+            communicationBlock: { active: true },
+          },
+        }}
+      />,
     );
+
+    expect(
+      screen.getByRole("region", { name: "Aranmayacak yönetimi" }),
+    ).toHaveTextContent("Engel aktif");
+    expect(
+      screen.getByDisplayValue(successResult.data.opportunity.id),
+    ).toHaveAttribute("name", "blockOpportunityId");
   });
 
   it("bulunamadı ile servis hatasını ayrı ve güvenli durumlarda gösterir", () => {
