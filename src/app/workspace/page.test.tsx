@@ -1,8 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getWorkspaceAccessMock, getWorkspaceEntitySummaryMock, redirectMock } =
-  vi.hoisted(() => ({
+const {
+  getOpportunityPipelineMock,
+  getWorkspaceAccessMock,
+  getWorkspaceEntitySummaryMock,
+  redirectMock,
+} = vi.hoisted(() => ({
+    getOpportunityPipelineMock: vi.fn(),
     getWorkspaceAccessMock: vi.fn(),
     getWorkspaceEntitySummaryMock: vi.fn(),
     redirectMock: vi.fn(),
@@ -14,6 +19,10 @@ vi.mock("@/server/workspace/access", () => ({
 
 vi.mock("@/server/entities/get-entity-summary", () => ({
   getWorkspaceEntitySummary: getWorkspaceEntitySummaryMock,
+}));
+
+vi.mock("@/server/opportunities/get-opportunity-pipeline", () => ({
+  getOpportunityPipeline: getOpportunityPipelineMock,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -37,8 +46,28 @@ vi.mock("@/features/workspace/workspace-rename-form", () => ({
 import WorkspacePage from "./page";
 
 describe("WorkspacePage", () => {
+  beforeEach(() => {
+    getOpportunityPipelineMock.mockResolvedValue({
+      ok: true,
+      data: {
+        stages: [
+          {
+            stage: "new",
+            label: "Yeni",
+            count: 0,
+            closed: false,
+          },
+        ],
+        total: 0,
+        open: 0,
+        closed: 0,
+      },
+    });
+  });
+
   afterEach(() => {
     cleanup();
+    getOpportunityPipelineMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     getWorkspaceEntitySummaryMock.mockReset();
     redirectMock.mockReset();
@@ -114,6 +143,17 @@ describe("WorkspacePage", () => {
     expect(getWorkspaceEntitySummaryMock).toHaveBeenCalledWith(
       "a0000000-0000-4000-8000-000000000001",
     );
+    expect(getOpportunityPipelineMock).toHaveBeenCalledWith(
+      "a0000000-0000-4000-8000-000000000001",
+    );
+    expect(
+      screen.getByRole("heading", { name: "Fırsat hunisi" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Henüz fırsat yok. İlk fırsat eklendiğinde aşama dağılımı burada görünecek.",
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("form", { name: "Workspace adlandırma formu" }),
     ).toHaveAttribute("data-current-name", "Danışmanlık Ekibi");

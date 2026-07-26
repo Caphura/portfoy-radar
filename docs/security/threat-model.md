@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.1
+- Sürüm: 1.2
 - Tarih: 2026-07-26
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -113,7 +113,7 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS ve ilk kişi–gayrimenkul–ilan tabloları hazır; kalan alan tabloları henüz yok | Altı tablo RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; doğrudan istemci yazması kapalı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan ve fırsat/aşama çekirdeği hazır; kalan alan tabloları henüz yok | Alan tabloları RLS/FORCE, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS sağlayıcısı henüz bağlanmadı | PII depolanmıyor | Rotasyon ve round-trip testleri başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |

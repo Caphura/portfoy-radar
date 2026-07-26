@@ -7,7 +7,7 @@ insert into public.app_config (
 )
 values (
   true,
-  4,
+  5,
   'tr-TR',
   'Europe/Istanbul',
   'TRY'

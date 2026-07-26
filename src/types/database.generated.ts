@@ -36,6 +36,54 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json
+          occurred_at: string
+          workspace_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          workspace_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_methods: {
         Row: {
           blind_index: string | null
@@ -299,6 +347,203 @@ export type Database = {
           },
           {
             foreignKeyName: "listings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          archived_at: string | null
+          closed_at: string | null
+          contact_id: string
+          created_at: string
+          created_by: string
+          id: string
+          next_action_at: string | null
+          next_action_type:
+            | Database["public"]["Enums"]["opportunity_next_action_type"]
+            | null
+          property_id: string
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          closed_at?: string | null
+          contact_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          next_action_at?: string | null
+          next_action_type?:
+            | Database["public"]["Enums"]["opportunity_next_action_type"]
+            | null
+          property_id: string
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          closed_at?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          next_action_at?: string | null
+          next_action_type?:
+            | Database["public"]["Enums"]["opportunity_next_action_type"]
+            | null
+          property_id?: string
+          stage?: Database["public"]["Enums"]["opportunity_stage"]
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_contact_workspace_fkey"
+            columns: ["workspace_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_property_workspace_fkey"
+            columns: ["workspace_id", "property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunities_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_listings: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          listing_id: string
+          opportunity_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          listing_id: string
+          opportunity_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          listing_id?: string
+          opportunity_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_listings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_listing_workspace_fkey"
+            columns: ["workspace_id", "listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_stage_history: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          new_stage: Database["public"]["Enums"]["opportunity_stage"]
+          opportunity_id: string
+          previous_stage:
+            | Database["public"]["Enums"]["opportunity_stage"]
+            | null
+          reason: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          new_stage: Database["public"]["Enums"]["opportunity_stage"]
+          opportunity_id: string
+          previous_stage?:
+            | Database["public"]["Enums"]["opportunity_stage"]
+            | null
+          reason: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          new_stage?: Database["public"]["Enums"]["opportunity_stage"]
+          opportunity_id?: string
+          previous_stage?:
+            | Database["public"]["Enums"]["opportunity_stage"]
+            | null
+          reason?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_stage_history_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -593,6 +838,23 @@ export type Database = {
           },
         ]
       }
+      current_workspace_opportunity_pipeline: {
+        Row: {
+          opportunity_count: number | null
+          stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          stage_order: number | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       bootstrap_workspace: {
@@ -603,11 +865,63 @@ export type Database = {
           workspace_name: string
         }[]
       }
+      create_opportunity: {
+        Args: {
+          requested_contact_id: string
+          requested_next_action_at: string
+          requested_next_action_type: Database["public"]["Enums"]["opportunity_next_action_type"]
+          requested_property_id: string
+          requested_source_listing_id?: string
+        }
+        Returns: {
+          closed_at: string
+          next_action_at: string
+          next_action_type: Database["public"]["Enums"]["opportunity_next_action_type"]
+          opportunity_id: string
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+        }[]
+      }
+      transition_opportunity_stage: {
+        Args: {
+          requested_next_action_at?: string
+          requested_next_action_type?: Database["public"]["Enums"]["opportunity_next_action_type"]
+          requested_opportunity_id: string
+          requested_reason: string
+          requested_stage: Database["public"]["Enums"]["opportunity_stage"]
+        }
+        Returns: {
+          closed_at: string
+          next_action_at: string
+          next_action_type: Database["public"]["Enums"]["opportunity_next_action_type"]
+          opportunity_id: string
+          stage: Database["public"]["Enums"]["opportunity_stage"]
+        }[]
+      }
     }
     Enums: {
       contact_method_type: "phone" | "email"
       listing_status: "active" | "inactive" | "closed"
       listing_transaction_type: "sale" | "rent"
+      opportunity_next_action_type:
+        | "call"
+        | "verify"
+        | "follow_up"
+        | "prepare_analysis"
+        | "prepare_appointment"
+        | "request_authorization"
+        | "other"
+      opportunity_stage:
+        | "new"
+        | "verifying"
+        | "ready_to_call"
+        | "contacted"
+        | "follow_up"
+        | "analysis_preparing"
+        | "appointment"
+        | "authorization_pending"
+        | "converted"
+        | "lost"
+        | "do_not_call"
       property_contact_role:
         | "owner"
         | "authorized_representative"
@@ -751,6 +1065,28 @@ export const Constants = {
       contact_method_type: ["phone", "email"],
       listing_status: ["active", "inactive", "closed"],
       listing_transaction_type: ["sale", "rent"],
+      opportunity_next_action_type: [
+        "call",
+        "verify",
+        "follow_up",
+        "prepare_analysis",
+        "prepare_appointment",
+        "request_authorization",
+        "other",
+      ],
+      opportunity_stage: [
+        "new",
+        "verifying",
+        "ready_to_call",
+        "contacted",
+        "follow_up",
+        "analysis_preparing",
+        "appointment",
+        "authorization_pending",
+        "converted",
+        "lost",
+        "do_not_call",
+      ],
       property_contact_role: [
         "owner",
         "authorized_representative",

@@ -18,6 +18,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Ayrı kişi, iletişim yöntemi, gayrimenkul, kişi–gayrimenkul, ilan ve fiyat geçmişi tabloları
 - Workspace-bileşik yabancı anahtarlar, şifreli PII zarfı ve mükerrer aday index'leri
 - Yetkili, RLS-aware ve `private, no-store` kişi–gayrimenkul–ilan sayı özeti
+- Onaylı 11 aşamalı fırsat modeli, zorunlu sonraki işlem invariantı ve kaynak ilan bağları
+- Atomik fırsat/aşama RPC'leri, append-only aşama geçmişi ve redakte audit olayları
+- Mobil, yetkili ve `private, no-store` fırsat hunisi
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları

@@ -88,7 +88,11 @@ describe("iş kuralı izlenebilirliği", () => {
 
       expect(cells).toHaveLength(7);
       expect(cells?.slice(1, 6).every((cell) => cell.length > 0)).toBe(true);
-      expect(cells?.at(-1)).toBe("Planlandı");
+      expect(["Planlandı", "Uygulandı"]).toContain(cells?.at(-1));
+
+      if (cells?.at(-1) === "Uygulandı") {
+        expect(cells.at(-2)).toMatch(/\[[^\]]+\]\([^)]+\)/);
+      }
     }
   });
 });
