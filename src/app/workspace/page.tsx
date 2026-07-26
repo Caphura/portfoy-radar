@@ -3,10 +3,12 @@ import { redirect } from "next/navigation";
 
 import { logoutAction } from "@/features/auth/actions";
 import { OpportunityPipeline } from "@/features/opportunities/opportunity-pipeline";
+import { PiiProtectionStatusCard } from "@/features/pii/protection-status-card";
 import { WorkspaceRenameForm } from "@/features/workspace/workspace-rename-form";
 import { WorkspaceSetupForm } from "@/features/workspace/workspace-setup-form";
 import { getWorkspaceEntitySummary } from "@/server/entities/get-entity-summary";
 import { getOpportunityPipeline } from "@/server/opportunities/get-opportunity-pipeline";
+import { getPiiProtectionStatus } from "@/server/pii/get-protection-status";
 import { getWorkspaceAccess } from "@/server/workspace/access";
 import type { WorkspaceRole } from "@/server/workspace/roles";
 
@@ -43,12 +45,13 @@ export default async function WorkspacePage() {
     redirect("/giris");
   }
 
-  const [entitySummary, opportunityPipeline] = access.ok
+  const [entitySummary, opportunityPipeline, piiProtection] = access.ok
     ? await Promise.all([
         getWorkspaceEntitySummary(access.workspace.id),
         getOpportunityPipeline(access.workspace.id),
+        getPiiProtectionStatus(),
       ])
-    : [null, null];
+    : [null, null, null];
 
   return (
     <main className="min-h-dvh px-4 py-5 sm:px-6 sm:py-8">
@@ -181,6 +184,10 @@ export default async function WorkspacePage() {
 
             {opportunityPipeline ? (
               <OpportunityPipeline result={opportunityPipeline} />
+            ) : null}
+
+            {piiProtection ? (
+              <PiiProtectionStatusCard result={piiProtection} />
             ) : null}
 
             <div className="mt-4 rounded-3xl bg-white p-5 text-[var(--ink)]">

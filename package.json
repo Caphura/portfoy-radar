@@ -20,6 +20,7 @@
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
     "supabase:env": "node scripts/sync-local-supabase-env.mjs",
+    "pii:local-keys": "node scripts/create-local-pii-keys.mjs",
     "supabase:verify": "node scripts/verify-local-supabase.mjs",
     "auth:local-user": "node scripts/create-local-auth-user.mjs",
     "auth:verify": "node scripts/verify-local-auth-workspace.mjs",
@@ -32,6 +33,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
+    "libphonenumber-js": "^1.13.9",
     "next": "16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",

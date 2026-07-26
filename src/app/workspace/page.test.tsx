@@ -3,15 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   getOpportunityPipelineMock,
+  getPiiProtectionStatusMock,
   getWorkspaceAccessMock,
   getWorkspaceEntitySummaryMock,
   redirectMock,
 } = vi.hoisted(() => ({
-    getOpportunityPipelineMock: vi.fn(),
-    getWorkspaceAccessMock: vi.fn(),
-    getWorkspaceEntitySummaryMock: vi.fn(),
-    redirectMock: vi.fn(),
-  }));
+  getOpportunityPipelineMock: vi.fn(),
+  getPiiProtectionStatusMock: vi.fn(),
+  getWorkspaceAccessMock: vi.fn(),
+  getWorkspaceEntitySummaryMock: vi.fn(),
+  redirectMock: vi.fn(),
+}));
 
 vi.mock("@/server/workspace/access", () => ({
   getWorkspaceAccess: getWorkspaceAccessMock,
@@ -23,6 +25,10 @@ vi.mock("@/server/entities/get-entity-summary", () => ({
 
 vi.mock("@/server/opportunities/get-opportunity-pipeline", () => ({
   getOpportunityPipeline: getOpportunityPipelineMock,
+}));
+
+vi.mock("@/server/pii/get-protection-status", () => ({
+  getPiiProtectionStatus: getPiiProtectionStatusMock,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -63,11 +69,22 @@ describe("WorkspacePage", () => {
         closed: 0,
       },
     });
+    getPiiProtectionStatusMock.mockReturnValue({
+      ok: true,
+      data: {
+        encryption: "AES-256-GCM",
+        duplicateIndex: "HMAC-SHA-256",
+        phoneFormat: "TR / E.164",
+        listMask: "Son 2 hane",
+        keyRotation: "Sürümlü",
+      },
+    });
   });
 
   afterEach(() => {
     cleanup();
     getOpportunityPipelineMock.mockReset();
+    getPiiProtectionStatusMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     getWorkspaceEntitySummaryMock.mockReset();
     redirectMock.mockReset();
@@ -146,8 +163,12 @@ describe("WorkspacePage", () => {
     expect(getOpportunityPipelineMock).toHaveBeenCalledWith(
       "a0000000-0000-4000-8000-000000000001",
     );
+    expect(getPiiProtectionStatusMock).toHaveBeenCalledOnce();
     expect(
       screen.getByRole("heading", { name: "Fırsat hunisi" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Kişisel veri koruması hazır" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(

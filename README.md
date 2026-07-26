@@ -17,6 +17,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Yalnızca owner rolüne açık, sunucu ve RLS kontrollü workspace adı güncellemesi
 - Ayrı kişi, iletişim yöntemi, gayrimenkul, kişi–gayrimenkul, ilan ve fiyat geçmişi tabloları
 - Workspace-bileşik yabancı anahtarlar, şifreli PII zarfı ve mükerrer aday index'leri
+- Türkiye telefonlarını E.164'e dönüştüren, AES-256-GCM ve HMAC-SHA-256 kullanan PII koruma katmanı
+- Sürümlü ve birbirinden ayrı sunucu keyring'leri ile yalnız son iki haneyi gösteren telefon DTO'su
+- Yetkili, `private, no-store` PII koruma durumu API'si ve mobil güvenlik kartı
 - Yetkili, RLS-aware ve `private, no-store` kişi–gayrimenkul–ilan sayı özeti
 - Onaylı 11 aşamalı fırsat modeli, zorunlu sonraki işlem invariantı ve kaynak ilan bağları
 - Atomik fırsat/aşama RPC'leri, append-only aşama geçmişi ve redakte audit olayları
@@ -27,9 +30,10 @@ Mevcut uygulama dilimleri şunları içerir:
 - Sürümlü mimari kararlar, tehdit modeli ve iş kuralı izlenebilirliği
 
 Herkese açık kayıt ve alan tablolarına doğrudan istemci yazması kapalıdır.
-Şifreleme/KMS yazma servisi, hızlı FSBO ekleme ve davet/rol yönetimi sonraki
-onaylı görevlerin kapsamındadır; bu nedenle canlı kişisel veri henüz
-depolanmamalıdır.
+PII koruma çekirdeği hazırdır; kişi/iletişim yöntemi yazma komutu, audit'li açık
+değer gösterimi, hızlı FSBO ekleme ve davet/rol yönetimi sonraki onaylı
+görevlerin kapsamındadır. Bu akışlar ve üretim secret manager bağlantısı
+tamamlanmadan canlı kişisel veri depolanmamalıdır.
 
 ## Gereksinimler
 
@@ -44,6 +48,7 @@ pnpm install
 cp .env.example .env.local
 pnpm supabase:start
 pnpm supabase:env
+pnpm pii:local-keys
 pnpm auth:local-user
 pnpm dev
 ```
@@ -56,6 +61,13 @@ geçidi servislerini başlatır.
 `.env.local` içine güvenli biçimde yazar. Var olan diğer ortam değerlerine
 dokunmaz ve anahtarları terminale basmaz. Yerel servisleri durdurmak için
 `pnpm supabase:stop` kullanılabilir.
+
+`pnpm pii:local-keys`, şifreleme ve telefon HMAC işlemleri için birbirinden ayrı
+32 baytlık anahtarları üretir. Değerleri yalnızca Git tarafından yok sayılan,
+`0600` izinli `.env.local` dosyasına yazar; terminale basmaz. Komut tekrar
+çalıştırıldığında mevcut anahtarları döndürmez veya sessizce değiştirmez.
+Üretimde aynı değişkenler barındırma sağlayıcısının secret manager/KMS
+entegrasyonundan sağlanmalıdır.
 
 İlk girişten önce `pnpm auth:local-user` komutunu çalıştırın. Değerler
 `.env.local` içinde yoksa komut e-postayı ve parolayı etkileşimli olarak sorar;
@@ -106,6 +118,12 @@ pnpm test:governance
 
 - `.env` dosyaları Git tarafından izlenmez; `.env.example` gizli değer içermez.
 - Yerel istemci anahtarı kaynak koduna veya migration dosyalarına gömülmez.
+- PII şifreleme ve telefon HMAC anahtarları sunucuya özel, sürümlü ve birbirinden
+  ayrı keyring'lerde tutulur; `NEXT_PUBLIC` değişkeni olarak tanımlanmaz.
+- Telefonlar `TR` varsayımıyla doğrulanıp E.164'e çevrilir. Normal DTO yalnız
+  ülke kodunu ve son iki haneyi gösterir; blind index istemciye verilmez.
+- AES-256-GCM zarfı rastgele 12 bayt nonce, 16 bayt auth tag ve anahtar sürümünü
+  taşır. Ham anahtar kaynakta veya veritabanında saklanmaz.
 - `app_config` tablosunda RLS zorunludur; anonim ve oturum açmış roller yalnızca
   gizli olmayan dört yapılandırma sütununu okuyabilir.
 - Workspace tablolarında RLS zorunludur; üyelik ve rol hem sunucu erişim
@@ -114,6 +132,7 @@ pnpm test:governance
   veri erişim katmanında güncel Auth kullanıcısıyla tekrarlanır.
 - Herkese açık kayıt kapalıdır ve uygulamada otomatik kullanıcı birleştirme,
   mesajlaşma veya portal taraması bulunmaz.
-- Sistem durumu uç noktası yalnızca açık ve doğrulanmış çalışma ayarlarını döndürür.
+- Sistem ve PII durumu uç noktaları yalnızca açık, doğrulanmış metadata döndürür;
+  yetkili yanıtlar `private, no-store` değerini taşır.
 - Hata yanıtları ortam değişkenlerinin açık değerlerini içermez.
 - Seed ve test fixture'ları kişisel veri içermez.

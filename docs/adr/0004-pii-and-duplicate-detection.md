@@ -25,6 +25,10 @@ birbirine bağlayarak geri alınması güç veri bozulmasına yol açar.
   şifrelenir. Şifreleme ve HMAC anahtarları birbirinden ayrıdır.
 - Anahtarlar kaynak kodunda veya veritabanında tutulmaz; üretim secret
   manager/KMS içinde sürümlü olarak saklanır.
+- Uygulama adaptörü birden fazla okuma sürümü ve tek aktif yazma sürümü taşıyan
+  sunucu keyring'leri kullanır. Yerelde değerler Git tarafından yok sayılan
+  `.env.local` dosyasına üretilir; üretimde aynı sözleşme secret manager
+  enjeksiyonuyla sağlanır.
 - Şifreli değer, nonce, algoritma ve anahtar sürümü saklanır; anahtarın kendisi
   saklanmaz.
 - Normal liste DTO'su açık telefon/e-posta veya blind index içermez. Telefon son
@@ -67,6 +71,8 @@ saklanır.
 - Blind index eşitlik aramasını destekler; kısmi telefon araması desteklenmez.
 - Anahtar rotasyonu için eski ve yeni sürümler kontrollü geçiş süresince
   okunabilir.
+- Şifreleme ve HMAC keyring'leri aynı anahtar malzemesini kullanırsa uygulama
+  kişisel veri işlemeyi güvenli hatayla durdurur.
 - Fuzzy eşikler ileride ölçülmüş yanlış pozitif/negatif verisiyle yeni ADR
   üzerinden değiştirilebilir.
 - Portal taraması ve otomatik telefon toplama mimari olarak kapsam dışıdır.
