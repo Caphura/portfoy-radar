@@ -140,7 +140,8 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 - CSV testleri Türkçe karakter, UTF-8/BOM, tarih/para sözleşmesi, dosya ve satır
   sınırı, dosya içi/veritabanı mükerrerleri, atomik rollback, RLS, audit, PII
   maskeleme ve formül enjeksiyonunu kapsar.
-- PWA testi yetkili yanıtların Cache Storage içinde bulunmadığını denetleyecek.
+- PWA kaynak ve çalışma zamanı testleri allowlist dışında kalan yetkili
+  HTML/API yanıtlarının Cache Storage içine yazılmadığını denetler.
 - Bağımlılık ve route incelemesi yasaklı gönderim/tarama kabiliyeti eklenmediğini
   doğrulayacak.
 

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Portföy Radar uygulama ikonu</title>
+  <rect width="512" height="512" rx="112" fill="#185d45"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#7cd0a8" stroke-width="18" opacity=".42"/>
+  <circle cx="256" cy="256" r="100" fill="none" stroke="#7cd0a8" stroke-width="18" opacity=".58"/>
+  <path d="M256 256 357 155" fill="none" stroke="#dcece4" stroke-linecap="round" stroke-width="20"/>
+  <circle cx="256" cy="256" r="28" fill="#fff"/>
+  <circle cx="357" cy="155" r="22" fill="#d4b36a"/>
+  <text x="256" y="405" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="800" letter-spacing="-7" text-anchor="middle">PR</text>
+</svg>

@@ -46,6 +46,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Engel kaldırıldığında eski fırsat/görevleri açmayan, aktif engellileri merkezi uygunluk görünümünden eleyen altyapı
 - Güvenli ve önbelleğe alınmayan sistem durumu uç noktası
 - Türkçe hata, bulunamadı ve yüklenme durumları
+- Türkçe manifest, kurulum ikonları ve mobil standalone görünümle kurulabilir PWA
+- Yalnız PII içermeyen çevrimdışı kabuğu saklayan, yetkili yanıtları cache dışı bırakan service worker
+- Bağlantı ve service worker kayıt hataları için uygulamayı engellemeyen Türkçe durum bildirimi
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
 - Sürümlü mimari kararlar, tehdit modeli ve iş kuralı izlenebilirliği
 
@@ -129,6 +132,24 @@ Yalnızca karar kayıtları ve tehdit modeli bütünlüğünü doğrulamak için
 pnpm test:governance
 ```
 
+### PWA doğrulaması
+
+Kurulum ve çevrimdışı kabuk en doğru biçimde üretim sunucusunda doğrulanır:
+
+```bash
+pnpm build
+pnpm start
+```
+
+Tarayıcı geliştirici araçlarında `Application > Manifest` altında Portföy Radar
+adıyla 192 ve 512 piksel ikonların yüklendiğini; `Service Workers` altında kök
+kapsamlı `/sw.js` kaydını doğrulayın. Önce bir sayfayı çevrimiçi açın, ardından
+ağ bağlantısını `Offline` yapıp sayfayı yenileyin. “Bağlantı bekleniyor” kabuğu
+görünmelidir. `Cache Storage > portfoy-radar-static-v1` içinde yalnız
+`offline.html` ve üç kurulum ikonu bulunmalı; `/workspace`, `/api` veya kişi
+verisi içeren hiçbir kayıt bulunmamalıdır. Yerel `localhost` güvenli bağlam kabul
+edilir; gerçek dağıtım HTTPS üzerinden yapılmalıdır.
+
 ## Ürün ve güvenlik kararları
 
 - [Karar kayıtları dizini](./docs/README.md)
@@ -184,5 +205,9 @@ pnpm test:governance
   mesajlaşma veya portal taraması bulunmaz.
 - Sistem ve PII durumu uç noktaları yalnızca açık, doğrulanmış metadata döndürür;
   yetkili yanıtlar `private, no-store` değerini taşır.
+- Service worker navigasyon yanıtını hiçbir zaman Cache Storage'a yazmaz; yalnız
+  ağ kesildiğinde kişisel veri içermeyen sabit çevrimdışı kabuğu gösterir. API,
+  workspace HTML'i, Next veri yanıtları ve üçüncü taraf istekleri cache
+  allowlist'ine giremez.
 - Hata yanıtları ortam değişkenlerinin açık değerlerini içermez.
 - Seed ve test fixture'ları kişisel veri içermez.
