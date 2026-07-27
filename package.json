@@ -22,6 +22,7 @@
     "security:verify": "pnpm security:static && pnpm audit:prod && pnpm test:security && pnpm test:governance",
     "release:verify": "pnpm security:static && pnpm audit:prod && pnpm check && pnpm db:verify",
     "release:assert-live-pii": "node scripts/assert-live-pii-release.mjs",
+    "secrets:inspect-keyrings": "node scripts/inspect-secret-keyrings.mjs",
     "supabase:start": "supabase start -x edge-runtime,imgproxy,logflare,mailpit,postgres-meta,realtime,studio,supavisor,vector",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
