@@ -6,6 +6,8 @@ import {
   parseReportPeriod,
   type ReportSearchParams,
 } from "@/features/reports/report-period";
+import { ReleaseReadinessPanel } from "@/features/release/release-readiness-panel";
+import { getReleaseReadiness } from "@/server/release/get-release-readiness";
 import { getPerformanceReport } from "@/server/reports/get-performance-report";
 import type { PerformanceReportResult } from "@/server/reports/performance-report-core";
 import { getWorkspaceAccess } from "@/server/workspace/access";
@@ -68,6 +70,8 @@ export default async function ReportsPage({
           message: parsedPeriod.message,
         },
       };
+  const releaseReadiness =
+    access.membership.role === "owner" ? await getReleaseReadiness() : null;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -77,6 +81,9 @@ export default async function ReportsPage({
         result={result}
         today={formatIstanbulDateKey(now)}
       />
+      {releaseReadiness ? (
+        <ReleaseReadinessPanel result={releaseReadiness} />
+      ) : null}
     </div>
   );
 }

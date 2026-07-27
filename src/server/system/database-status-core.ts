@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+export const currentDatabaseSchemaVersion = 18;
+
 const databaseContractSchema = z.object({
-  schema_version: z.number().int().positive(),
+  schema_version: z.literal(currentDatabaseSchemaVersion),
   locale: z.literal("tr-TR"),
   time_zone: z.literal("Europe/Istanbul"),
   default_currency: z.literal("TRY"),
@@ -10,7 +12,7 @@ const databaseContractSchema = z.object({
 export type DatabaseStatus = {
   service: "supabase-postgres";
   status: "ok";
-  schemaVersion: number;
+  schemaVersion: typeof currentDatabaseSchemaVersion;
   locale: "tr-TR";
   timeZone: "Europe/Istanbul";
   defaultCurrency: "TRY";

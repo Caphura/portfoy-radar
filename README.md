@@ -49,6 +49,9 @@ Mevcut uygulama dilimleri şunları içerir:
 - Türkçe manifest, kurulum ikonları ve mobil standalone görünümle kurulabilir PWA
 - Yalnız PII içermeyen çevrimdışı kabuğu saklayan, yetkili yanıtları cache dışı bırakan service worker
 - Bağlantı ve service worker kayıt hataları için uygulamayı engellemeyen Türkçe durum bildirimi
+- Owner rolüne açık, `private, no-store` güvenlik ve canlı PII release görünümü
+- Salt okunur CI yetkisi, bağımlılık audit'i, temiz migration/pgTAP/RLS ve üretim derlemesi release kapısı
+- Secret manager, üretim bölgesi/KVKK ve yedekten dönüş kanıtı tamamlanmadan canlı PII'yi reddeden fail-closed politika
 - ESLint, TypeScript, Vitest ve üretim derlemesi kalite kapıları
 - Sürümlü mimari kararlar, tehdit modeli ve iş kuralı izlenebilirliği
 
@@ -132,6 +135,40 @@ Yalnızca karar kayıtları ve tehdit modeli bütünlüğünü doğrulamak için
 pnpm test:governance
 ```
 
+### Güvenlik ve release kapısı
+
+Teknik release kapısı; yasaklı üretim kabiliyetlerini, güvenli Auth
+varsayımlarını, boş örnek secret alanlarını, migration/test eşleşmesini, güncel
+üretim bağımlılığı audit'ini, uygulama kalite kapılarını ve temiz yerel
+PostgreSQL/RLS doğrulamasını birlikte çalıştırır:
+
+```bash
+pnpm supabase:start
+pnpm supabase:env
+pnpm pii:local-keys
+pnpm release:verify
+```
+
+Owner, aynı redakte durumu uygulamadaki **Raporlar > Güvenlik ve release kapısı**
+bölümünde görebilir. Endpoint `/api/workspace/release-readiness` yalnız owner
+rolüne açıktır ve `private, no-store` yanıt verir.
+
+Canlı kişisel veri için teknik kapının geçmesi yeterli değildir. Aşağıdaki komut
+secret manager/rotasyon, üretim bölgesi/KVKK ve yedekten dönüş kanıtlarının
+tamamını arar; mevcut politika bu kanıtlar eksik olduğu için komutu bilinçli
+olarak başarısız kılar:
+
+```bash
+pnpm release:assert-live-pii
+```
+
+Kanıtlar açık değer veya kişi bilgisi içermez; yalnız incelenebilir iç kontrol
+referansı, onay zamanı ve sorumlu rolü Git geçmişindeki
+`config/release-policy.json` dosyasına eklenir. GitHub Actions teknik kapıyı her
+PR ve `main` push'unda çalıştırır; canlı PII kapısı yalnız manuel release
+tetiklemesinde ayrıca uygulanır. Workflow'un kullandığı üçüncü taraf action'lar
+değişmez commit SHA değerlerine sabitlenmiştir.
+
 ### PWA doğrulaması
 
 Kurulum ve çevrimdışı kabuk en doğru biçimde üretim sunucusunda doğrulanır:
@@ -209,5 +246,11 @@ edilir; gerçek dağıtım HTTPS üzerinden yapılmalıdır.
   ağ kesildiğinde kişisel veri içermeyen sabit çevrimdışı kabuğu gösterir. API,
   workspace HTML'i, Next veri yanıtları ve üçüncü taraf istekleri cache
   allowlist'ine giremez.
+- Release görünümü ve API'si yalnız owner rolüne açıktır; workspace, kullanıcı,
+  anahtar, token veya kanıt içeriği döndürmez. Politika bozuksa veya kanıt
+  eksikse canlı PII kararı varsayılan olarak kapalı kalır.
+- CI `GITHUB_TOKEN` için yalnız `contents: read` kullanır, bağımlılıkları kilit
+  dosyasından kurar ve yüksek/orta üretim bağımlılığı bulgusunda release'i
+  durdurur.
 - Hata yanıtları ortam değişkenlerinin açık değerlerini içermez.
 - Seed ve test fixture'ları kişisel veri içermez.

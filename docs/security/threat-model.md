@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 2.3
+- Sürüm: 2.4
 - Tarih: 2026-07-27
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -94,6 +94,8 @@ Güven sınırları:
 | TM-T-09 | Veri tahrifi | Pazar analizinin üç görevden biri olmadan veya emsalin farklı işlem/para birimiyle kısmi kaydedilmesi | Yüksek | Owner/advisor kontrollü atomik RPC; görev kaynak CHECK/FK'leri; üç görevi commit anında denetleyen ertelenmiş trigger; analiz bağlamını emsale bileşik FK ile miras verme; exact `numeric` hesap ve rollback testleri | Ayrıcalıklı yöneticinin kontrolleri bilinçli kapatması |
 | TM-I-10 | Bilgi ifşası | Analiz/emsal görünümünün başka workspace verisini, kişi bilgisini veya serbest metni açığa çıkarması | Kritik | RLS/FORCE analiz ve emsal tabloları; `security_invoker`/`security_barrier` PII-siz görünüm; açık kolon allowlist'i; iki-workspace ve güvenli hata negatif testleri | Yeni analiz alanının allowlist güncellenmeden eklenmesi |
 | TM-I-11 | Bilgi ifşası | Performans raporunun başka workspace toplamlarını veya düşük seviyeli kişi/veri ayrıntılarını açığa çıkarması | Kritik | Sunucu oturum/üyelik kontrolü; `security invoker` aggregate RPC; kaynak RLS'leri; PII-siz sabit dönüş sözleşmesi; iki-workspace, viewer ve DTO negatif testleri; dinamik/no-store sayfa | Çok küçük toplamların iş bağlamında dolaylı çıkarıma izin vermesi |
+| TM-T-10 | Veri tahrifi | CI veya release politikasının değiştirilerek test/kanıt kapılarının atlanması | Kritik | Salt okunur workflow token'ı, kilitli bağımlılık kurulumu, `pull_request_target` yasağı, statik kapı bütünlük testi, manuel canlı PII assertion'ı ve Git geçmişinde kanıt referansı | Repository yöneticisinin korumalı dal/CI ayarlarını birlikte kötüye kullanması |
+| TM-I-12 | Bilgi ifşası | Release durumu veya CI çıktısının secret, kişi ya da kanıt içeriği sızdırması | Yüksek | Owner-only `private, no-store` DTO; sabit alan allowlist'i; yalnız kapı kimliği/sorumlu rolü; test çıktısında PII/secret taraması | Üçüncü taraf GitHub Action veya ele geçirilmiş runner |
 
 ## Güvenlik gereksinimleri
 
@@ -108,6 +110,9 @@ Güven sınırları:
 - Upload içerikleri dosya adı, MIME, boyut ve satır sayısıyla doğrulanır.
 - Bağımlılıklar kilit dosyasıyla sabitlenir; kalite kapısı lint, tip, test ve
   üretim derlemesini içerir.
+- Release CI token'ı yalnız kaynak okur; teknik kapı temiz migration, PostgreSQL
+  lint, pgTAP/RLS, üretim bağımlılığı audit'i ve yasaklı kabiliyet taramasını
+  zorunlu tutar.
 
 ## Kötüye kullanım senaryoları
 
@@ -126,13 +131,17 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi, randevu/takvim, pazar analizi/manuel emsal, iletişim engeli, PII-siz `priority-v1` arama sırası ve `performance-v1` raporu hazır; kalan alan tabloları henüz yok | Hazır alan tabloları, görünümleri ve rapor RPC'si RLS/FORCE veya `security invoker` ile, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev, randevu, analiz/emsal ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS ve MVP alan tabloları hazır | Teknik release kapısı migration/test eşleşmesini, temiz şema kurulumunu, PostgreSQL lint'i, pgTAP/RLS'yi ve uygulama DAL testlerini çalıştırıyor | Her yeni iş tablosunda migration + pgTAP + DAL + iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |
 | Ele geçirilmiş danışman cihazı | Teknik olarak tamamen önlenemez | Ekran kilidi, oturum iptali ve MFA yol haritası | Ürün sahibi |
 
 İlk dört satır kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
+
+Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Sonraki üç satır
+`release-v1` politikasında kanıt referansı olmadan onaylanamaz; eksik veya bozuk
+politika canlı PII assertion'ını başarısız kılar.
 
 ## Doğrulama ve bakım
 
@@ -144,3 +153,6 @@ Güven sınırları:
 - En az her büyük sürüm ve güvenlik olayı sonrasında yeniden gözden geçirilir.
 - Yönetişim testi ADR durumlarını, 12 kuralı, STRIDE kapsamını ve yayın engeli
   sahiplerini otomatik kontrol eder.
+- Owner release görünümü ve API'si yalnız redakte teknik durum, kapı kimliği,
+  sorumlu rolü ve kanıt referansını döndürür; kanıt içeriği, kullanıcı, workspace
+  veya secret taşımaz.

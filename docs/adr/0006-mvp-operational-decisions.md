@@ -121,6 +121,12 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 - Canlı kişisel veri öncesinde Supabase bölgesi, veri işleme sözleşmesi, KVKK
   aydınlatma/saklama politikası ve yedekten dönüş tatbikatı ürün sahibi
   tarafından onaylanmalıdır.
+- Teknik release kapısı salt okunur CI yetkisiyle; bağımlılık audit'i, lint, tip,
+  test, üretim derlemesi, temiz migration, PostgreSQL lint, pgTAP ve iki
+  workspace negatif RLS kontrollerini birlikte çalıştırır.
+- Canlı PII kapısı varsayılan olarak kapalıdır. Secret manager/rotasyon, üretim
+  bölgesi/KVKK ve yedekten dönüş kanıtları sürümlü politikada incelenebilir
+  referans taşımadan açılamaz.
 
 ## Sonuçlar
 
@@ -142,8 +148,11 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
   maskeleme ve formül enjeksiyonunu kapsar.
 - PWA kaynak ve çalışma zamanı testleri allowlist dışında kalan yetkili
   HTML/API yanıtlarının Cache Storage içine yazılmadığını denetler.
-- Bağımlılık ve route incelemesi yasaklı gönderim/tarama kabiliyeti eklenmediğini
-  doğrulayacak.
+- Bağımlılık ve route incelemesi yasaklı gönderim/tarama kabiliyeti
+  eklenmediğini; üretim audit'i orta veya daha yüksek açık bulunmadığını
+  doğrular.
+- Release testleri bozuk/kanıtsız politikayı, owner dışı erişimi, redakte
+  `no-store` API'yi ve eksik kanıtta fail-closed canlı PII kararını doğrular.
 
 ## Uygulama durumu
 
@@ -162,3 +171,10 @@ tutulmaz; onaylanan aynı dosya, satır kararlarıyla birlikte tek transaction'd
 işlenir. Varsayılan export kişi adı içermez, telefonu maskeler, formül hücrelerini
 etkisizleştirir ve audit kaydı üretir. Harici dosya depolama, arka plan importu,
 portal taraması ve açık PII exportu bu dilimde yoktur.
+
+2026-07-27 tarihli güvenlik/release diliminde teknik kapı; güncel bağımlılık
+audit'i, statik güvenlik sınırı, uygulama kalite kapıları ve temiz yerel
+veritabanı/RLS doğrulamasını tek komutta birleştirir. Owner, PII içermeyen
+release kararını Raporlar ekranında görebilir. Secret manager/rotasyon, üretim
+bölgesi/KVKK ve yedekten dönüş kanıtları eksik olduğundan canlı PII kapısı
+bilinçli olarak kapalıdır.

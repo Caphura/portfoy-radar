@@ -1,9 +1,14 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getPerformanceReportMock, getWorkspaceAccessMock, redirectMock } =
-  vi.hoisted(() => ({
+const {
+  getPerformanceReportMock,
+  getReleaseReadinessMock,
+  getWorkspaceAccessMock,
+  redirectMock,
+} = vi.hoisted(() => ({
     getPerformanceReportMock: vi.fn(),
+    getReleaseReadinessMock: vi.fn(),
     getWorkspaceAccessMock: vi.fn(),
     redirectMock: vi.fn(),
   }));
@@ -13,6 +18,9 @@ vi.mock("@/server/reports/get-performance-report", () => ({
 }));
 vi.mock("@/server/workspace/access", () => ({
   getWorkspaceAccess: getWorkspaceAccessMock,
+}));
+vi.mock("@/server/release/get-release-readiness", () => ({
+  getReleaseReadiness: getReleaseReadinessMock,
 }));
 vi.mock("next/navigation", () => ({ redirect: redirectMock }));
 
@@ -30,6 +38,7 @@ describe("ReportsPage", () => {
     cleanup();
     vi.useRealTimers();
     getPerformanceReportMock.mockReset();
+    getReleaseReadinessMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     redirectMock.mockReset();
   });
@@ -78,6 +87,7 @@ describe("ReportsPage", () => {
       expect.any(Date),
     );
     expect(screen.getByRole("alert")).toHaveTextContent("Rapor yüklenemedi");
+    expect(getReleaseReadinessMock).not.toHaveBeenCalled();
   });
 
   it("geçersiz dönemi rapor sorgusuna taşımadan alan hatası gösterir", async () => {
@@ -99,6 +109,7 @@ describe("ReportsPage", () => {
 
     expect(getPerformanceReportMock).not.toHaveBeenCalled();
     expect(screen.getByText("Bitiş tarihi bugünden sonra olamaz.")).toBeInTheDocument();
+    expect(getReleaseReadinessMock).toHaveBeenCalledOnce();
   });
 
   it("workspace servisi yoksa rapor sorgusu çalıştırmaz", async () => {
@@ -116,5 +127,42 @@ describe("ReportsPage", () => {
       "Raporlar kullanılamıyor",
     );
     expect(getPerformanceReportMock).not.toHaveBeenCalled();
+    expect(getReleaseReadinessMock).not.toHaveBeenCalled();
+  });
+
+  it("owner için kapalı canlı PII release kararını raporlarda gösterir", async () => {
+    getWorkspaceAccessMock.mockResolvedValue({
+      ok: true,
+      userId: "20000000-0000-4000-8000-000000000001",
+      workspace: { id: workspaceId, name: "Rapor Fixture" },
+      membership: { role: "owner" },
+    });
+    getPerformanceReportMock.mockResolvedValue({
+      ok: false,
+      error: {
+        code: "REPORT_UNAVAILABLE",
+        message: "Rapor şu anda yüklenemiyor. Lütfen yeniden deneyin.",
+      },
+    });
+    getReleaseReadinessMock.mockResolvedValue({
+      ok: true,
+      data: {
+        version: "release-v1",
+        decision: "blocked",
+        livePiiAllowed: false,
+        summary:
+          "Canlı kişisel veri yayını için teknik kontrol veya zorunlu kanıt bekleniyor.",
+        technicalChecks: [],
+        manualGates: [],
+      },
+    });
+
+    render(await ReportsPage());
+
+    expect(getReleaseReadinessMock).toHaveBeenCalledOnce();
+    expect(
+      screen.getByRole("heading", { name: "Güvenlik ve release kapısı" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Canlı PII engelli")).toBeInTheDocument();
   });
 });

@@ -1,0 +1,27 @@
+{
+  "version": "release-v1",
+  "defaultDecision": "blocked-until-approved",
+  "manualGates": [
+    {
+      "id": "secret-manager",
+      "label": "Üretim secret manager ve anahtar rotasyonu",
+      "owner": "Güvenlik",
+      "status": "open",
+      "closureCriteria": "Üretim secret enjeksiyonu, en az yetkili erişim politikası ve anahtar rotasyon tatbikatı başarılı olmalıdır."
+    },
+    {
+      "id": "data-region-kvkk",
+      "label": "Üretim bölgesi ve KVKK onayı",
+      "owner": "Ürün sahibi",
+      "status": "open",
+      "closureCriteria": "Üretim veri bölgesi, veri işleme sözleşmesi, KVKK aydınlatma ve saklama politikası yazılı olarak onaylanmalıdır."
+    },
+    {
+      "id": "backup-restore",
+      "label": "Yedekten dönüş tatbikatı",
+      "owner": "Operasyon",
+      "status": "open",
+      "closureCriteria": "Günlük yedek ve 30 günlük geri dönüş hedefiyle başarılı bir geri yükleme raporu kaydedilmelidir."
+    }
+  ]
+}
