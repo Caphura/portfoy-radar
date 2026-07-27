@@ -139,7 +139,7 @@ describe("OpportunityDetailView", () => {
   });
 
   it("owner veya danışman için mobil görüşme formunu fırsata bağlar", () => {
-    render(
+    const { container } = render(
       <OpportunityDetailView
         canRecordConversation
         defaultConversationFollowUpAt="2026-07-27T12:00"
@@ -156,6 +156,9 @@ describe("OpportunityDetailView", () => {
         screen.getByRole("region", { name: "Görüşme kayıt formu" }),
       ).getByDisplayValue(successResult.data.opportunity.id),
     ).toHaveAttribute("name", "opportunityId");
+    expect(container.querySelector("#gorusme-kaydi")).toContainElement(
+      screen.getByRole("region", { name: "Görüşme kayıt formu" }),
+    );
   });
 
   it("iletişim engeli durumunu mobil yönetim alanına fırsat kimliğiyle bağlar", () => {

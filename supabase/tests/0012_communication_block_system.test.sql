@@ -154,8 +154,8 @@ select ok(
 
 select is(
   (select schema_version from public.app_config),
-  13,
-  'görev kuyruğu migrationı şema sözleşmesini 13 yapar'
+  14,
+  'öncelik kuyruğu migrationı şema sözleşmesini 14 yapar'
 );
 
 insert into auth.users (

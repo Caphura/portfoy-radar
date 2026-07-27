@@ -460,6 +460,13 @@ export type Database = {
             foreignKeyName: "conversations_opportunity_workspace_fkey"
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "conversations_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_radar"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -582,6 +589,13 @@ export type Database = {
             foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
             columns: ["workspace_id", "result_opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_result_opportunity_workspace_fkey"
+            columns: ["workspace_id", "result_opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_radar"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -632,6 +646,13 @@ export type Database = {
             columns: ["workspace_id", "selected_opportunity_id"]
             isOneToOne: false
             referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "duplicate_reviews_selected_opportunity_workspace_fkey"
+            columns: ["workspace_id", "selected_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
@@ -939,6 +960,13 @@ export type Database = {
             foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "opportunity_listings_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
             referencedRelation: "current_workspace_radar"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
@@ -1015,6 +1043,13 @@ export type Database = {
             columns: ["workspace_id", "opportunity_id"]
             isOneToOne: false
             referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
             referencedColumns: ["workspace_id", "opportunity_id"]
           },
           {
@@ -1526,6 +1561,65 @@ export type Database = {
           },
         ]
       }
+      current_workspace_priority_call_queue: {
+        Row: {
+          asking_price: number | null
+          city: string | null
+          completed_profile_listing_groups: number | null
+          conversation_age_points: number | null
+          created_at: string | null
+          currency: string | null
+          district: string | null
+          due_today_points: number | null
+          external_listing_id: string | null
+          gross_area_sqm: number | null
+          has_recent_price_drop: boolean | null
+          is_due_today: boolean | null
+          last_conversation_at: string | null
+          last_conversation_days: number | null
+          listing_id: string | null
+          living_room_count: number | null
+          neighborhood: string | null
+          net_area_sqm: number | null
+          next_action_at: string | null
+          next_action_type:
+            | Database["public"]["Enums"]["opportunity_next_action_type"]
+            | null
+          opportunity_id: string | null
+          overdue_days: number | null
+          overdue_points: number | null
+          platform: string | null
+          price_drop_points: number | null
+          priority_score: number | null
+          profile_listing_points: number | null
+          property_id: string | null
+          property_type: Database["public"]["Enums"]["property_type"] | null
+          room_count: number | null
+          score_version: string | null
+          stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          stage_points: number | null
+          transaction_type:
+            | Database["public"]["Enums"]["listing_transaction_type"]
+            | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_property_workspace_fkey"
+            columns: ["workspace_id", "property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "opportunities_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_workspace_radar: {
         Row: {
           asking_price: number | null
@@ -1801,6 +1895,17 @@ export type Database = {
           opportunity_id: string
           outcome: Database["public"]["Enums"]["quick_fsbo_resolution_outcome"]
           stage: Database["public"]["Enums"]["opportunity_stage"]
+        }[]
+      }
+      reveal_opportunity_phone: {
+        Args: { requested_opportunity_id: string }
+        Returns: {
+          encryption_algorithm: string
+          encryption_key_version: number
+          opportunity_id: string
+          value_auth_tag: string
+          value_ciphertext: string
+          value_nonce: string
         }[]
       }
       transition_opportunity_stage: {

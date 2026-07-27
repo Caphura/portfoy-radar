@@ -231,23 +231,25 @@ export function OpportunityDetailView({
             opportunityId={opportunity.id}
           />
 
-          {canRecordConversation ? (
-            <ConversationForm
-              defaultFollowUpAt={defaultConversationFollowUpAt}
-              defaultOccurredAt={defaultConversationOccurredAt}
-              opportunityClosed={opportunity.closed}
-              opportunityId={opportunity.id}
-            />
-          ) : (
-            <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
-              <h2 className="text-lg font-black text-[var(--ink)]">
-                Görüşme kaydı
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                Görüşme kaydetmek için sahip veya danışman rolü gerekir.
-              </p>
-            </section>
-          )}
+          <div className="scroll-mt-24" id="gorusme-kaydi">
+            {canRecordConversation ? (
+              <ConversationForm
+                defaultFollowUpAt={defaultConversationFollowUpAt}
+                defaultOccurredAt={defaultConversationOccurredAt}
+                opportunityClosed={opportunity.closed}
+                opportunityId={opportunity.id}
+              />
+            ) : (
+              <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
+                <h2 className="text-lg font-black text-[var(--ink)]">
+                  Görüşme kaydı
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                  Görüşme kaydetmek için sahip veya danışman rolü gerekir.
+                </p>
+              </section>
+            )}
+          </div>
 
           <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
             <h2 className="text-lg font-black text-[var(--ink)]">

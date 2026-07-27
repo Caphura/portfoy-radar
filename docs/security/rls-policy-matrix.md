@@ -37,6 +37,7 @@ giremez.
 | `current_workspace_opportunity_detail` | Yok | Üye olduğu workspace içindeki tek fırsatın güvenli özeti ve en yeni 50 aktivite olayı | Yok | `security_invoker=true`, `security_barrier=true`; PII, audit kimliği ve serbest aşama nedeni içermez; kaynak tabloların RLS'sini uygular |
 | `current_workspace_contactable_opportunities` | Yok | Üye olduğu workspace için yalnız iletişime uygun açık fırsat/kişi kimlikleri | Yok | `security_invoker=true`, `security_barrier=true`; kapanmış ve aktif engelli kişileri merkezi olarak eler; arama sırası ve otomatik görev önerileri bu allowlist'i kullanır |
 | `current_workspace_open_tasks` | Yok | Üye olduğu workspace için açık, iletişime uygun takip görevi ve gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğu görünümünü kullanır; kişi ve iletişim PII'sı içermez |
+| `current_workspace_priority_call_queue` | Yok | Üye olduğu workspace için iletişime uygun açık fırsatların `priority-v1` puanı, altı açıklama bileşeni ve güvenli gayrimenkul/ilan özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi allowlist'i kullanır; kişi kimliği, iletişim PII'sı, şifreli değer, blind index ve URL içermez |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
 `create_quick_fsbo` komutu `authenticated` role kapalıdır.
@@ -65,6 +66,19 @@ rollerini kabul eder. Erteleme, görev fırsatın güncel takip işlemiyse iki t
 tek transaction içinde günceller. Tamamlama, güncel takip işlemini kapatırken
 açık fırsat için yeni işlem türü ve tarihini zorunlu tutar. İki işlem de PII
 içermeyen audit ve fırsat timeline olayı üretir.
+
+`current_workspace_priority_call_queue`, korumalı kişi adını veya kişi
+kimliğini dışarı vermez. Tamlık puanı için gereken yalnız “ad zarfı var mı”
+bilgisi `private.contact_display_name_present` fonksiyonundan gelir; fonksiyon
+workspace üyeliğini kendi içinde doğrular ve `anon` role kapalıdır. Kokpit
+sunucusu üyelikten çözülen workspace kimliğini RLS oturumuyla tekrar sınırlar.
+
+`reveal_opportunity_phone` workspace kimliği veya kişi kimliği kabul etmez;
+erişilebilir fırsattan kişiyi çözer ve yalnız `owner`/`advisor` rolüne açıktır.
+Aktif engelli veya kapanmış fırsatta zarf vermez. Yalnız seçilen birincil telefon
+zarfını sunucuya döndürür ve aynı transaction içinde PII içermeyen
+`contact.phone_revealed` audit kaydı yazar. Açık telefon yalnız sunucu
+keyring'iyle çözülür; normal kokpit DTO'sunda veya loglarda bulunmaz.
 
 ## Yeni tablo kabul kapısı
 

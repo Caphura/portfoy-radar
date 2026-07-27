@@ -83,6 +83,9 @@ describe("RadarBoard", () => {
     expect(
       screen.getByRole("link", { name: "Fırsat detayını aç" }),
     ).toHaveAttribute("href", `/workspace/radar/${opportunity.id}`);
+    expect(
+      screen.getByRole("link", { name: "Arama kokpitini aç" }),
+    ).toHaveAttribute("href", "/workspace/radar/arama");
     expect(screen.queryByText(/private-phone/i)).not.toBeInTheDocument();
   });
 

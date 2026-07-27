@@ -34,6 +34,23 @@ otomatik arama veya mesaj başlatamaz.
 engeli olan ve kapanmış fırsatları RLS altında eler. Günlük sıra ve otomatik
 görev önerileri yalnızca bu sözleşmeye katılacaktır.
 
+`priority-v1` uygulama ayrıntıları:
+
+- Görüşmesi olmayan fırsat son görüşme bileşeninden sıfır puan alır.
+- Son 30 gün fiyat düşüşü, aynı ilan ve para birimindeki ardışık iki fiyat
+  kaydında yeni tutarın önceki tutardan düşük olmasıyla doğrulanır.
+- Tamlık bileşeni beş adet ikişer puanlık gruptur: korumalı kişi adı zarfının
+  varlığı; şehir/ilçe/mahalle; oda/salon; net/brüt alan; kaynak ilanın canonical
+  URL ve yayın tarihi.
+- Puan ve bileşenler PostgreSQL görünümünde tek kaynaktan hesaplanır; Next.js
+  katmanı formül bütünlüğünü tekrar doğrular, sıralar ve yalnız ilk 50 sonucu
+  PII içermeyen DTO ile sunar.
+- Günlük sıra bütün iletişime uygun açık fırsatları kapsar. Kullanıcı fırsat
+  detayına gidip görüşmeyi kendisi kaydeder. Owner/advisor telefonu yalnız açık
+  kullanıcı eylemiyle, tek kayıt için ve audit kaydı üreterek gösterebilir;
+  `tel:` bağlantısı yalnız cihazın telefon ekranını açar. Kokpit herhangi bir
+  otomatik arama veya gönderim mutasyonu yapmaz.
+
 ### Pazar analizi
 
 - Emsaller yalnızca kullanıcı tarafından manuel girilir veya onaylanmış CSV ile
@@ -95,8 +112,9 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 
 ## Doğrulama
 
-- Sabit fixture'lar puan bileşenlerini, eşitlik sırasını ve rapor kohortlarını
-  doğrulayacak.
+- Sabit fixture'lar puan bileşenlerini, eşitlik sırasını ve iletişim engelli
+  fırsatların dışlanmasını doğrular; rapor kohortları ilgili rapor diliminde
+  doğrulanacak.
 - CSV testleri Türkçe karakter, tarih, satır sınırı ve formül enjeksiyonunu
   kapsayacak.
 - PWA testi yetkili yanıtların Cache Storage içinde bulunmadığını denetleyecek.

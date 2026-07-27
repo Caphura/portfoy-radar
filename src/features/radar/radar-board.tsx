@@ -342,12 +342,20 @@ export function RadarBoard({
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
               Fırsatları güvenli gayrimenkul ve ilan bilgileriyle izleyin.
-              Öncelik puanı ve günlük arama sırası bu görünümün kapsamı dışındadır.
+              Günlük çalışma için açıklanabilir priority-v1 sırasını açın.
             </p>
           </div>
-          <span className="w-fit rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-extrabold">
-            {result.data.opportunities.length} sonuç
-          </span>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <span className="w-fit rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-extrabold">
+              {result.data.opportunities.length} sonuç
+            </span>
+            <Link
+              className="inline-flex min-h-11 items-center rounded-2xl bg-white px-4 text-sm font-extrabold text-[var(--ink)]"
+              href="/workspace/radar/arama"
+            >
+              Arama kokpitini aç
+            </Link>
+          </div>
         </div>
       </section>
 
