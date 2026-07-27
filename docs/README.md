@@ -29,6 +29,10 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 
 - [Preview kullanım ve operasyon kılavuzu](./operations/preview-user-guide.md)
 
+## Planlanan geliştirme görevleri
+
+- [Randevu Web Push bildirimleri](./tasks/appointment-web-push-notifications.md)
+
 ## Değişiklik süreci
 
 1. Kabul edilmiş bir karar sessizce değiştirilmez.
