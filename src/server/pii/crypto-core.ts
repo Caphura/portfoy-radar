@@ -18,7 +18,8 @@ export type PiiPurpose =
   | "conversation.note"
   | "conversation.follow_up_purpose"
   | "communication_block.reason"
-  | "communication_block.lift_reason";
+  | "communication_block.lift_reason"
+  | "field_observation_location";
 
 export type PiiEnvelope = {
   ciphertext: Buffer;

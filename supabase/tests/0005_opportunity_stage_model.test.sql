@@ -40,8 +40,8 @@ select set_eq(
 
 select is(
   (select schema_version from public.app_config),
-  18,
-  'şema sözleşmesi CSV içe ve dışa aktarma migrationıyla sürüm 18 olur'
+  19,
+  'şema sözleşmesi saha gözlemi migrationıyla sürüm 19 olur'
 );
 
 select ok(

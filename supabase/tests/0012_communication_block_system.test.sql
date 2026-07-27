@@ -154,8 +154,8 @@ select ok(
 
 select is(
   (select schema_version from public.app_config),
-  18,
-  'CSV içe ve dışa aktarma migrationı şema sözleşmesini 18 yapar'
+  19,
+  'saha gözlemi migrationı şema sözleşmesini 19 yapar'
 );
 
 insert into auth.users (

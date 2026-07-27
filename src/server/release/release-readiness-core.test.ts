@@ -7,7 +7,7 @@ const databaseReady = {
   data: {
     service: "supabase-postgres" as const,
     status: "ok" as const,
-    schemaVersion: 18 as const,
+    schemaVersion: 19 as const,
     locale: "tr-TR" as const,
     timeZone: "Europe/Istanbul" as const,
     defaultCurrency: "TRY" as const,
@@ -24,7 +24,7 @@ const piiReady = {
   },
 };
 const openPolicy = {
-  version: "release-v1",
+  version: "release-v2",
   defaultDecision: "blocked-until-approved",
   manualGates: [
     {
@@ -51,6 +51,14 @@ const openPolicy = {
       closureCriteria:
         "Başarılı yedekten dönüş tatbikatı ve geri yükleme raporu kaydedilmelidir.",
     },
+    {
+      id: "sensitive-media-location",
+      label: "Hassas medya ve kesin konum onayı",
+      owner: "Güvenlik",
+      status: "open",
+      closureCriteria:
+        "Şifreli medya, kesin konum ve Storage imha kanıtları onaylanmalıdır.",
+    },
   ],
 };
 
@@ -65,7 +73,7 @@ describe("evaluateReleaseReadiness", () => {
     expect(result).toEqual({
       ok: true,
       data: expect.objectContaining({
-        version: "release-v1",
+        version: "release-v2",
         decision: "blocked",
         livePiiAllowed: false,
         technicalChecks: [
@@ -82,6 +90,10 @@ describe("evaluateReleaseReadiness", () => {
           expect.objectContaining({ id: "secret-manager", status: "open" }),
           expect.objectContaining({ id: "data-region-kvkk", status: "open" }),
           expect.objectContaining({ id: "backup-restore", status: "open" }),
+          expect.objectContaining({
+            id: "sensitive-media-location",
+            status: "open",
+          }),
         ],
       }),
     });

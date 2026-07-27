@@ -21,16 +21,18 @@ function collectSourceFiles(directory: string): string[] {
 }
 
 describe("istemci secret sınırı", () => {
-  it("uygulama kaynaklarında service-role veya secret anahtar değeri taşımaz", () => {
+  it("istemci kaynaklarında service-role veya secret anahtar adı/değeri taşımaz", () => {
     const source = collectSourceFiles(sourceRoot)
       .filter((filePath) => /\.(?:ts|tsx)$/.test(filePath))
       .map((filePath) => readFileSync(filePath, "utf8"))
+      .filter((source) => /^\s*["']use client["'];/m.test(source))
       .join("\n");
 
     expect(source).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(source).not.toContain("SUPABASE_SECRET_KEY");
     expect(source).not.toMatch(/\bsb_secret_[A-Za-z0-9_-]+\b/);
     expect(source).not.toContain("NEXT_PUBLIC_PII");
+    expect(source).not.toContain("MEDIA_ENCRYPTION_KEYRING");
   });
 
   it("istemci bileşenleri PII anahtar kasasını veya Node kriptosunu içe aktarmaz", () => {
@@ -44,6 +46,8 @@ describe("istemci secret sınırı", () => {
     expect(clientModules).not.toContain("node:crypto");
     expect(clientModules).not.toContain("PII_ENCRYPTION_KEYRING");
     expect(clientModules).not.toContain("PII_PHONE_HMAC_KEYRING");
+    expect(clientModules).not.toContain("MEDIA_ENCRYPTION_KEYRING");
+    expect(clientModules).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
 
   it("örnek ortam dosyasında PII anahtar değeri bulunmaz", () => {
@@ -54,5 +58,7 @@ describe("istemci secret sınırı", () => {
 
     expect(exampleEnvironment).toMatch(/^PII_ENCRYPTION_KEYRING=$/m);
     expect(exampleEnvironment).toMatch(/^PII_PHONE_HMAC_KEYRING=$/m);
+    expect(exampleEnvironment).toMatch(/^MEDIA_ENCRYPTION_KEYRING=$/m);
+    expect(exampleEnvironment).toMatch(/^SUPABASE_SERVICE_ROLE_KEY=$/m);
   });
 });

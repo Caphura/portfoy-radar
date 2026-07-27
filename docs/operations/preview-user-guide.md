@@ -96,7 +96,7 @@ Preview sağlık uçları kişisel veri döndürmez:
 - `/api/system/status`
 - `/api/system/database`
 
-İki uç da `status: ok` dönmeli; veritabanı yanıtında beklenen şema sürümü `18`
+İki uç da `status: ok` dönmeli; veritabanı yanıtında beklenen şema sürümü `19`
 olmalıdır.
 
 Yerel geliştirmede 3000 portu doluysa:

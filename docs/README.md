@@ -13,6 +13,7 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 - [ADR-0004: Kişisel veri, telefon normalizasyonu ve mükerrer kontrolü](./adr/0004-pii-and-duplicate-detection.md)
 - [ADR-0005: Fırsat iş akışı ve değişmez kurallar](./adr/0005-opportunity-workflow-and-invariants.md)
 - [ADR-0006: MVP operasyon ve raporlama kararları](./adr/0006-mvp-operational-decisions.md)
+- [ADR-0007: Saha gözlemi, şifreli medya ve kesin konum](./adr/0007-field-observation-media-and-location.md)
 
 ## Güvenlik ve gereksinimler
 
@@ -28,6 +29,7 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 ## Kullanım ve operasyon
 
 - [Preview kullanım ve operasyon kılavuzu](./operations/preview-user-guide.md)
+- [Saha gözlemi yedekleme, geri yükleme ve saklama](./operations/field-observation-backup-and-retention.md)
 
 ## Planlanan geliştirme görevleri
 

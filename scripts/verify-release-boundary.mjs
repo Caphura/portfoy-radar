@@ -71,6 +71,9 @@ for (const variableName of [
   "SUPABASE_PUBLISHABLE_KEY",
   "PII_ENCRYPTION_KEYRING",
   "PII_PHONE_HMAC_KEYRING",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "MEDIA_ENCRYPTION_KEYRING",
+  "CRON_SECRET",
   "LOCAL_AUTH_EMAIL",
   "LOCAL_AUTH_PASSWORD",
 ]) {
@@ -133,19 +136,20 @@ const expectedGateIds = [
   "secret-manager",
   "data-region-kvkk",
   "backup-restore",
+  "sensitive-media-location",
 ];
 const policyGateIds = Array.isArray(policy.manualGates)
   ? policy.manualGates.map((gate) => gate?.id)
   : [];
 
-verify(policy.version === "release-v1", "Release politikası sürümü geçersiz.");
+verify(policy.version === "release-v2", "Release politikası sürümü geçersiz.");
 verify(
   policy.defaultDecision === "blocked-until-approved",
   "Canlı PII release politikası varsayılan olarak kapalı olmalıdır.",
 );
 verify(
   JSON.stringify(policyGateIds) === JSON.stringify(expectedGateIds),
-  "Release politikası üç zorunlu manuel kanıt kapısını sırasıyla içermelidir.",
+  "Release politikası dört zorunlu manuel kanıt kapısını sırasıyla içermelidir.",
 );
 
 for (const gate of policy.manualGates ?? []) {
@@ -202,6 +206,6 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Release sınırı doğrulandı: ${migrationFiles.length} migration, ${databaseTestFiles.length} pgTAP dilimi ve 3 manuel kanıt kapısı.`,
+    `Release sınırı doğrulandı: ${migrationFiles.length} migration, ${databaseTestFiles.length} pgTAP dilimi ve 4 manuel kanıt kapısı.`,
   );
 }

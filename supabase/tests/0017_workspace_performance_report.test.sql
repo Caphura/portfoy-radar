@@ -79,8 +79,8 @@ select ok(
 
 select is(
   (select schema_version from public.app_config),
-  18,
-  'CSV içe ve dışa aktarma migrationı şema sözleşmesini 18 yapar'
+  19,
+  'saha gözlemi migrationı şema sözleşmesini 19 yapar'
 );
 
 insert into auth.users (
@@ -315,7 +315,7 @@ set
   stage = 'converted',
   next_action_type = null,
   next_action_at = null,
-  closed_at = now()
+  closed_at = greatest(now(), created_at)
 where id in (
   '25000000-0000-4000-8000-000000000001',
   '25000000-0000-4000-8000-000000000004'
@@ -324,7 +324,7 @@ where id in (
 select set_config('app.opportunity_stage_reason', '', true);
 
 update public.opportunities
-set archived_at = now()
+set archived_at = greatest(now(), created_at)
 where id = '25000000-0000-4000-8000-000000000003';
 
 insert into public.conversations (

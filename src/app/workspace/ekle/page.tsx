@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { CsvImportExportPanel } from "@/features/csv/csv-import-export-panel";
@@ -39,9 +40,44 @@ export default async function AddPage() {
 
       {access.ok ? (
         <>
+          <section
+            aria-label="Kayıt türü"
+            className="mb-6 grid gap-3 sm:grid-cols-2"
+          >
+            <a
+              className="rounded-3xl border-2 border-[var(--brand)] bg-emerald-50 p-5"
+              href="#hizli-fsbo"
+            >
+              <span className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--brand)]">
+                Portal ilanı
+              </span>
+              <span className="mt-2 block text-xl font-black">
+                Hızlı FSBO
+              </span>
+              <span className="mt-1 block text-sm leading-6 text-[var(--muted)]">
+                İlan numarası ve bağlantıyla fırsat oluşturun.
+              </span>
+            </a>
+            <Link
+              className="rounded-3xl border border-[var(--line)] bg-white p-5 shadow-[0_8px_24px_rgba(18,37,29,0.05)]"
+              href="/workspace/ekle/saha"
+            >
+              <span className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--brand)]">
+                Fiziksel tabela
+              </span>
+              <span className="mt-2 block text-xl font-black">
+                Saha kaydı
+              </span>
+              <span className="mt-1 block text-sm leading-6 text-[var(--muted)]">
+                Fotoğrafı ve isteğe bağlı konumu güvenle saklayın.
+              </span>
+            </Link>
+          </section>
+          <div id="hizli-fsbo">
           <QuickFsboForm
             defaultNextActionAt={defaultQuickFsboNextActionAt()}
           />
+          </div>
           <CsvImportExportPanel />
         </>
       ) : (

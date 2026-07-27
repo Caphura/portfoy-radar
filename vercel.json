@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/purge-field-observations",
+      "schedule": "17 2 * * *"
+    }
+  ]
+}
