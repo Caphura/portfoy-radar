@@ -81,3 +81,14 @@ export function defaultIstanbulMarketAnalysisTargetAt(
     new Date(now.getTime() + 3 * 24 * 60 * 60 * 1_000),
   );
 }
+
+export function defaultIstanbulReportPeriod(
+  now = new Date(),
+): { startDate: string; endDate: string } {
+  const endDate = formatIstanbulDateKey(now);
+
+  return {
+    startDate: `${endDate.slice(0, 7)}-01`,
+    endDate,
+  };
+}

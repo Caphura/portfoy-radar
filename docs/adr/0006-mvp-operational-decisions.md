@@ -74,6 +74,14 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 - Görüşme performansı `occurred_at`, randevu performansı `starts_at` üzerinden
   hesaplanır.
 - Mükerrer olarak iptal edilen import satırları fırsat sayılmaz.
+- `performance-v1` varsayılan olarak Türkiye takvim ayının ilk gününden bugüne
+  kadar çalışır; kullanıcı 01.01.2000 ile bugün arasında en fazla 366 günlük
+  dahilî bir dönem seçebilir.
+- Huni, dönemde oluşturulan fırsatların bütün zamanlardaki aşama geçmişini
+  kullanır. Görüşme sonucu ve randevunun güncel durum dağılımı dönem içindeki
+  kendi olay zamanlarına göre ayrıca gösterilir.
+- Rapor yalnız workspace toplamlarını döndürür; kişi, iletişim bilgisi, serbest
+  metin veya kayıt kimliği rapor sözleşmesine girmez.
 
 ### CSV, takvim ve bildirim
 
@@ -81,11 +89,23 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 - Tarihler ISO 8601 ofsetli; para iki ondalıklı sayısal değer ve ayrı para birimi
   kolonu olarak yazılır.
 - Import iki aşamalıdır: önizleme/doğrulama ve açık kullanıcı onayı.
-- MVP dosya sınırı 1.000 satırdır; hatalı satırlar diğerleriyle sessizce
-  kaydedilmez.
+- MVP dosya sınırı 1,5 MB ve 1.000 veri satırıdır. Dosya; ad, MIME, UTF-8,
+  başlık sırası, sütun sayısı ve alan sözleşmesiyle doğrulanır. Hatalı satırlar
+  diğerleriyle sessizce kaydedilmez.
+- Önizleme PII satırlarını saklamaz; 24 saatlik kullanıcı/workspace bağlı kayıt
+  yalnız dosyanın SHA-256 özeti ve satır sayısını tutar. Onayda aynı dosya
+  yeniden seçilir ve özet tekrar doğrulanır.
+- Dosya içindeki olası mükerrerler kayıttan önce reddedilir. Veritabanındaki
+  mükerrer adaylar PII içermeyen en fazla beş adayla gösterilir; her adaylı satır
+  için açık kullanıcı kararı gerekir. Adaylar transaction içinde tekrar
+  denetlenir.
+- Onaylanan dosyanın bütün satırları tek PostgreSQL transaction'ında işlenir;
+  bir satırın doğrulama veya mükerrer kararı başarısızsa tamamı geri alınır.
 - Formül enjeksiyonuna yol açan `=`, `+`, `-` veya `@` başlangıçlı metinler
   dışa aktarımda güvenli hâle getirilir.
-- Dışa aktarım varsayılan olarak maskeli PII içerir.
+- Dışa aktarım en fazla 1.000 fırsatı içerir, kişi adını çıkarır ve telefonu
+  yalnız son iki hanesi görünen maskeli değer olarak yazar. İçe ve dışa aktarma
+  PII içermeyen toplu audit olayı üretir.
 - MVP takvimi yalnızca uygulama içidir. Google/Outlook senkronizasyonu yoktur.
 - PWA yalnızca statik uygulama kabuğunu önbelleğe alır; yetkili HTML, API ve PII
   cache'lenmez.
@@ -113,10 +133,13 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 ## Doğrulama
 
 - Sabit fixture'lar puan bileşenlerini, eşitlik sırasını ve iletişim engelli
-  fırsatların dışlanmasını doğrular; rapor kohortları ilgili rapor diliminde
-  doğrulanacak.
-- CSV testleri Türkçe karakter, tarih, satır sınırı ve formül enjeksiyonunu
-  kapsayacak.
+  fırsatların dışlanmasını doğrular.
+- Rapor fixture'ları Türkiye gün sınırlarını, dönem dışı olayları, 11 aşamalı
+  kohortu, görüşme/randevu dağılımlarını ve iki workspace izolasyonunu
+  `performance-v1` sözleşmesinde doğrular.
+- CSV testleri Türkçe karakter, UTF-8/BOM, tarih/para sözleşmesi, dosya ve satır
+  sınırı, dosya içi/veritabanı mükerrerleri, atomik rollback, RLS, audit, PII
+  maskeleme ve formül enjeksiyonunu kapsar.
 - PWA testi yetkili yanıtların Cache Storage içinde bulunmadığını denetleyecek.
 - Bağımlılık ve route incelemesi yasaklı gönderim/tarama kabiliyeti eklenmediğini
   doğrulayacak.
@@ -131,3 +154,10 @@ PostgreSQL `numeric` ile fiyat/m² hesaplanır. Güvenli görünüm aynı bağla
 minimum, medyan ve maksimum fiyat/m² değerlerini, medyan × konu m² temel
 tahminini ve ±%5 başlangıç bandını üretir. Harici emsal çekme, CSV, aralık
 değiştirme/finalizasyon ve otomatik değerleme iddiası bu küçük dilimde yoktur.
+
+2026-07-27 tarihli CSV diliminde owner/advisor, boş `fsbo-v1` şablonunu indirip
+FSBO satırlarını iki aşamada içe aktarabilir. Açık CSV/PII önizleme tablosunda
+tutulmaz; onaylanan aynı dosya, satır kararlarıyla birlikte tek transaction'da
+işlenir. Varsayılan export kişi adı içermez, telefonu maskeler, formül hücrelerini
+etkisizleştirir ve audit kaydı üretir. Harici dosya depolama, arka plan importu,
+portal taraması ve açık PII exportu bu dilimde yoktur.

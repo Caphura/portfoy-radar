@@ -27,6 +27,12 @@ vi.mock("@/features/fsbo/quick-fsbo-form", () => ({
   ),
 }));
 
+vi.mock("@/features/csv/csv-import-export-panel", () => ({
+  CsvImportExportPanel: () => (
+    <section aria-label="CSV içe ve dışa aktarma" />
+  ),
+}));
+
 vi.mock("@/features/fsbo/quick-fsbo-validation", async (importOriginal) => {
   const original =
     await importOriginal<
@@ -67,6 +73,9 @@ describe("AddPage", () => {
     expect(
       screen.getByRole("form", { name: "Hızlı FSBO ekleme formu" }),
     ).toHaveAttribute("data-default-next-action", "2026-07-26T10:00");
+    expect(
+      screen.getByRole("region", { name: "CSV içe ve dışa aktarma" }),
+    ).toBeInTheDocument();
     expect(getWorkspaceAccessMock).toHaveBeenCalledWith({
       allowedRoles: ["owner", "advisor"],
     });

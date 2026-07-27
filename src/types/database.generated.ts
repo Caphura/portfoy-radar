@@ -572,6 +572,57 @@ export type Database = {
           },
         ]
       }
+      csv_import_previews: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          created_by: string
+          expires_at: string
+          file_sha256: string
+          id: string
+          row_count: number
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          created_by: string
+          expires_at?: string
+          file_sha256: string
+          id?: string
+          row_count: number
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          file_sha256?: string
+          id?: string
+          row_count?: number
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csv_import_previews_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "csv_import_previews_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       duplicate_reviews: {
         Row: {
           candidate_count: number
@@ -2126,6 +2177,22 @@ export type Database = {
           task_id: string
         }[]
       }
+      confirm_csv_fsbo_import: {
+        Args: {
+          requested_decisions: Json
+          requested_file_sha256: string
+          requested_preview_id: string
+          requested_rows: Json
+        }
+        Returns: {
+          created_new_count: number
+          created_separate_count: number
+          import_id: string
+          linked_existing_property_count: number
+          processed_count: number
+          used_existing_count: number
+        }[]
+      }
       create_appointment: {
         Args: {
           requested_ends_at: string
@@ -2193,6 +2260,16 @@ export type Database = {
           stage: Database["public"]["Enums"]["opportunity_stage"]
         }[]
       }
+      export_workspace_fsbo_csv: {
+        Args: never
+        Returns: {
+          export_id: string
+          export_version: string
+          rows: Json
+          total_count: number
+          truncated: boolean
+        }[]
+      }
       find_quick_fsbo_duplicates: {
         Args: {
           requested_asking_price: number
@@ -2234,6 +2311,28 @@ export type Database = {
           transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
         }[]
       }
+      get_workspace_performance_report: {
+        Args: {
+          requested_end_date: string
+          requested_start_date: string
+          requested_workspace_id: string
+        }
+        Returns: {
+          appointment_statuses: Json
+          conversation_results: Json
+          conversion_rate: number
+          converted_opportunities: number
+          funnel: Json
+          new_opportunities: number
+          period_end_at: string
+          period_end_date: string
+          period_start_at: string
+          period_start_date: string
+          report_version: string
+          total_appointments: number
+          total_conversations: number
+        }[]
+      }
       lift_contact_communication_block: {
         Args: {
           requested_lift_reason_algorithm: string
@@ -2266,6 +2365,14 @@ export type Database = {
           communication_block_active: boolean
           communication_block_id: string
           origin_opportunity_id: string
+        }[]
+      }
+      preview_csv_fsbo_import: {
+        Args: { requested_file_sha256: string; requested_rows: Json }
+        Returns: {
+          expires_at: string
+          preview_id: string
+          rows: Json
         }[]
       }
       record_conversation: {

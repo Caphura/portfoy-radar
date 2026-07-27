@@ -78,8 +78,8 @@ select ok(
 
 select is(
   (select schema_version from public.app_config),
-  16,
-  'pazar analizi ve emsal migrationı şema sözleşmesini 16 yapar'
+  18,
+  'CSV içe ve dışa aktarma migrationı şema sözleşmesini 18 yapar'
 );
 
 insert into auth.users (

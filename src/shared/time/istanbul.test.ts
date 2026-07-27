@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   defaultIstanbulAppointmentTimes,
   defaultIstanbulMarketAnalysisTargetAt,
+  defaultIstanbulReportPeriod,
   defaultIstanbulTaskActionAt,
   formatIstanbulDateKey,
   formatIstanbulLocalDateTime,
@@ -58,5 +59,16 @@ describe("Europe/Istanbul zaman yardımcıları", () => {
         new Date("2026-07-26T09:00:00.000Z"),
       ),
     ).toBe("2026-07-29T12:00");
+  });
+
+  it("rapor varsayılanını Türkiye takvim ayının başından bugüne üretir", () => {
+    expect(
+      defaultIstanbulReportPeriod(
+        new Date("2026-07-26T21:30:00.000Z"),
+      ),
+    ).toEqual({
+      startDate: "2026-07-01",
+      endDate: "2026-07-27",
+    });
   });
 });

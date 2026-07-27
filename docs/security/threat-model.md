@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 2.1
+- Sürüm: 2.3
 - Tarih: 2026-07-27
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -70,13 +70,13 @@ Güven sınırları:
 | TM-E-02 | Yetki yükseltme | Service-role değerinin istemci paketine girmesi | Kritik | `server-only` modül, secret manager, `NEXT_PUBLIC` yasağı, bundle/secret taraması | CI veya yönetici hesabı ihlali |
 | TM-T-01 | Veri tahrifi | İstemcinin aşamayı doğrudan değiştirip geçmiş veya sonraki işlem kuralını atlaması | Yüksek | Atomik domain RPC, DB constraint/trigger, append-only aşama geçmişi | Ayrıcalıklı DB yöneticisi |
 | TM-T-02 | Veri tahrifi | Mükerrer adayların otomatik birleştirilmesiyle yanlış kişi/mülk ilişkisi | Yüksek | Beş kademeli PII'siz aday DTO'su; açık mobil karar; transaction içinde yeniden denetim ve advisory kilit; eski doğrudan komuta grant yok; append-only `duplicate_reviews`; workspace negatif testleri | Benzerlik eşiklerinden kaynaklanan yanlış pozitif/negatif adaylar |
-| TM-T-03 | Veri tahrifi | CSV formülü veya bozuk satırla veri/istemci davranışını değiştirme | Yüksek | İki aşamalı import, Zod/DB doğrulaması, 1.000 satır sınırı, formula injection koruması | Yeni dosya biçimleri |
+| TM-T-03 | Veri tahrifi | CSV formülü, bozuk satır veya önizlemeden farklı dosyayla veri/istemci davranışını değiştirme | Yüksek | İki aşamalı import, UTF-8/başlık/alan doğrulaması, dosya SHA-256 bağı, 1.000 satır ve 1,5 MB sınırı, tek transaction rollback, formula injection koruması | Yeni dosya biçimleri |
 | TM-R-01 | İnkâr etme | Kullanıcının aşama, PII görüntüleme veya export işlemini reddetmesi | Orta | Aktör, workspace, zaman, eylem ve request kimlikli append-only audit; owner-only görünüm | Paylaşılan kullanıcı hesabı |
 | TM-I-01 | Bilgi ifşası | Telefon/e-postanın liste, log, hata veya test çıktısında görünmesi | Kritik | AES-GCM, maskeli DTO, açık görüntüleme audit'i, log redaksiyonu, güvenli Türkçe hata | Ekran görüntüsü veya omuz sörfü |
 | TM-I-02 | Bilgi ifşası | Düz telefon hash'inin numara uzayı denenerek çözülmesi | Yüksek | Ayrı gizli anahtarlı HMAC blind index, anahtar rotasyonu, index'in istemciye verilmemesi | HMAC anahtarının ele geçirilmesi |
 | TM-I-03 | Bilgi ifşası | Yetkili sayfa/API yanıtının CDN veya service worker cache'inde kalması | Yüksek | Yetkili yanıtlarda `no-store`, kullanıcılar arası ISR yok, statik-kabuk-only PWA testi | Tarayıcı eklentileri |
-| TM-I-04 | Bilgi ifşası | CSV export ile toplu PII sızıntısı | Yüksek | MVP'de yalnızca maskeli export, workspace yetkisi, audit ve indirme hız sınırı | İndirilmiş dosyanın paylaşılması |
-| TM-D-01 | Hizmet engelleme | Büyük CSV veya pahalı filtre/rapor sorgusuyla kaynak tüketme | Orta | 1.000 satır sınırı, dosya boyutu sınırı, sorgu index'leri, timeout ve rate limit | Tek workspace'in kendi kotasını tüketmesi |
+| TM-I-04 | Bilgi ifşası | CSV export ile toplu PII sızıntısı | Yüksek | Yalnız owner/advisor; kişi adı yok; telefon sunucuda çözülüp yalnız maskelenir; en fazla 1.000 satır; no-store yanıt ve audit | İndirilmiş dosyanın paylaşılması; uygulama katmanı hız sınırı henüz yok |
+| TM-D-01 | Hizmet engelleme | Büyük CSV veya pahalı filtre/rapor sorgusuyla kaynak tüketme | Orta | 1.000 satır ve 1,5 MB dosya sınırı; Server Action 2 MB gövde tavanı; exportta 1.000 satır; raporda en fazla 366 gün ve dönem index'leri | Tek workspace'in kendi kotasını tüketmesi; uygulama katmanı rate limit/timeout henüz yok |
 | TM-S-02 | Kimlik sahteciliği | CSRF ile kullanıcının oturumunda yazma işlemi tetikleme | Yüksek | SameSite cookie, Origin doğrulaması, yalnızca POST mutasyon, framework CSRF kontrolleri | Tarayıcı/çerçeve açığı |
 | TM-T-04 | Veri tahrifi | SQL/URL girdisiyle sorgu veya canonicalization davranışını bozma | Yüksek | Parametreli atomik RPC, Zod şeması, platform-host doğrulayan yerel canonicalizer, portal ağına istek yok | Yeni platform ve URL uç durumları |
 | TM-E-03 | Yetki yükseltme | Güvensiz `SECURITY DEFINER` fonksiyonuyla RLS atlama | Kritik | Sabit `search_path`, en az grant, fonksiyon içi workspace kontrolü, migration güvenlik testi | Ayrıcalıklı migration hatası |
@@ -93,6 +93,7 @@ Güven sınırları:
 | TM-I-09 | Bilgi ifşası | Uygulama içi takvimin başka workspace randevusunu veya kişi bilgisini göstermesi | Kritik | RLS/FORCE randevu tablosu; `security_invoker`/`security_barrier` takvim görünümü; merkezi iletişim uygunluğu; PII-siz kolon allowlist'i; iki-workspace negatif testi | Yeni takvim alanının allowlist güncellenmeden eklenmesi |
 | TM-T-09 | Veri tahrifi | Pazar analizinin üç görevden biri olmadan veya emsalin farklı işlem/para birimiyle kısmi kaydedilmesi | Yüksek | Owner/advisor kontrollü atomik RPC; görev kaynak CHECK/FK'leri; üç görevi commit anında denetleyen ertelenmiş trigger; analiz bağlamını emsale bileşik FK ile miras verme; exact `numeric` hesap ve rollback testleri | Ayrıcalıklı yöneticinin kontrolleri bilinçli kapatması |
 | TM-I-10 | Bilgi ifşası | Analiz/emsal görünümünün başka workspace verisini, kişi bilgisini veya serbest metni açığa çıkarması | Kritik | RLS/FORCE analiz ve emsal tabloları; `security_invoker`/`security_barrier` PII-siz görünüm; açık kolon allowlist'i; iki-workspace ve güvenli hata negatif testleri | Yeni analiz alanının allowlist güncellenmeden eklenmesi |
+| TM-I-11 | Bilgi ifşası | Performans raporunun başka workspace toplamlarını veya düşük seviyeli kişi/veri ayrıntılarını açığa çıkarması | Kritik | Sunucu oturum/üyelik kontrolü; `security invoker` aggregate RPC; kaynak RLS'leri; PII-siz sabit dönüş sözleşmesi; iki-workspace, viewer ve DTO negatif testleri; dinamik/no-store sayfa | Çok küçük toplamların iş bağlamında dolaylı çıkarıma izin vermesi |
 
 ## Güvenlik gereksinimleri
 
@@ -114,8 +115,9 @@ Güven sınırları:
    açıkça kaldırılabilir; eski fırsatlar otomatik açılmaz.
 2. Kullanıcı farklı kişilere ait aynı telefonu görür: sistem birleştirmez, aday
    nedenini gösterir ve karar ister.
-3. Import dosyası çok sayıda benzer ilan içerir: önizleme her satırın adaylarını
-   gösterir; toplu otomatik merge yapılmaz.
+3. Import dosyası çok sayıda benzer ilan içerir: dosya içi olası mükerrerler
+   reddedilir; veritabanı adayları satır bazında gösterilir ve açık karar
+   olmadan bütün transaction durur.
 4. Saldırgan API'ye başka workspace UUID'si yollar: DAL ve RLS birlikte reddeder.
 5. Kullanıcı açık PII'yi görüntüler: yalnızca yetkili detay/kokpit bağlamında
    çözülür ve audit olayı yazılır.
@@ -124,7 +126,7 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi, randevu/takvim, pazar analizi/manuel emsal, iletişim engeli ve PII-siz `priority-v1` arama sırası hazır; kalan alan tabloları henüz yok | Hazır alan tabloları ve görünümleri RLS/FORCE veya `security_invoker` ile, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev, randevu, analiz/emsal ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi, randevu/takvim, pazar analizi/manuel emsal, iletişim engeli, PII-siz `priority-v1` arama sırası ve `performance-v1` raporu hazır; kalan alan tabloları henüz yok | Hazır alan tabloları, görünümleri ve rapor RPC'si RLS/FORCE veya `security invoker` ile, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev, randevu, analiz/emsal ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |

@@ -23,6 +23,7 @@ giremez.
 | `listings` | Yok | Yalnızca üye olduğu workspace | Yok | Platform/ilan no, canonical URL ve emsal index'leri benzersiz değildir |
 | `listing_price_history` | Yok | Yalnızca üye olduğu workspace | Yok | İlan bağı bileşik workspace FK; fiyat exact `numeric` |
 | `duplicate_reviews` | Yok | Yalnızca üye olduğu workspace için redakte karar sütunları | Yalnızca atomik RPC | Şifreli gerekçe sütun grant'ine kapalı; kayıt append-only, seçilen/sonuç varlıkları bileşik workspace FK'li |
+| `csv_import_previews` | Yok | Yalnız oluşturan owner/advisor için güvenli metadata | Yalnızca CSV RPC'leri | RLS/FORCE; dosya SHA-256 sütunu authenticated grant'ine kapalı; açık CSV/PII saklanmaz; 24 saatlik süre ve tek kullanımlı onay |
 | `current_workspace_entity_counts` | Yok | Güncel workspace için üç sayılık DTO | Yok | `security_invoker=true`, PII ve kayıt kimliği içermez |
 | `opportunities` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Açık/kapanmış sonraki işlem constraint'i; doğrudan yazma grant'i yok |
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
@@ -43,6 +44,7 @@ giremez.
 | `current_workspace_calendar_items` | Yok | Üye olduğu workspace için planlı randevu, açık görev ve güvenli gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğunu kullanır; kişi kimliği, iletişim PII'sı ve serbest metin içermez |
 | `current_workspace_market_analysis_detail` | Yok | Üye olduğu workspace için analiz, manuel emsaller ve exact numeric fiyat/m² özeti | Yok | `security_invoker=true`, `security_barrier=true`; kaynak tabloların RLS'sini uygular; kişi/iletişim PII'sı ve serbest not içermez; ilk 50 emsal sunucu DTO'sunda gösterilir |
 | `current_workspace_priority_call_queue` | Yok | Üye olduğu workspace için iletişime uygun açık fırsatların `priority-v1` puanı, altı açıklama bileşeni ve güvenli gayrimenkul/ilan özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi allowlist'i kullanır; kişi kimliği, iletişim PII'sı, şifreli değer, blind index ve URL içermez |
+| `get_workspace_performance_report` | Yok | Üye olduğu workspace için `performance-v1` dönem toplamları | Yok | `security invoker`, sabit boş `search_path`, üyelik denetimi ve kaynak tablo RLS'leri; en fazla 366 gün; yalnız sayılar ve sabit enum anahtarları |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
 `create_quick_fsbo` komutu `authenticated` role kapalıdır.
@@ -99,6 +101,26 @@ Aktif engelli veya kapanmış fırsatta zarf vermez. Yalnız seçilen birincil t
 zarfını sunucuya döndürür ve aynı transaction içinde PII içermeyen
 `contact.phone_revealed` audit kaydı yazar. Açık telefon yalnız sunucu
 keyring'iyle çözülür; normal kokpit DTO'sunda veya loglarda bulunmaz.
+
+`get_workspace_performance_report` workspace kimliği alsa da `auth.uid()`
+üyeliğini fonksiyon içinde doğrular ve `security invoker` olarak kaynak
+tabloların RLS politikalarını korur. Owner, advisor ve viewer yalnız üye
+oldukları workspace toplamlarını okuyabilir. Fonksiyon `performance-v1`
+kohortunu `Europe/Istanbul` gün sınırlarıyla hesaplar; kayıt kimliği, kişi
+kimliği, telefon, e-posta, şifreli zarf veya serbest metin döndürmez. Next.js
+sunucusu dönüş yapısını ve toplam bütünlüğünü tekrar doğrular; yetkili sayfa
+dinamik ve `no-store` veri erişimiyle çalışır.
+
+`preview_csv_fsbo_import`, `confirm_csv_fsbo_import` ve
+`export_workspace_fsbo_csv` istemciden workspace veya kullanıcı kimliği kabul
+etmez; ilk üyeliği `auth.uid()` ile çözer ve yalnız `owner`/`advisor` rolünü
+kabul eder. Önizleme yalnız dosya özeti/satır sayısı saklar ve PII-siz adaylar
+döndürür. Onay aynı dosya özetini, süreyi ve satır sayısını kilit altında
+doğrular; her satırı mevcut mükerrer komutuyla tekrar denetleyip tamamını tek
+transaction'da yazar veya geri alır. Export en fazla 1.000 satırlık şifreli
+telefon zarfını yalnız sunucuya döndürür; Next.js zarfı çözer, açık değeri DTO'ya
+veya CSV'ye koymadan maskeler. Import/export audit metadata'sı satır sayıları
+dışında dosya içeriği, telefon, blind index veya kişi adı içermez.
 
 ## Yeni tablo kabul kapısı
 

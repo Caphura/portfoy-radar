@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { CsvImportExportPanel } from "@/features/csv/csv-import-export-panel";
 import { QuickFsboForm } from "@/features/fsbo/quick-fsbo-form";
 import { defaultQuickFsboNextActionAt } from "@/features/fsbo/quick-fsbo-validation";
 import { getWorkspaceAccess } from "@/server/workspace/access";
@@ -37,9 +38,12 @@ export default async function AddPage() {
       </header>
 
       {access.ok ? (
-        <QuickFsboForm
-          defaultNextActionAt={defaultQuickFsboNextActionAt()}
-        />
+        <>
+          <QuickFsboForm
+            defaultNextActionAt={defaultQuickFsboNextActionAt()}
+          />
+          <CsvImportExportPanel />
+        </>
       ) : (
         <section
           className={`rounded-3xl border p-5 ${
