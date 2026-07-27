@@ -23,6 +23,7 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 
 - [2026-07-27 staging anahtar rotasyonu tatbikatı](./security/evidence/2026-07-27-staging-key-rotation.md)
 - [2026-07-27 sentetik Preview kullanım profili](./security/evidence/2026-07-27-synthetic-preview-profile.md)
+- [2026-07-27 staging yedekleme ve geri yükleme tatbikatı](./security/evidence/2026-07-27-staging-backup-restore-drill.md)
 
 ## Değişiklik süreci
 
