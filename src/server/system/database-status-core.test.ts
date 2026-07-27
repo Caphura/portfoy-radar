@@ -6,7 +6,7 @@ describe("resolveDatabaseStatus", () => {
   it("doğrulanmış veritabanı sözleşmesini güvenli DTO'ya dönüştürür", async () => {
     const result = await resolveDatabaseStatus(async () => ({
       data: {
-        schema_version: 18,
+        schema_version: 19,
         locale: "tr-TR",
         time_zone: "Europe/Istanbul",
         default_currency: "TRY",
@@ -19,7 +19,7 @@ describe("resolveDatabaseStatus", () => {
       data: {
         service: "supabase-postgres",
         status: "ok",
-        schemaVersion: 18,
+        schemaVersion: 19,
         locale: "tr-TR",
         timeZone: "Europe/Istanbul",
         defaultCurrency: "TRY",

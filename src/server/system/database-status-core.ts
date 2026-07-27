@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const currentDatabaseSchemaVersion = 18;
+export const currentDatabaseSchemaVersion = 19;
 
 const databaseContractSchema = z.object({
   schema_version: z.literal(currentDatabaseSchemaVersion),

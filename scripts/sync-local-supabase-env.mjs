@@ -41,8 +41,10 @@ for (const line of status.stdout.split(/\r?\n/)) {
 const apiUrl = sourceValues.get("API_URL");
 const publishableKey =
   sourceValues.get("PUBLISHABLE_KEY") ?? sourceValues.get("ANON_KEY");
+const serviceRoleKey =
+  sourceValues.get("SERVICE_ROLE_KEY") ?? sourceValues.get("SECRET_KEY");
 
-if (!apiUrl || !publishableKey) {
+if (!apiUrl || !publishableKey || !serviceRoleKey) {
   process.stderr.write(
     "Supabase durumu gerekli yerel bağlantı değerlerini döndürmedi.\n",
   );
@@ -52,6 +54,8 @@ if (!apiUrl || !publishableKey) {
 const replacements = new Map([
   ["SUPABASE_URL", apiUrl],
   ["SUPABASE_PUBLISHABLE_KEY", publishableKey],
+  ["SUPABASE_SERVICE_ROLE_KEY", serviceRoleKey],
+  ["FIELD_OBSERVATION_MODE", "synthetic"],
 ]);
 
 const existing = existsSync(environmentPath)

@@ -55,7 +55,7 @@ describe("GET /api/workspace/release-readiness", () => {
     getReleaseReadinessMock.mockResolvedValue({
       ok: true,
       data: {
-        version: "release-v1",
+        version: "release-v2",
         decision: "blocked",
         livePiiAllowed: false,
         summary:

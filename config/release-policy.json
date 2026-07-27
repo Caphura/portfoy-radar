@@ -1,5 +1,5 @@
 {
-  "version": "release-v1",
+  "version": "release-v2",
   "defaultDecision": "blocked-until-approved",
   "manualGates": [
     {
@@ -21,7 +21,14 @@
       "label": "Yedekten dönüş tatbikatı",
       "owner": "Operasyon",
       "status": "open",
-      "closureCriteria": "Günlük yedek ve 30 günlük geri dönüş hedefiyle başarılı bir geri yükleme raporu kaydedilmelidir."
+      "closureCriteria": "Production DB ve şifreli Storage nesnelerini kapsayan günlük yedek, 30 günlük saklama ve izole geri yükleme raporu kaydedilmelidir."
+    },
+    {
+      "id": "sensitive-media-location",
+      "label": "Hassas medya ve kesin konum onayı",
+      "owner": "Güvenlik",
+      "status": "open",
+      "closureCriteria": "Kötü amaçlı görsel, EXIF temizliği, şifreli medya, kesin konum, Storage imhası ve cihaz kabul kanıtları onaylanmalıdır."
     }
   ]
 }

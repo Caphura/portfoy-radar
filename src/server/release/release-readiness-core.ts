@@ -4,7 +4,12 @@ import type { PiiProtectionStatusResult } from "@/server/pii/status-core";
 import type { DatabaseStatusResult } from "@/server/system/database-status-core";
 
 const gateBaseSchema = z.object({
-  id: z.enum(["secret-manager", "data-region-kvkk", "backup-restore"]),
+  id: z.enum([
+    "secret-manager",
+    "data-region-kvkk",
+    "backup-restore",
+    "sensitive-media-location",
+  ]),
   label: z.string().min(3).max(120),
   owner: z.enum(["Güvenlik", "Ürün sahibi", "Operasyon"]),
   closureCriteria: z.string().min(20).max(400),
@@ -25,17 +30,18 @@ const approvedGateSchema = gateBaseSchema.extend({
 
 const releasePolicySchema = z
   .object({
-    version: z.literal("release-v1"),
+    version: z.literal("release-v2"),
     defaultDecision: z.literal("blocked-until-approved"),
     manualGates: z
       .array(z.discriminatedUnion("status", [openGateSchema, approvedGateSchema]))
-      .length(3),
+      .length(4),
   })
   .superRefine((policy, context) => {
     const expectedIds = [
       "secret-manager",
       "data-region-kvkk",
       "backup-restore",
+      "sensitive-media-location",
     ];
 
     if (
@@ -59,7 +65,11 @@ export type ReleaseTechnicalCheck = {
 };
 
 export type ReleaseManualGate = {
-  id: "secret-manager" | "data-region-kvkk" | "backup-restore";
+  id:
+    | "secret-manager"
+    | "data-region-kvkk"
+    | "backup-restore"
+    | "sensitive-media-location";
   label: string;
   owner: "Güvenlik" | "Ürün sahibi" | "Operasyon";
   closureCriteria: string;
@@ -68,7 +78,7 @@ export type ReleaseManualGate = {
 };
 
 export type ReleaseReadiness = {
-  version: "release-v1";
+  version: "release-v2";
   decision: "blocked" | "ready";
   livePiiAllowed: boolean;
   summary: string;
@@ -88,6 +98,15 @@ export type ReleaseReadinessEvaluationResult =
         message: string;
       };
     };
+
+export function hasApprovedLivePiiEvidence(policyInput: unknown): boolean {
+  const policy = releasePolicySchema.safeParse(policyInput);
+
+  return (
+    policy.success &&
+    policy.data.manualGates.every((gate) => gate.status === "approved")
+  );
+}
 
 export function evaluateReleaseReadiness(input: {
   database: DatabaseStatusResult;

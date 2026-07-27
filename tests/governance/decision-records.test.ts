@@ -18,6 +18,7 @@ const adrFiles = [
   "docs/adr/0004-pii-and-duplicate-detection.md",
   "docs/adr/0005-opportunity-workflow-and-invariants.md",
   "docs/adr/0006-mvp-operational-decisions.md",
+  "docs/adr/0007-field-observation-media-and-location.md",
 ] as const;
 
 const businessRuleIds = Array.from(
@@ -121,10 +122,11 @@ describe("tehdit modeli", () => {
           line.startsWith("| Supabase Auth") ||
           line.startsWith("| Şifreleme/KMS") ||
           line.startsWith("| Üretim bölgesi") ||
-          line.startsWith("| Yedekten dönüş"),
+          line.startsWith("| Yedekten dönüş") ||
+          line.startsWith("| Hassas medya"),
       );
 
-    expect(releaseBlockers).toHaveLength(4);
+    expect(releaseBlockers).toHaveLength(5);
 
     for (const blocker of releaseBlockers) {
       const cells = blocker

@@ -13,11 +13,27 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 - [ADR-0004: Kişisel veri, telefon normalizasyonu ve mükerrer kontrolü](./adr/0004-pii-and-duplicate-detection.md)
 - [ADR-0005: Fırsat iş akışı ve değişmez kurallar](./adr/0005-opportunity-workflow-and-invariants.md)
 - [ADR-0006: MVP operasyon ve raporlama kararları](./adr/0006-mvp-operational-decisions.md)
+- [ADR-0007: Saha gözlemi, şifreli medya ve kesin konum](./adr/0007-field-observation-media-and-location.md)
 
 ## Güvenlik ve gereksinimler
 
 - [Tehdit modeli](./security/threat-model.md)
 - [İş kuralı izlenebilirlik matrisi](./product/requirements-traceability.md)
+
+## Operasyonel güvenlik kanıtları
+
+- [2026-07-27 staging anahtar rotasyonu tatbikatı](./security/evidence/2026-07-27-staging-key-rotation.md)
+- [2026-07-27 sentetik Preview kullanım profili](./security/evidence/2026-07-27-synthetic-preview-profile.md)
+- [2026-07-27 staging yedekleme ve geri yükleme tatbikatı](./security/evidence/2026-07-27-staging-backup-restore-drill.md)
+
+## Kullanım ve operasyon
+
+- [Preview kullanım ve operasyon kılavuzu](./operations/preview-user-guide.md)
+- [Saha gözlemi yedekleme, geri yükleme ve saklama](./operations/field-observation-backup-and-retention.md)
+
+## Planlanan geliştirme görevleri
+
+- [Randevu Web Push bildirimleri](./tasks/appointment-web-push-notifications.md)
 
 ## Değişiklik süreci
 

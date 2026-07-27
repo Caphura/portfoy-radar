@@ -12,7 +12,7 @@ describe("ReleaseReadinessPanel", () => {
         result={{
           ok: true,
           data: {
-            version: "release-v1",
+            version: "release-v2",
             decision: "blocked",
             livePiiAllowed: false,
             summary:

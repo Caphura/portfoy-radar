@@ -73,7 +73,7 @@ describe("getReleaseReadiness", () => {
       data: {
         service: "supabase-postgres",
         status: "ok",
-        schemaVersion: 18,
+        schemaVersion: 19,
         locale: "tr-TR",
         timeZone: "Europe/Istanbul",
         defaultCurrency: "TRY",

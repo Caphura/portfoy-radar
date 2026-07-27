@@ -1,0 +1,54 @@
+name: Şifreli Production yedeği
+
+on:
+  schedule:
+    - cron: "31 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: encrypted-production-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Kaynak kodu al
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: pnpm kur
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6
+
+      - name: Node.js kur
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Bağımlılıkları kilit dosyasından kur
+        run: pnpm install --frozen-lockfile
+
+      - name: age ve PostgreSQL istemcisini kur
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq age postgresql-client
+
+      - name: DB ve şifreli Storage yedeğini age ile sar
+        env:
+          AGE_BACKUP_RECIPIENT: ${{ vars.AGE_BACKUP_RECIPIENT }}
+          BACKUP_OUTPUT_PATH: ${{ runner.temp }}/portfoy-radar-production.tar.age
+          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PRODUCTION_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY }}
+          PRODUCTION_SUPABASE_URL: ${{ secrets.PRODUCTION_SUPABASE_URL }}
+        run: node scripts/create-encrypted-production-backup.mjs
+
+      - name: Yalnız şifreli artifact yükle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: portfoy-radar-production-${{ github.run_id }}
+          path: ${{ runner.temp }}/portfoy-radar-production.tar.age
+          if-no-files-found: error
+          retention-days: 30

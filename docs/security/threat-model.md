@@ -49,6 +49,9 @@ flowchart LR
     B -->|Şifreleme / HMAC isteği| D["Yönetilen secret veya KMS"]
     E["Kullanıcı tarafından seçilen CSV"] -->|Önizleme ve doğrulama| B
     F["PWA service worker"] -->|Yalnızca statik kabuk| A
+    A -->|Açık kullanıcı eylemiyle fotoğraf ve isteğe bağlı GPS| B
+    B -->|AES-GCM ciphertext, service-role| G["Private Supabase Storage"]
+    B -->|no-referrer kullanıcı yönlendirmesi| H["Google Maps"]
 ```
 
 Güven sınırları:
@@ -96,6 +99,11 @@ Güven sınırları:
 | TM-I-11 | Bilgi ifşası | Performans raporunun başka workspace toplamlarını veya düşük seviyeli kişi/veri ayrıntılarını açığa çıkarması | Kritik | Sunucu oturum/üyelik kontrolü; `security invoker` aggregate RPC; kaynak RLS'leri; PII-siz sabit dönüş sözleşmesi; iki-workspace, viewer ve DTO negatif testleri; dinamik/no-store sayfa | Çok küçük toplamların iş bağlamında dolaylı çıkarıma izin vermesi |
 | TM-T-10 | Veri tahrifi | CI veya release politikasının değiştirilerek test/kanıt kapılarının atlanması | Kritik | Salt okunur workflow token'ı, kilitli bağımlılık kurulumu, `pull_request_target` yasağı, statik kapı bütünlük testi, manuel canlı PII assertion'ı ve Git geçmişinde kanıt referansı | Repository yöneticisinin korumalı dal/CI ayarlarını birlikte kötüye kullanması |
 | TM-I-12 | Bilgi ifşası | Release durumu veya CI çıktısının secret, kişi ya da kanıt içeriği sızdırması | Yüksek | Owner-only `private, no-store` DTO; sabit alan allowlist'i; yalnız kapı kimliği/sorumlu rolü; test çıktısında PII/secret taraması | Üçüncü taraf GitHub Action veya ele geçirilmiş runner |
+| TM-D-03 | Hizmet engelleme | Piksel bombası veya aşırı büyük görselin bellek/CPU tüketmesi | Yüksek | İstemci küçültme; sunucuda imza/MIME/12 MiB giriş/25 MP piksel sınırı; `sharp` fail-on-error ve 1,5 MiB çıktı tavanı | Görsel codec açığı |
+| TM-I-13 | Bilgi ifşası | EXIF veya fotoğraf içeriğinin public URL, cache, log ya da yanlış bucket üzerinden açılması | Kritik | Sunucuda yeniden JPEG kodlama; ayrı medya AES-GCM keyring'i; private bucket; service-role-only Storage; signed URL yok; audit'li `private, no-store` uygulama route'u | Yetkili kullanıcının ekran görüntüsü |
+| TM-I-14 | Bilgi ifşası | Kesin koordinatın DTO, audit, log veya arka plan üçüncü taraf isteğinde görünmesi | Kritik | Amaç ayrımlı şifreli JSON; açık koordinat kolonu yok; DTO yalnız `hasLocation`/doğruluk; Google'a yalnız açık kullanıcı eyleminde `no-referrer` redirect | Google Maps açıldıktan sonraki üçüncü taraf işleme |
+| TM-T-11 | Veri tahrifi | Storage nesnesi silinmeden DB kaydının imha edilmesi veya orphan ciphertext kalması | Yüksek | Atomik cleanup claim; önce Storage API remove; sonra DB delete; başarısızlıkta claim release; 24 saat pending temizliği; idempotent cron | Cron'un uzun süre çalışmaması |
+| TM-I-15 | Bilgi ifşası | Public repoda şifresiz DB/Storage yedeği veya private age identity bulunması | Kritik | Yalnız age ciphertext artifact; 30 gün retention; private identity GitHub dışında; manifest hash; loglarda secret/veri yok | age private identity kaybı veya ele geçirilmesi |
 
 ## Güvenlik gereksinimleri
 
@@ -135,12 +143,13 @@ Güven sınırları:
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |
+| Hassas medya ve kesin konum kanıtı onaysız | `FIELD_OBSERVATION_MODE` staging'de `disabled`, yerelde yalnız sentetik | Cihaz kabulü, EXIF/şifreleme, imha ve Storage geri yükleme kanıtları başarılı | Güvenlik |
 | Ele geçirilmiş danışman cihazı | Teknik olarak tamamen önlenemez | Ekran kilidi, oturum iptali ve MFA yol haritası | Ürün sahibi |
 
-İlk dört satır kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
+İlk beş satır kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
 
-Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Sonraki üç satır
-`release-v1` politikasında kanıt referansı olmadan onaylanamaz; eksik veya bozuk
+Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Sonraki dört satır
+`release-v2` politikasında kanıt referansı olmadan onaylanamaz; eksik veya bozuk
 politika canlı PII assertion'ını başarısız kılar.
 
 ## Doğrulama ve bakım

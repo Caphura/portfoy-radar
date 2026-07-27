@@ -9,9 +9,9 @@ const pendingGateIds = manualGates
   .filter((id) => typeof id === "string");
 
 if (
-  policy.version !== "release-v1" ||
+  policy.version !== "release-v2" ||
   policy.defaultDecision !== "blocked-until-approved" ||
-  manualGates.length !== 3
+  manualGates.length !== 4
 ) {
   console.error(
     "Canlı PII yayın politikası geçersiz. Release kapısı güvenli biçimde kapalı kaldı.",

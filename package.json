@@ -22,7 +22,7 @@
     "security:verify": "pnpm security:static && pnpm audit:prod && pnpm test:security && pnpm test:governance",
     "release:verify": "pnpm security:static && pnpm audit:prod && pnpm check && pnpm db:verify",
     "release:assert-live-pii": "node scripts/assert-live-pii-release.mjs",
-    "supabase:start": "supabase start -x edge-runtime,imgproxy,logflare,mailpit,postgres-meta,realtime,storage-api,studio,supavisor,vector",
+    "supabase:start": "supabase start -x edge-runtime,imgproxy,logflare,mailpit,postgres-meta,realtime,studio,supavisor,vector",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
     "supabase:env": "node scripts/sync-local-supabase-env.mjs",
@@ -44,6 +44,7 @@
     "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sharp": "0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

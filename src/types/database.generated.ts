@@ -822,6 +822,197 @@ export type Database = {
           },
         ]
       }
+      field_observation_listing_links: {
+        Row: {
+          id: string
+          linked_at: string
+          linked_by: string
+          listing_id: string
+          observation_id: string
+          workspace_id: string
+        }
+        Insert: {
+          id?: string
+          linked_at?: string
+          linked_by: string
+          listing_id: string
+          observation_id: string
+          workspace_id: string
+        }
+        Update: {
+          id?: string
+          linked_at?: string
+          linked_by?: string
+          listing_id?: string
+          observation_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "field_observation_listing_links_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_observation_listing_links_listing_workspace_fkey"
+            columns: ["workspace_id", "listing_id"]
+            isOneToOne: true
+            referencedRelation: "listings"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "field_observation_listing_links_observation_workspace_fkey"
+            columns: ["workspace_id", "observation_id"]
+            isOneToOne: true
+            referencedRelation: "field_observations"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "field_observation_listing_links_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      field_observation_media: {
+        Row: {
+          byte_size: number | null
+          content_sha256: string | null
+          created_at: string
+          encryption_algorithm: string | null
+          encryption_auth_tag: string | null
+          encryption_key_version: number | null
+          encryption_nonce: string | null
+          height: number | null
+          id: string
+          object_path: string
+          observation_id: string
+          uploaded_at: string | null
+          width: number | null
+          workspace_id: string
+        }
+        Insert: {
+          byte_size?: number | null
+          content_sha256?: string | null
+          created_at?: string
+          encryption_algorithm?: string | null
+          encryption_auth_tag?: string | null
+          encryption_key_version?: number | null
+          encryption_nonce?: string | null
+          height?: number | null
+          id?: string
+          object_path: string
+          observation_id: string
+          uploaded_at?: string | null
+          width?: number | null
+          workspace_id: string
+        }
+        Update: {
+          byte_size?: number | null
+          content_sha256?: string | null
+          created_at?: string
+          encryption_algorithm?: string | null
+          encryption_auth_tag?: string | null
+          encryption_key_version?: number | null
+          encryption_nonce?: string | null
+          height?: number | null
+          id?: string
+          object_path?: string
+          observation_id?: string
+          uploaded_at?: string | null
+          width?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "field_observation_media_observation_workspace_fkey"
+            columns: ["workspace_id", "observation_id"]
+            isOneToOne: true
+            referencedRelation: "field_observations"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "field_observation_media_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      field_observations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          location_algorithm: string | null
+          location_auth_tag: string | null
+          location_ciphertext: string | null
+          location_key_version: number | null
+          location_nonce: string | null
+          observed_at: string
+          purge_after: string | null
+          purge_started_at: string | null
+          status: Database["public"]["Enums"]["field_observation_status"]
+          trashed_at: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          location_algorithm?: string | null
+          location_auth_tag?: string | null
+          location_ciphertext?: string | null
+          location_key_version?: number | null
+          location_nonce?: string | null
+          observed_at: string
+          purge_after?: string | null
+          purge_started_at?: string | null
+          status?: Database["public"]["Enums"]["field_observation_status"]
+          trashed_at?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          location_algorithm?: string | null
+          location_auth_tag?: string | null
+          location_ciphertext?: string | null
+          location_key_version?: number | null
+          location_nonce?: string | null
+          observed_at?: string
+          purge_after?: string | null
+          purge_started_at?: string | null
+          status?: Database["public"]["Enums"]["field_observation_status"]
+          trashed_at?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "field_observations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "field_observations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_price_history: {
         Row: {
           amount: number
@@ -885,13 +1076,14 @@ export type Database = {
           created_at: string
           created_by: string
           currency: string
-          external_listing_id: string
+          external_listing_id: string | null
           first_seen_at: string
           id: string
           last_seen_at: string
-          platform: string
+          platform: string | null
           property_id: string
           published_at: string | null
+          source_kind: Database["public"]["Enums"]["listing_source_kind"]
           status: Database["public"]["Enums"]["listing_status"]
           transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
           updated_at: string
@@ -904,13 +1096,14 @@ export type Database = {
           created_at?: string
           created_by: string
           currency?: string
-          external_listing_id: string
+          external_listing_id?: string | null
           first_seen_at?: string
           id?: string
           last_seen_at?: string
-          platform: string
+          platform?: string | null
           property_id: string
           published_at?: string | null
+          source_kind?: Database["public"]["Enums"]["listing_source_kind"]
           status?: Database["public"]["Enums"]["listing_status"]
           transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
           updated_at?: string
@@ -923,13 +1116,14 @@ export type Database = {
           created_at?: string
           created_by?: string
           currency?: string
-          external_listing_id?: string
+          external_listing_id?: string | null
           first_seen_at?: string
           id?: string
           last_seen_at?: string
-          platform?: string
+          platform?: string | null
           property_id?: string
           published_at?: string | null
+          source_kind?: Database["public"]["Enums"]["listing_source_kind"]
           status?: Database["public"]["Enums"]["listing_status"]
           transaction_type?: Database["public"]["Enums"]["listing_transaction_type"]
           updated_at?: string
@@ -2162,6 +2356,18 @@ export type Database = {
           workspace_name: string
         }[]
       }
+      claim_field_observations_for_cleanup: {
+        Args: { requested_batch_size?: number }
+        Returns: {
+          cleanup_kind: Database["public"]["Enums"]["field_observation_cleanup_kind"]
+          object_path: string
+          observation_id: string
+        }[]
+      }
+      complete_field_observation_cleanup: {
+        Args: { requested_observation_id: string }
+        Returns: boolean
+      }
       complete_task: {
         Args: {
           requested_next_action_at?: string
@@ -2206,6 +2412,21 @@ export type Database = {
           preparation_due_at: string
           preparation_task_id: string
           starts_at: string
+        }[]
+      }
+      create_field_observation_pending: {
+        Args: {
+          requested_location_algorithm?: string
+          requested_location_auth_tag?: string
+          requested_location_ciphertext?: string
+          requested_location_key_version?: number
+          requested_location_nonce?: string
+          requested_object_path: string
+          requested_observed_at: string
+        }
+        Returns: {
+          observation_id: string
+          status: Database["public"]["Enums"]["field_observation_status"]
         }[]
       }
       create_opportunity: {
@@ -2268,6 +2489,61 @@ export type Database = {
           rows: Json
           total_count: number
           truncated: boolean
+        }[]
+      }
+      finalize_field_observation_upload: {
+        Args: {
+          requested_byte_size: number
+          requested_content_sha256: string
+          requested_encryption_algorithm: string
+          requested_encryption_auth_tag: string
+          requested_encryption_key_version: number
+          requested_encryption_nonce: string
+          requested_height: number
+          requested_observation_id: string
+          requested_width: number
+        }
+        Returns: {
+          observation_id: string
+          status: Database["public"]["Enums"]["field_observation_status"]
+        }[]
+      }
+      find_physical_fsbo_duplicates: {
+        Args: {
+          requested_asking_price: number
+          requested_gross_area_sqm: number
+          requested_living_room_count: number
+          requested_neighborhood: string
+          requested_net_area_sqm: number
+          requested_phone_blind_index: string
+          requested_phone_blind_index_key_version: number
+          requested_room_count: number
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          asking_price: number
+          candidate_key: string
+          city: string
+          contact_id: string
+          currency: string
+          district: string
+          external_listing_id: string
+          gross_area_sqm: number
+          last_seen_at: string
+          listing_id: string
+          listing_status: Database["public"]["Enums"]["listing_status"]
+          living_room_count: number
+          match_kinds: Database["public"]["Enums"]["duplicate_match_kind"][]
+          match_rank: number
+          neighborhood: string
+          net_area_sqm: number
+          next_action_at: string
+          opportunity_id: string
+          opportunity_stage: Database["public"]["Enums"]["opportunity_stage"]
+          platform: string
+          property_id: string
+          room_count: number
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
         }[]
       }
       find_quick_fsbo_duplicates: {
@@ -2350,6 +2626,17 @@ export type Database = {
           reopened_task_count: number
         }[]
       }
+      list_field_observations: {
+        Args: never
+        Returns: {
+          created_at: string
+          has_location: boolean
+          is_linked: boolean
+          observation_id: string
+          observed_at: string
+          status: Database["public"]["Enums"]["field_observation_status"]
+        }[]
+      }
       mark_contact_do_not_call: {
         Args: {
           requested_opportunity_id: string
@@ -2404,6 +2691,14 @@ export type Database = {
           requires_follow_up: boolean
         }[]
       }
+      record_field_observation_access: {
+        Args: { requested_action: string; requested_observation_id: string }
+        Returns: boolean
+      }
+      release_field_observation_cleanup_claim: {
+        Args: { requested_observation_id: string }
+        Returns: boolean
+      }
       request_market_analysis: {
         Args: {
           requested_currency: string
@@ -2428,6 +2723,49 @@ export type Database = {
           opportunity_id: string
           task_id: string
           updated_current_action: boolean
+        }[]
+      }
+      resolve_field_observation_fsbo: {
+        Args: {
+          requested_asking_price: number
+          requested_candidate_key?: string
+          requested_city: string
+          requested_display_name_algorithm: string
+          requested_display_name_auth_tag: string
+          requested_display_name_ciphertext: string
+          requested_display_name_key_version: number
+          requested_display_name_nonce: string
+          requested_district: string
+          requested_duplicate_decision?: Database["public"]["Enums"]["duplicate_review_decision"]
+          requested_gross_area_sqm: number
+          requested_living_room_count: number
+          requested_neighborhood: string
+          requested_net_area_sqm: number
+          requested_next_action_at: string
+          requested_observation_id: string
+          requested_phone_algorithm: string
+          requested_phone_auth_tag: string
+          requested_phone_blind_index: string
+          requested_phone_blind_index_key_version: number
+          requested_phone_ciphertext: string
+          requested_phone_key_version: number
+          requested_phone_nonce: string
+          requested_property_type: Database["public"]["Enums"]["property_type"]
+          requested_room_count: number
+          requested_separation_reason_algorithm?: string
+          requested_separation_reason_auth_tag?: string
+          requested_separation_reason_ciphertext?: string
+          requested_separation_reason_key_version?: number
+          requested_separation_reason_nonce?: string
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          duplicate_review_id: string
+          listing_id: string
+          next_action_at: string
+          opportunity_id: string
+          outcome: Database["public"]["Enums"]["quick_fsbo_resolution_outcome"]
+          stage: Database["public"]["Enums"]["opportunity_stage"]
         }[]
       }
       resolve_quick_fsbo_duplicate: {
@@ -2486,6 +2824,14 @@ export type Database = {
           value_nonce: string
         }[]
       }
+      set_field_observation_trash_state: {
+        Args: { requested_observation_id: string; requested_trashed: boolean }
+        Returns: {
+          observation_id: string
+          purge_after: string
+          status: Database["public"]["Enums"]["field_observation_status"]
+        }[]
+      }
       transition_opportunity_stage: {
         Args: {
           requested_next_action_at?: string
@@ -2501,6 +2847,17 @@ export type Database = {
           opportunity_id: string
           stage: Database["public"]["Enums"]["opportunity_stage"]
         }[]
+      }
+      update_field_observation_location: {
+        Args: {
+          requested_location_algorithm: string
+          requested_location_auth_tag: string
+          requested_location_ciphertext: string
+          requested_location_key_version: number
+          requested_location_nonce: string
+          requested_observation_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
@@ -2524,6 +2881,9 @@ export type Database = {
         | "use_existing"
         | "link_existing_property"
         | "keep_separate"
+      field_observation_cleanup_kind: "abandoned_upload" | "expired_trash"
+      field_observation_status: "upload_pending" | "ready" | "trashed"
+      listing_source_kind: "portal" | "physical_sign"
       listing_status: "active" | "inactive" | "closed"
       listing_transaction_type: "sale" | "rent"
       market_analysis_status: "draft" | "finalized" | "cancelled"
@@ -2722,6 +3082,9 @@ export const Constants = {
         "link_existing_property",
         "keep_separate",
       ],
+      field_observation_cleanup_kind: ["abandoned_upload", "expired_trash"],
+      field_observation_status: ["upload_pending", "ready", "trashed"],
+      listing_source_kind: ["portal", "physical_sign"],
       listing_status: ["active", "inactive", "closed"],
       listing_transaction_type: ["sale", "rent"],
       market_analysis_status: ["draft", "finalized", "cancelled"],
