@@ -9,7 +9,6 @@ const replacementActionValues = [
   "call",
   "verify",
   "prepare_analysis",
-  "prepare_appointment",
   "request_authorization",
   "other",
 ] as const satisfies readonly Enums<"opportunity_next_action_type">[];

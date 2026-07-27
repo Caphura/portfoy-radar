@@ -10,6 +10,21 @@ vi.mock("@/features/conversations/conversation-form", () => ({
   ),
 }));
 
+vi.mock("@/features/appointments/appointment-form", () => ({
+  AppointmentForm: ({
+    opportunityId,
+    unavailable,
+  }: {
+    opportunityId: string;
+    unavailable: boolean;
+  }) => (
+    <section aria-label="Randevu oluşturma formu">
+      <span>{unavailable ? "Randevu kapalı" : "Randevu açık"}</span>
+      <input name="appointmentOpportunityId" readOnly value={opportunityId} />
+    </section>
+  ),
+}));
+
 vi.mock("@/features/communication-blocks/do-not-call-control", () => ({
   DoNotCallControl: ({
     active,
@@ -159,6 +174,32 @@ describe("OpportunityDetailView", () => {
     expect(container.querySelector("#gorusme-kaydi")).toContainElement(
       screen.getByRole("region", { name: "Görüşme kayıt formu" }),
     );
+  });
+
+  it("owner veya danışman için randevu formunu fırsata bağlar ve engeli taşır", () => {
+    render(
+      <OpportunityDetailView
+        canCreateAppointment
+        defaultAppointmentEndsAt="2026-07-28T15:00"
+        defaultAppointmentStartsAt="2026-07-28T14:00"
+        result={{
+          ok: true,
+          data: {
+            ...successResult.data,
+            communicationBlock: { active: true },
+          },
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("region", { name: "Randevu oluşturma formu" }),
+    ).toHaveTextContent("Randevu kapalı");
+    expect(
+      within(
+        screen.getByRole("region", { name: "Randevu oluşturma formu" }),
+      ).getByDisplayValue(successResult.data.opportunity.id),
+    ).toHaveAttribute("name", "appointmentOpportunityId");
   });
 
   it("iletişim engeli durumunu mobil yönetim alanına fırsat kimliğiyle bağlar", () => {

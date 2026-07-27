@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { DoNotCallControl } from "@/features/communication-blocks/do-not-call-control";
 import { ConversationForm } from "@/features/conversations/conversation-form";
 import type {
@@ -14,6 +15,9 @@ type OpportunityDetailViewProps = {
   defaultConversationOccurredAt?: string;
   defaultConversationFollowUpAt?: string;
   canManageCommunicationBlock?: boolean;
+  canCreateAppointment?: boolean;
+  defaultAppointmentStartsAt?: string;
+  defaultAppointmentEndsAt?: string;
 };
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
@@ -126,6 +130,9 @@ export function OpportunityDetailView({
   defaultConversationOccurredAt = "",
   defaultConversationFollowUpAt = "",
   canManageCommunicationBlock = false,
+  canCreateAppointment = false,
+  defaultAppointmentStartsAt = "",
+  defaultAppointmentEndsAt = "",
 }: OpportunityDetailViewProps) {
   if (!result.ok) {
     const notFound = result.error.code === "NOT_FOUND";
@@ -230,6 +237,24 @@ export function OpportunityDetailView({
             canManage={canManageCommunicationBlock}
             opportunityId={opportunity.id}
           />
+
+          {canCreateAppointment ? (
+            <AppointmentForm
+              defaultEndsAt={defaultAppointmentEndsAt}
+              defaultStartsAt={defaultAppointmentStartsAt}
+              opportunityId={opportunity.id}
+              unavailable={opportunity.closed || communicationBlock.active}
+            />
+          ) : (
+            <section className="rounded-3xl border border-[var(--line)] bg-white p-5">
+              <h2 className="text-lg font-black text-[var(--ink)]">
+                Randevu oluştur
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                Randevu oluşturmak için sahip veya danışman rolü gerekir.
+              </p>
+            </section>
+          )}
 
           <div className="scroll-mt-24" id="gorusme-kaydi">
             {canRecordConversation ? (

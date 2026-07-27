@@ -8,6 +8,7 @@ import {
 import { OpportunityDetailView } from "@/features/opportunity-detail/opportunity-detail-view";
 import { getOpportunityDetail } from "@/server/opportunity-detail/get-opportunity-detail";
 import { getWorkspaceAccess } from "@/server/workspace/access";
+import { defaultIstanbulAppointmentTimes } from "@/shared/time/istanbul";
 
 export const metadata: Metadata = {
   title: "Fırsat detayı",
@@ -35,6 +36,7 @@ export default async function OpportunityDetailPage({
   }
 
   const now = new Date();
+  const defaultAppointment = defaultIstanbulAppointmentTimes(now);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -44,10 +46,16 @@ export default async function OpportunityDetailPage({
             access.membership.role === "owner" ||
             access.membership.role === "advisor"
           }
+          canCreateAppointment={
+            access.membership.role === "owner" ||
+            access.membership.role === "advisor"
+          }
           canRecordConversation={
             access.membership.role === "owner" ||
             access.membership.role === "advisor"
           }
+          defaultAppointmentEndsAt={defaultAppointment.endsAt}
+          defaultAppointmentStartsAt={defaultAppointment.startsAt}
           defaultConversationFollowUpAt={defaultConversationFollowUpAt(now)}
           defaultConversationOccurredAt={defaultConversationOccurredAt(now)}
           result={await getOpportunityDetail(

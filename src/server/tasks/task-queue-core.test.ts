@@ -91,6 +91,34 @@ describe("görev kuyruğu DTO çözümleyicisi", () => {
     }
   });
 
+  it("randevu hazırlığı görevini ayrı Türkçe etiketle gösterir", async () => {
+    const result = await resolveTaskQueueRows(
+      async () => ({
+        data: [
+          row(1, "2026-07-27T09:00:00.000Z", {
+            task_type: "appointment_preparation",
+            stage: "appointment",
+          }),
+        ],
+        error: null,
+      }),
+      new Date("2026-07-26T08:00:00.000Z"),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        upcoming: [
+          {
+            type: "appointment_preparation",
+            typeLabel: "Randevu hazırlığı",
+            stageLabel: "Randevu",
+          },
+        ],
+      },
+    });
+  });
+
   it("RLS ve servis hatalarını güvenli Türkçe sonuçlara dönüştürür", async () => {
     const forbidden = await resolveTaskQueueRows(async () => ({
       data: null,

@@ -486,8 +486,8 @@ reset role;
 
 select is(
   (select schema_version from public.app_config),
-  14,
-  'şema sözleşmesi sonraki öncelik kuyruğu migrationıyla sürüm 14 olur'
+  15,
+  'şema sözleşmesi sonraki randevu ve takvim migrationıyla sürüm 15 olur'
 );
 
 select * from finish();

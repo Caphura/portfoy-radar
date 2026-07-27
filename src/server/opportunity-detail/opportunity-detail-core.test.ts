@@ -193,6 +193,43 @@ describe("resolveOpportunityDetail", () => {
     }
   });
 
+  it("randevu olayını güvenli tarih özetiyle Türkçeleştirir", async () => {
+    const result = await resolveOpportunityDetail(async () => ({
+      data: {
+        ...detailRow,
+        timeline: [
+          {
+            id: "50000000-0000-4000-8000-000000000007",
+            event_type: "appointment.created",
+            details: {
+              appointment_id: "private-appointment-reference",
+              starts_at: "2026-07-28T11:00:00.000Z",
+              ends_at: "2026-07-28T12:00:00.000Z",
+              preparation_due_at: "2026-07-28T09:00:00.000Z",
+            },
+            occurred_at: "2026-07-27T09:00:00.000Z",
+          },
+        ],
+      },
+      error: null,
+    }));
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        timeline: [
+          {
+            title: "Randevu oluşturuldu",
+            detail: expect.stringContaining("Hazırlık:"),
+          },
+        ],
+      },
+    });
+    expect(JSON.stringify(result)).not.toContain(
+      "private-appointment-reference",
+    );
+  });
+
   it("Ulaşılamadı sonucunu aşamaya çevirmeden takip planıyla Türkçeleştirir", async () => {
     const result = await resolveOpportunityDetail(async () => ({
       data: {

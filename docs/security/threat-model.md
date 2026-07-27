@@ -1,8 +1,8 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 1.9
-- Tarih: 2026-07-26
+- Sürüm: 2.0
+- Tarih: 2026-07-27
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
 
@@ -22,7 +22,7 @@ görüş yerine geçmez.
 | --- | --- | --- |
 | Çok kısıtlı | Şifreleme/HMAC anahtarları, service-role, oturum belirteçleri | Gizlilik ve kötüye kullanımın önlenmesi |
 | Kısıtlı | Açık telefon/e-posta, şifreli PII, blind index | Gizlilik, bütünlük, kontrollü görüntüleme |
-| Gizli | Kişi, gayrimenkul, ilan, fırsat, görüşme notu, görev, analiz | Workspace izolasyonu ve bütünlük |
+| Gizli | Kişi, gayrimenkul, ilan, fırsat, görüşme notu, görev, randevu, analiz | Workspace izolasyonu ve bütünlük |
 | İç kullanım | Aşama geçmişi, aktivite geçmişi, audit, import kararları | Değiştirilemezlik ve inkâr edememe |
 | Açık | Uygulama adı ve güvenli sistem durumu DTO'su | Kullanılabilirlik; gizli ayrıntı içermeme |
 
@@ -89,6 +89,8 @@ Güven sınırları:
 | TM-D-02 | Hizmet/kötüye kullanım | Uygulamanın mesaj, arama veya portal tarama aracına dönüştürülmesi | Yüksek | Sağlayıcı/queue yok, otomatik gönderim ve scraping için mimari yokluk testi, ADR değişikliği zorunluluğu | Gelecekte kontrolsüz kapsam genişlemesi |
 | TM-T-07 | Veri tahrifi | Öncelik bileşenleri veya eşitlik sırası katmanlar arasında farklı uygulanarak fırsatların sessizce yanlış sıralanması | Yüksek | Sürümlü `priority-v1` formülü PostgreSQL görünümünde tek kaynak; DTO formül doğrulaması; sabit puan ve eşitlik fixture'ları; her bileşenin Türkçe gösterimi | Formülün iş hedefleriyle zaman içinde uyumsuzlaşması |
 | TM-I-08 | Bilgi ifşası | Günlük arama sırasında kişi kimliği, telefon, şifreli değer veya blind index'in açığa çıkması | Kritik | PII-siz görünüm ve açık kolon allowlist'i; korumalı ad için üyelik kontrollü varlık fonksiyonu; telefonu yalnız owner/advisor için tekil, audit'li RPC ile sunucuda çözme; bileşen ve DB negatif testleri | Yetkili kullanıcının açık telefon ekranından görüntü alması |
+| TM-T-08 | Veri tahrifi | Randevunun hazırlık görevi veya fırsat planı olmadan kısmi kaydedilmesi | Yüksek | Paylaşılan tarih doğrulaması; owner/advisor kontrollü atomik RPC; görev kaynağı CHECK/FK'leri; transaction sonunda hazırlık görevini doğrulayan ertelenmiş constraint trigger; rollback testi | Ayrıcalıklı yöneticinin bütün kontrolleri bilinçli kapatması |
+| TM-I-09 | Bilgi ifşası | Uygulama içi takvimin başka workspace randevusunu veya kişi bilgisini göstermesi | Kritik | RLS/FORCE randevu tablosu; `security_invoker`/`security_barrier` takvim görünümü; merkezi iletişim uygunluğu; PII-siz kolon allowlist'i; iki-workspace negatif testi | Yeni takvim alanının allowlist güncellenmeden eklenmesi |
 
 ## Güvenlik gereksinimleri
 
@@ -120,7 +122,7 @@ Güven sınırları:
 
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
-| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi, iletişim engeli ve PII-siz `priority-v1` arama sırası hazır; kalan alan tabloları henüz yok | Hazır alan tabloları ve görünümleri RLS/FORCE veya `security_invoker` ile, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
+| Supabase Auth, workspace RLS, kişi–gayrimenkul–ilan, fırsat/aşama, görüşme/takip görevi, randevu/takvim, iletişim engeli ve PII-siz `priority-v1` arama sırası hazır; kalan alan tabloları henüz yok | Hazır alan tabloları ve görünümleri RLS/FORCE veya `security_invoker` ile, bileşik workspace FK ve iki-kiracılı negatif testlerle korunuyor; fırsat, görüşme, görev, randevu ve engel yazmaları atomik RPC ile sınırlı | Her yeni iş tablosunda DAL, RLS ve iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |

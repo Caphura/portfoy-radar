@@ -94,6 +94,92 @@ export type Database = {
         }
         Relationships: []
       }
+      appointments: {
+        Row: {
+          created_at: string
+          created_by: string
+          ends_at: string
+          id: string
+          opportunity_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["appointment_status"]
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          ends_at: string
+          id?: string
+          opportunity_id: string
+          starts_at: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          ends_at?: string
+          id?: string
+          opportunity_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["appointment_status"]
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "appointments_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "appointments_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "appointments_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "appointments_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "appointments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1236,7 +1322,8 @@ export type Database = {
           due_at: string
           id: string
           opportunity_id: string
-          source_conversation_id: string
+          source_appointment_id: string | null
+          source_conversation_id: string | null
           status: Database["public"]["Enums"]["task_status"]
           task_type: Database["public"]["Enums"]["task_type"]
           updated_at: string
@@ -1250,7 +1337,8 @@ export type Database = {
           due_at: string
           id?: string
           opportunity_id: string
-          source_conversation_id: string
+          source_appointment_id?: string | null
+          source_conversation_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           task_type: Database["public"]["Enums"]["task_type"]
           updated_at?: string
@@ -1264,13 +1352,21 @@ export type Database = {
           due_at?: string
           id?: string
           opportunity_id?: string
-          source_conversation_id?: string
+          source_appointment_id?: string | null
+          source_conversation_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           task_type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_appointment_opportunity_workspace_fkey"
+            columns: ["workspace_id", "source_appointment_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["workspace_id", "id", "opportunity_id"]
+          },
           {
             foreignKeyName: "tasks_completed_by_fkey"
             columns: ["completed_by"]
@@ -1422,6 +1518,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      current_workspace_calendar_items: {
+        Row: {
+          appointment_status:
+            | Database["public"]["Enums"]["appointment_status"]
+            | null
+          city: string | null
+          district: string | null
+          ends_at: string | null
+          event_at: string | null
+          item_id: string | null
+          item_type: string | null
+          neighborhood: string | null
+          opportunity_id: string | null
+          property_id: string | null
+          property_type: Database["public"]["Enums"]["property_type"] | null
+          stage: Database["public"]["Enums"]["opportunity_stage"] | null
+          task_type: Database["public"]["Enums"]["task_type"] | null
+          workspace_id: string | null
+        }
+        Relationships: []
       }
       current_workspace_contactable_opportunities: {
         Row: {
@@ -1687,6 +1804,21 @@ export type Database = {
           task_id: string
         }[]
       }
+      create_appointment: {
+        Args: {
+          requested_ends_at: string
+          requested_opportunity_id: string
+          requested_starts_at: string
+        }
+        Returns: {
+          appointment_id: string
+          ends_at: string
+          opportunity_id: string
+          preparation_due_at: string
+          preparation_task_id: string
+          starts_at: string
+        }[]
+      }
       create_opportunity: {
         Args: {
           requested_contact_id: string
@@ -1926,6 +2058,7 @@ export type Database = {
       }
     }
     Enums: {
+      appointment_status: "scheduled" | "completed" | "cancelled"
       contact_method_type: "phone" | "email"
       conversation_channel: "phone" | "in_person" | "video" | "email" | "other"
       conversation_result:
@@ -1985,7 +2118,7 @@ export type Database = {
         | "linked_existing_property"
         | "created_separate"
       task_status: "open" | "completed" | "cancelled"
-      task_type: "conversation_follow_up"
+      task_type: "conversation_follow_up" | "appointment_preparation"
       workspace_role: "owner" | "advisor" | "viewer"
     }
     CompositeTypes: {
@@ -2114,6 +2247,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      appointment_status: ["scheduled", "completed", "cancelled"],
       contact_method_type: ["phone", "email"],
       conversation_channel: ["phone", "in_person", "video", "email", "other"],
       conversation_result: [
@@ -2181,7 +2315,7 @@ export const Constants = {
         "created_separate",
       ],
       task_status: ["open", "completed", "cancelled"],
-      task_type: ["conversation_follow_up"],
+      task_type: ["conversation_follow_up", "appointment_preparation"],
       workspace_role: ["owner", "advisor", "viewer"],
     },
   },

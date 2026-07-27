@@ -61,6 +61,7 @@ function serviceError(error: {
 
 function refreshTaskViews(opportunityId: string) {
   revalidatePath("/workspace");
+  revalidatePath("/workspace/takvim");
   revalidatePath("/workspace/radar");
   revalidatePath(`/workspace/radar/${opportunityId}`);
 }

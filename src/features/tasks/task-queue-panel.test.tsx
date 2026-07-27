@@ -140,7 +140,7 @@ describe("TaskQueuePanel", () => {
 
     expect(
       screen.getByText(
-        "Açık takip görevi yok. Takip gerektiren bir görüşme kaydedildiğinde görev burada görünür.",
+        "Açık görev yok. Takip gerektiren görüşmeler ve randevu hazırlıkları burada görünür.",
       ),
     ).toBeInTheDocument();
 

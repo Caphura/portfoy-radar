@@ -78,10 +78,12 @@ describe("görev formu doğrulaması", () => {
     });
   });
 
-  it("takip türünü görüşmesiz yeni görev üretmemek için kabul etmez", () => {
+  it.each(["follow_up", "prepare_appointment"])(
+    "%s türünü kaynak kaydı olmadan görev üretmemek için kabul etmez",
+    (nextActionType) => {
     const data = new FormData();
     data.set("taskId", taskId);
-    data.set("nextActionType", "follow_up");
+    data.set("nextActionType", nextActionType);
     data.set("nextActionAt", "2026-07-27T12:00");
 
     expect(validateCompleteTaskForm(data, now)).toMatchObject({
@@ -90,5 +92,6 @@ describe("görev formu doğrulaması", () => {
         nextActionType: expect.any(Array),
       },
     });
-  });
+    },
+  );
 });

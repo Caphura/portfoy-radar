@@ -61,3 +61,15 @@ export function defaultIstanbulTaskActionAt(
     new Date(now.getTime() + 24 * 60 * 60 * 1_000),
   );
 }
+
+export function defaultIstanbulAppointmentTimes(
+  now = new Date(),
+): { startsAt: string; endsAt: string } {
+  const startsAt = new Date(now.getTime() + 24 * 60 * 60 * 1_000);
+  const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1_000);
+
+  return {
+    startsAt: formatIstanbulLocalDateTime(startsAt),
+    endsAt: formatIstanbulLocalDateTime(endsAt),
+  };
+}

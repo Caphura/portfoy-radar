@@ -21,7 +21,10 @@ const taskRowSchema = z.object({
   workspace_id: z.uuid(),
   task_id: z.uuid(),
   opportunity_id: z.uuid(),
-  task_type: z.literal("conversation_follow_up"),
+  task_type: z.enum([
+    "conversation_follow_up",
+    "appointment_preparation",
+  ]),
   task_status: z.literal("open"),
   due_at: z.iso.datetime({ offset: true }),
   created_at: z.iso.datetime({ offset: true }),
@@ -98,7 +101,10 @@ function toTask(row: z.infer<typeof taskRowSchema>): TaskQueueItem {
     id: row.task_id,
     opportunityId: row.opportunity_id,
     type: row.task_type,
-    typeLabel: "Görüşme takibi",
+    typeLabel:
+      row.task_type === "appointment_preparation"
+        ? "Randevu hazırlığı"
+        : "Görüşme takibi",
     dueAt: row.due_at,
     createdAt: row.created_at,
     isCurrentNextAction: row.is_current_next_action,

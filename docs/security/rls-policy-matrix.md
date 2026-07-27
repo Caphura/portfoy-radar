@@ -1,7 +1,7 @@
 # RLS politika matrisi
 
 - Durum: Uygulandı
-- Tarih: 2026-07-26
+- Tarih: 2026-07-27
 - Kapsam: Mevcut `public` şeması
 
 Bu matris uygulama arayüzündeki görünürlüğü değil, PostgreSQL rolü ve satır
@@ -27,7 +27,8 @@ giremez.
 | `opportunities` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Açık/kapanmış sonraki işlem constraint'i; doğrudan yazma grant'i yok |
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
 | `conversations` | Yok | Üye olduğu workspace için yalnız kanal, sonuç, zaman ve takip metadata'sı | Yalnızca `record_conversation` RPC | RLS/FORCE; not ve takip amacı şifreli zarf sütunları authenticated role kapalı; fırsat bağı bileşik workspace FK'li |
-| `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation`, `reschedule_task` ve `complete_task` RPC'leri | RLS/FORCE; kaynak görüşme ve fırsat bağları bileşik workspace FK'li; tamamlama aktör/zaman constraint'i; bu dilimde yalnız görüşme takip görevi üretilir |
+| `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation`, `create_appointment`, `reschedule_task` ve `complete_task` RPC'leri | RLS/FORCE; görev türü yalnız kendi kaynak görüşme veya randevusuna bağlanır; bütün bağlar bileşik workspace FK'li; tamamlama aktör/zaman constraint'i |
+| `appointments` | Yok | Yalnızca üye olduğu workspace | Yalnızca `create_appointment` RPC | RLS/FORCE; fırsat bağı bileşik workspace FK'li; zaman aralığı ve fırsat/başlangıç benzersizliği; ertelenmiş trigger hazırlık görevini transaction sonunda zorunlu tutar |
 | `communication_blocks` | Yok | Üye olduğu workspace için aktör/zaman ve aktiflik metadata'sı | Yalnızca engelleme/kaldırma RPC'leri | RLS/FORCE; engel ve kaldırma nedenlerinin şifreli zarfları authenticated sütun grant'ine kapalı; kişi bağı bileşik workspace FK'li; kişi başına tek aktif engel |
 | `opportunity_stage_history` | Yok | Yalnızca üye olduğu workspace | Yok | Trigger üretir; authenticated ve service-role update/delete yapamaz |
 | `activity_history` | Yok | Yalnızca üye olduğu workspace | Yok | Audit'ten ayrı kullanıcı zaman çizelgesi; trigger üretir, metadata PII anahtarlarını reddeder |
@@ -36,7 +37,8 @@ giremez.
 | `current_workspace_radar` | Yok | Güncel workspace için fırsat, gayrimenkul ve tek kaynak ilan DTO'su | Yok | `security_invoker=true`, `security_barrier=true`; kişi, telefon, e-posta, blind index ve canonical URL içermez |
 | `current_workspace_opportunity_detail` | Yok | Üye olduğu workspace içindeki tek fırsatın güvenli özeti ve en yeni 50 aktivite olayı | Yok | `security_invoker=true`, `security_barrier=true`; PII, audit kimliği ve serbest aşama nedeni içermez; kaynak tabloların RLS'sini uygular |
 | `current_workspace_contactable_opportunities` | Yok | Üye olduğu workspace için yalnız iletişime uygun açık fırsat/kişi kimlikleri | Yok | `security_invoker=true`, `security_barrier=true`; kapanmış ve aktif engelli kişileri merkezi olarak eler; arama sırası ve otomatik görev önerileri bu allowlist'i kullanır |
-| `current_workspace_open_tasks` | Yok | Üye olduğu workspace için açık, iletişime uygun takip görevi ve gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğu görünümünü kullanır; kişi ve iletişim PII'sı içermez |
+| `current_workspace_open_tasks` | Yok | Üye olduğu workspace için açık, iletişime uygun takip/hazırlık görevi ve gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğu görünümünü kullanır; kişi ve iletişim PII'sı içermez |
+| `current_workspace_calendar_items` | Yok | Üye olduğu workspace için planlı randevu, açık görev ve güvenli gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğunu kullanır; kişi kimliği, iletişim PII'sı ve serbest metin içermez |
 | `current_workspace_priority_call_queue` | Yok | Üye olduğu workspace için iletişime uygun açık fırsatların `priority-v1` puanı, altı açıklama bileşeni ve güvenli gayrimenkul/ilan özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi allowlist'i kullanır; kişi kimliği, iletişim PII'sı, şifreli değer, blind index ve URL içermez |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
@@ -66,6 +68,13 @@ rollerini kabul eder. Erteleme, görev fırsatın güncel takip işlemiyse iki t
 tek transaction içinde günceller. Tamamlama, güncel takip işlemini kapatırken
 açık fırsat için yeni işlem türü ve tarihini zorunlu tutar. İki işlem de PII
 içermeyen audit ve fırsat timeline olayı üretir.
+
+`create_appointment` workspace kimliği kabul etmez; erişilebilir fırsatın
+workspace bağını veritabanında çözer ve yalnız `owner` ile `advisor` rollerini
+kabul eder. Kapanmış veya aktif iletişim engelli fırsatı reddeder. Randevu,
+hazırlık görevi, fırsat aşaması/sonraki işlemi ve PII içermeyen audit/timeline
+olayı tek transaction içinde yazılır. `viewer` salt okunur takvimi görebilir;
+başka workspace satırları RLS altında görünmez.
 
 `current_workspace_priority_call_queue`, korumalı kişi adını veya kişi
 kimliğini dışarı vermez. Tamlık puanı için gereken yalnız “ad zarfı var mı”

@@ -26,7 +26,6 @@ const replacementActions = [
   "call",
   "verify",
   "prepare_analysis",
-  "prepare_appointment",
   "request_authorization",
   "other",
 ] as const;
@@ -316,7 +315,8 @@ export function TaskQueuePanel({
       </p>
       <h2 className="mt-2 text-xl font-black">Görevler ve gecikmiş takipler</h2>
       <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-        Açık ve iletişime uygun görüşme takipleri Türkiye saatine göre sıralanır.
+        Açık ve iletişime uygun görüşme takipleri ile randevu hazırlıkları
+        Türkiye saatine göre sıralanır.
       </p>
 
       {!result.ok ? (
@@ -353,15 +353,15 @@ export function TaskQueuePanel({
 
           {result.data.total === 0 ? (
             <p className="mt-5 rounded-2xl bg-slate-50 px-4 py-4 text-sm leading-6 text-[var(--muted)]">
-              Açık takip görevi yok. Takip gerektiren bir görüşme
-              kaydedildiğinde görev burada görünür.
+              Açık görev yok. Takip gerektiren görüşmeler ve randevu
+              hazırlıkları burada görünür.
             </p>
           ) : (
             <>
               <TaskSection
                 canManage={canManage}
                 defaultActionAt={defaultActionAt}
-                description="Planlanan zamanı geçmiş açık takipler."
+                description="Planlanan zamanı geçmiş açık görevler."
                 overdue
                 tasks={result.data.overdue}
                 title="Gecikmiş"
@@ -369,14 +369,14 @@ export function TaskQueuePanel({
               <TaskSection
                 canManage={canManage}
                 defaultActionAt={defaultActionAt}
-                description="Bugün tamamlanması planlanan takipler."
+                description="Bugün tamamlanması planlanan görevler."
                 tasks={result.data.today}
                 title="Bugün"
               />
               <TaskSection
                 canManage={canManage}
                 defaultActionAt={defaultActionAt}
-                description="Bugünden sonraki planlı takipler."
+                description="Bugünden sonraki planlı görevler."
                 tasks={result.data.upcoming}
                 title="Yaklaşan"
               />

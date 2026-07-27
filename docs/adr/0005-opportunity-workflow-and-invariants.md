@@ -116,3 +116,13 @@ açık görev oluşması DB trigger'larıyla reddedilir. Merkezi
 engelli kayıtları arama sırası ve görev önerilerinden eler. Engel kaldırma ayrı
 şifreli neden ve audit olayı üretir; eski fırsatları veya görevleri otomatik
 açmaz.
+
+2026-07-27 tarihli randevu diliminde randevu fırsat ve görevden ayrı,
+RLS/FORCE korumalı `appointments` tablosunda tutulur. Owner veya danışman,
+gelecekteki başlangıç ve bitişi uygulama içinden seçer; atomik
+`create_appointment` komutu randevuyu, `appointment_preparation` görevini,
+fırsatın `Randevu` aşamasını, `Randevuya hazırlan` sonraki işlemini ve redakte
+audit/timeline olayını birlikte yazar. Hazırlık zamanı
+`max(oluşturma zamanı, randevu zamanı - 2 saat)` kuralına uyar. Ertelenmiş
+constraint trigger, ayrıcalıklı doğrudan yazımda dahi hazırlık görevsiz
+randevunun transaction sonunda kalmasını reddeder.

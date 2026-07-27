@@ -85,6 +85,7 @@ describe("görev server actionları", () => {
       "2026-07-27T09:00:00.000Z",
     );
     expect(revalidatePathMock).toHaveBeenCalledWith("/workspace");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/workspace/takvim");
     expect(revalidatePathMock).toHaveBeenCalledWith("/workspace/radar");
     expect(revalidatePathMock).toHaveBeenCalledWith(
       `/workspace/radar/${opportunityId}`,

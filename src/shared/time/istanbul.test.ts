@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  defaultIstanbulAppointmentTimes,
   defaultIstanbulTaskActionAt,
   formatIstanbulDateKey,
   formatIstanbulLocalDateTime,
@@ -37,5 +38,16 @@ describe("Europe/Istanbul zaman yardımcıları", () => {
         new Date("2026-07-26T09:00:00.000Z"),
       ),
     ).toBe("2026-07-27T12:00");
+  });
+
+  it("randevuyu 24 saat sonrasına bir saatlik varsayılan planlar", () => {
+    expect(
+      defaultIstanbulAppointmentTimes(
+        new Date("2026-07-26T09:00:00.000Z"),
+      ),
+    ).toEqual({
+      startsAt: "2026-07-27T12:00",
+      endsAt: "2026-07-27T13:00",
+    });
   });
 });

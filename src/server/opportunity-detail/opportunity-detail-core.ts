@@ -51,6 +51,11 @@ const conversationDetailsSchema = z.object({
   requires_follow_up: z.boolean(),
   follow_up_at: z.iso.datetime({ offset: true }).nullable(),
 });
+const appointmentDetailsSchema = z.object({
+  starts_at: z.iso.datetime({ offset: true }),
+  ends_at: z.iso.datetime({ offset: true }),
+  preparation_due_at: z.iso.datetime({ offset: true }),
+});
 
 type OpportunityDetailQueryResult = {
   data: unknown;
@@ -97,6 +102,7 @@ const eventTitles: Record<string, string> = {
   "opportunity.stage_changed": "Fırsat aşaması değiştirildi",
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
   "conversation.recorded": "Görüşme kaydedildi",
+  "appointment.created": "Randevu oluşturuldu",
   "task.rescheduled": "Görev tarihi güncellendi",
   "task.completed": "Görev tamamlandı",
 };
@@ -108,6 +114,20 @@ const eventDateFormatter = new Intl.DateTimeFormat("tr-TR", {
 });
 
 function eventDetail(eventType: string, details: unknown): string | null {
+  if (eventType === "appointment.created") {
+    const parsedDetails = appointmentDetailsSchema.safeParse(details);
+
+    if (!parsedDetails.success) {
+      return null;
+    }
+
+    return `Başlangıç: ${eventDateFormatter.format(
+      new Date(parsedDetails.data.starts_at),
+    )} · Hazırlık: ${eventDateFormatter.format(
+      new Date(parsedDetails.data.preparation_due_at),
+    )}`;
+  }
+
   if (eventType === "conversation.recorded") {
     const parsedDetails = conversationDetailsSchema.safeParse(details);
 
