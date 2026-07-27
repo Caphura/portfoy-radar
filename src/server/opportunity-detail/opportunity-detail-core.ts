@@ -56,6 +56,18 @@ const appointmentDetailsSchema = z.object({
   ends_at: z.iso.datetime({ offset: true }),
   preparation_due_at: z.iso.datetime({ offset: true }),
 });
+const marketAnalysisRequestedDetailsSchema = z.object({
+  transaction_type: z.enum(["sale", "rent"]),
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  subject_area_sqm: z.number().positive(),
+  target_at: z.iso.datetime({ offset: true }),
+  task_count: z.literal(3),
+});
+const marketComparableAddedDetailsSchema = z.object({
+  comparable_count: z.number().int().positive(),
+  transaction_type: z.enum(["sale", "rent"]),
+  currency: z.string().regex(/^[A-Z]{3}$/),
+});
 
 type OpportunityDetailQueryResult = {
   data: unknown;
@@ -103,6 +115,8 @@ const eventTitles: Record<string, string> = {
   "fsbo.created": "Hızlı FSBO kaydı oluşturuldu",
   "conversation.recorded": "Görüşme kaydedildi",
   "appointment.created": "Randevu oluşturuldu",
+  "market_analysis.requested": "Pazar analizi başlatıldı",
+  "market_analysis.comparable_added": "Manuel emsal eklendi",
   "task.rescheduled": "Görev tarihi güncellendi",
   "task.completed": "Görev tamamlandı",
 };
@@ -114,6 +128,38 @@ const eventDateFormatter = new Intl.DateTimeFormat("tr-TR", {
 });
 
 function eventDetail(eventType: string, details: unknown): string | null {
+  if (eventType === "market_analysis.requested") {
+    const parsedDetails =
+      marketAnalysisRequestedDetailsSchema.safeParse(details);
+
+    if (!parsedDetails.success) {
+      return null;
+    }
+
+    const transaction =
+      parsedDetails.data.transaction_type === "sale"
+        ? "Satılık"
+        : "Kiralık";
+
+    return `${transaction} · ${parsedDetails.data.currency} · ${parsedDetails.data.subject_area_sqm.toLocaleString("tr-TR")} m² · Hedef: ${eventDateFormatter.format(new Date(parsedDetails.data.target_at))}`;
+  }
+
+  if (eventType === "market_analysis.comparable_added") {
+    const parsedDetails =
+      marketComparableAddedDetailsSchema.safeParse(details);
+
+    if (!parsedDetails.success) {
+      return null;
+    }
+
+    const transaction =
+      parsedDetails.data.transaction_type === "sale"
+        ? "Satılık"
+        : "Kiralık";
+
+    return `${parsedDetails.data.comparable_count.toLocaleString("tr-TR")} emsal · ${transaction} · ${parsedDetails.data.currency}`;
+  }
+
   if (eventType === "appointment.created") {
     const parsedDetails = appointmentDetailsSchema.safeParse(details);
 

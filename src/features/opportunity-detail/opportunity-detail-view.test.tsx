@@ -25,6 +25,10 @@ vi.mock("@/features/appointments/appointment-form", () => ({
   ),
 }));
 
+vi.mock("@/features/market-analysis/market-analysis-panel", () => ({
+  MarketAnalysisPanel: () => <section aria-label="Pazar analizi paneli" />,
+}));
+
 vi.mock("@/features/communication-blocks/do-not-call-control", () => ({
   DoNotCallControl: ({
     active,

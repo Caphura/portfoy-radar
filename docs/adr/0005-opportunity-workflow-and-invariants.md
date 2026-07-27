@@ -126,3 +126,12 @@ audit/timeline olayını birlikte yazar. Hazırlık zamanı
 `max(oluşturma zamanı, randevu zamanı - 2 saat)` kuralına uyar. Ertelenmiş
 constraint trigger, ayrıcalıklı doğrudan yazımda dahi hazırlık görevsiz
 randevunun transaction sonunda kalmasını reddeder.
+
+Aynı tarihli pazar analizi diliminde analiz, emsal ve fırsat ayrı varlıklar
+olarak tutulur. Owner veya danışman analiz istediğinde `market_analyses`
+kaydı, emsal toplama, fiyat özeti ve danışman değerlendirmesi görevleri,
+fırsatın `Analiz Hazırlanıyor` aşaması/sonraki işlemi ve redakte
+audit/timeline olayları tek `request_market_analysis` transaction'ında
+oluşturulur. Ertelenmiş constraint trigger üç farklı açık görev eksikken
+transaction'ın tamamlanmasını reddeder. Aktif iletişim engelli veya kapanmış
+fırsata analiz ya da emsal eklenemez.

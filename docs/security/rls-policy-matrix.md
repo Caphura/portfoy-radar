@@ -27,8 +27,10 @@ giremez.
 | `opportunities` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Açık/kapanmış sonraki işlem constraint'i; doğrudan yazma grant'i yok |
 | `opportunity_listings` | Yok | Yalnızca üye olduğu workspace | Yalnızca atomik RPC | Fırsat ve ilan bağları bileşik workspace FK ile doğrulanır |
 | `conversations` | Yok | Üye olduğu workspace için yalnız kanal, sonuç, zaman ve takip metadata'sı | Yalnızca `record_conversation` RPC | RLS/FORCE; not ve takip amacı şifreli zarf sütunları authenticated role kapalı; fırsat bağı bileşik workspace FK'li |
-| `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation`, `create_appointment`, `reschedule_task` ve `complete_task` RPC'leri | RLS/FORCE; görev türü yalnız kendi kaynak görüşme veya randevusuna bağlanır; bütün bağlar bileşik workspace FK'li; tamamlama aktör/zaman constraint'i |
+| `tasks` | Yok | Yalnızca üye olduğu workspace | Yalnızca `record_conversation`, `create_appointment`, `request_market_analysis`, `reschedule_task` ve `complete_task` RPC'leri | RLS/FORCE; görev türü yalnız kendi kaynak görüşme, randevu veya pazar analizine bağlanır; bütün bağlar bileşik workspace FK'li; tamamlama aktör/zaman constraint'i |
 | `appointments` | Yok | Yalnızca üye olduğu workspace | Yalnızca `create_appointment` RPC | RLS/FORCE; fırsat bağı bileşik workspace FK'li; zaman aralığı ve fırsat/başlangıç benzersizliği; ertelenmiş trigger hazırlık görevini transaction sonunda zorunlu tutar |
+| `market_analyses` | Yok | Yalnızca üye olduğu workspace | Yalnızca `request_market_analysis` RPC | RLS/FORCE; fırsat ve konu gayrimenkul bağları bileşik workspace FK'li; fırsat başına tek aktif taslak; ertelenmiş trigger üç analiz görevini transaction sonunda zorunlu tutar |
+| `market_comparables` | Yok | Yalnızca üye olduğu workspace | Yalnızca `add_market_comparable` RPC | RLS/FORCE; işlem türü ve para birimi analizden bileşik FK ile miras alınır; exact `numeric` fiyat/m² ve tam mükerrer constraint'i |
 | `communication_blocks` | Yok | Üye olduğu workspace için aktör/zaman ve aktiflik metadata'sı | Yalnızca engelleme/kaldırma RPC'leri | RLS/FORCE; engel ve kaldırma nedenlerinin şifreli zarfları authenticated sütun grant'ine kapalı; kişi bağı bileşik workspace FK'li; kişi başına tek aktif engel |
 | `opportunity_stage_history` | Yok | Yalnızca üye olduğu workspace | Yok | Trigger üretir; authenticated ve service-role update/delete yapamaz |
 | `activity_history` | Yok | Yalnızca üye olduğu workspace | Yok | Audit'ten ayrı kullanıcı zaman çizelgesi; trigger üretir, metadata PII anahtarlarını reddeder |
@@ -39,6 +41,7 @@ giremez.
 | `current_workspace_contactable_opportunities` | Yok | Üye olduğu workspace için yalnız iletişime uygun açık fırsat/kişi kimlikleri | Yok | `security_invoker=true`, `security_barrier=true`; kapanmış ve aktif engelli kişileri merkezi olarak eler; arama sırası ve otomatik görev önerileri bu allowlist'i kullanır |
 | `current_workspace_open_tasks` | Yok | Üye olduğu workspace için açık, iletişime uygun takip/hazırlık görevi ve gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğu görünümünü kullanır; kişi ve iletişim PII'sı içermez |
 | `current_workspace_calendar_items` | Yok | Üye olduğu workspace için planlı randevu, açık görev ve güvenli gayrimenkul özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi iletişim uygunluğunu kullanır; kişi kimliği, iletişim PII'sı ve serbest metin içermez |
+| `current_workspace_market_analysis_detail` | Yok | Üye olduğu workspace için analiz, manuel emsaller ve exact numeric fiyat/m² özeti | Yok | `security_invoker=true`, `security_barrier=true`; kaynak tabloların RLS'sini uygular; kişi/iletişim PII'sı ve serbest not içermez; ilk 50 emsal sunucu DTO'sunda gösterilir |
 | `current_workspace_priority_call_queue` | Yok | Üye olduğu workspace için iletişime uygun açık fırsatların `priority-v1` puanı, altı açıklama bileşeni ve güvenli gayrimenkul/ilan özeti | Yok | `security_invoker=true`, `security_barrier=true`; merkezi allowlist'i kullanır; kişi kimliği, iletişim PII'sı, şifreli değer, blind index ve URL içermez |
 
 Hızlı FSBO yazımı tablolara doğrudan grant açmaz. Düşük seviyeli
@@ -75,6 +78,14 @@ kabul eder. Kapanmış veya aktif iletişim engelli fırsatı reddeder. Randevu,
 hazırlık görevi, fırsat aşaması/sonraki işlemi ve PII içermeyen audit/timeline
 olayı tek transaction içinde yazılır. `viewer` salt okunur takvimi görebilir;
 başka workspace satırları RLS altında görünmez.
+
+`request_market_analysis` ve `add_market_comparable` workspace kimliği kabul
+etmez. İlk komut erişilebilir fırsattan workspace/gayrimenkul bağını çözer,
+analizi ve üç kaynak bağlı görevi tek transaction içinde oluşturur. İkinci
+komut analizden fırsat, işlem türü ve para birimini miras alır. İkisi de yalnız
+`owner`/`advisor` rolüne açıktır; kapanmış veya aktif iletişim engelli fırsatı
+reddeder ve PII içermeyen audit/timeline olayları üretir. Viewer yalnız RLS
+korumalı analiz DTO'sunu okuyabilir.
 
 `current_workspace_priority_call_queue`, korumalı kişi adını veya kişi
 kimliğini dışarı vermez. Tamlık puanı için gereken yalnız “ad zarfı var mı”

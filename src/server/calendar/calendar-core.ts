@@ -26,7 +26,13 @@ const calendarRowSchema = z
     event_at: z.iso.datetime({ offset: true }),
     ends_at: z.iso.datetime({ offset: true }).nullable(),
     task_type: z
-      .enum(["conversation_follow_up", "appointment_preparation"])
+      .enum([
+        "conversation_follow_up",
+        "appointment_preparation",
+        "analysis_collect_comparables",
+        "analysis_prepare_price_summary",
+        "analysis_advisor_review",
+      ])
       .nullable(),
     appointment_status: z
       .enum(["scheduled", "completed", "cancelled"])
@@ -122,12 +128,17 @@ function unavailableResult(): CalendarResult {
 function toCalendarItem(
   row: z.infer<typeof calendarRowSchema>,
 ): CalendarItem {
+  const taskTitles = {
+    conversation_follow_up: "Görüşme takibi",
+    appointment_preparation: "Randevu hazırlığı",
+    analysis_collect_comparables: "Emsalleri topla",
+    analysis_prepare_price_summary: "Fiyat özetini hazırla",
+    analysis_advisor_review: "Danışman değerlendirmesi",
+  } as const;
   const title =
     row.item_type === "appointment"
       ? "Randevu"
-      : row.task_type === "appointment_preparation"
-        ? "Randevu hazırlığı"
-        : "Görüşme takibi";
+      : taskTitles[row.task_type!];
 
   return {
     id: row.item_id,

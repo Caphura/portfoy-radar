@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   defaultIstanbulAppointmentTimes,
+  defaultIstanbulMarketAnalysisTargetAt,
   defaultIstanbulTaskActionAt,
   formatIstanbulDateKey,
   formatIstanbulLocalDateTime,
@@ -49,5 +50,13 @@ describe("Europe/Istanbul zaman yardımcıları", () => {
       startsAt: "2026-07-27T12:00",
       endsAt: "2026-07-27T13:00",
     });
+  });
+
+  it("pazar analizi hedefini üç gün sonrasına planlar", () => {
+    expect(
+      defaultIstanbulMarketAnalysisTargetAt(
+        new Date("2026-07-26T09:00:00.000Z"),
+      ),
+    ).toBe("2026-07-29T12:00");
   });
 });

@@ -73,3 +73,11 @@ export function defaultIstanbulAppointmentTimes(
     endsAt: formatIstanbulLocalDateTime(endsAt),
   };
 }
+
+export function defaultIstanbulMarketAnalysisTargetAt(
+  now = new Date(),
+): string {
+  return formatIstanbulLocalDateTime(
+    new Date(now.getTime() + 3 * 24 * 60 * 60 * 1_000),
+  );
+}

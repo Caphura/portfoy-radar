@@ -6,9 +6,14 @@ import {
   defaultConversationOccurredAt,
 } from "@/features/conversations/conversation-validation";
 import { OpportunityDetailView } from "@/features/opportunity-detail/opportunity-detail-view";
+import { getMarketAnalysis } from "@/server/market-analysis/get-market-analysis";
 import { getOpportunityDetail } from "@/server/opportunity-detail/get-opportunity-detail";
 import { getWorkspaceAccess } from "@/server/workspace/access";
-import { defaultIstanbulAppointmentTimes } from "@/shared/time/istanbul";
+import {
+  defaultIstanbulAppointmentTimes,
+  defaultIstanbulMarketAnalysisTargetAt,
+  formatIstanbulDateKey,
+} from "@/shared/time/istanbul";
 
 export const metadata: Metadata = {
   title: "Fırsat detayı",
@@ -35,35 +40,9 @@ export default async function OpportunityDetailPage({
     redirect("/giris");
   }
 
-  const now = new Date();
-  const defaultAppointment = defaultIstanbulAppointmentTimes(now);
-
-  return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-      {access.ok ? (
-        <OpportunityDetailView
-          canManageCommunicationBlock={
-            access.membership.role === "owner" ||
-            access.membership.role === "advisor"
-          }
-          canCreateAppointment={
-            access.membership.role === "owner" ||
-            access.membership.role === "advisor"
-          }
-          canRecordConversation={
-            access.membership.role === "owner" ||
-            access.membership.role === "advisor"
-          }
-          defaultAppointmentEndsAt={defaultAppointment.endsAt}
-          defaultAppointmentStartsAt={defaultAppointment.startsAt}
-          defaultConversationFollowUpAt={defaultConversationFollowUpAt(now)}
-          defaultConversationOccurredAt={defaultConversationOccurredAt(now)}
-          result={await getOpportunityDetail(
-            access.workspace.id,
-            resolvedParams.opportunityId,
-          )}
-        />
-      ) : (
+  if (!access.ok) {
+    return (
+      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         <section
           className={`rounded-3xl border p-5 ${
             access.error.code === "FORBIDDEN"
@@ -79,7 +58,38 @@ export default async function OpportunityDetailPage({
           </h1>
           <p className="mt-2 text-sm leading-6">{access.error.message}</p>
         </section>
-      )}
+      </div>
+    );
+  }
+
+  const now = new Date();
+  const defaultAppointment = defaultIstanbulAppointmentTimes(now);
+  const [detailResult, marketAnalysisResult] = await Promise.all([
+    getOpportunityDetail(access.workspace.id, resolvedParams.opportunityId),
+    getMarketAnalysis(access.workspace.id, resolvedParams.opportunityId),
+  ]);
+  const canManage =
+    access.membership.role === "owner" ||
+    access.membership.role === "advisor";
+
+  return (
+    <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+      <OpportunityDetailView
+        canCreateAppointment={canManage}
+        canManageCommunicationBlock={canManage}
+        canManageMarketAnalysis={canManage}
+        canRecordConversation={canManage}
+        defaultAppointmentEndsAt={defaultAppointment.endsAt}
+        defaultAppointmentStartsAt={defaultAppointment.startsAt}
+        defaultComparableObservedOn={formatIstanbulDateKey(now)}
+        defaultConversationFollowUpAt={defaultConversationFollowUpAt(now)}
+        defaultConversationOccurredAt={defaultConversationOccurredAt(now)}
+        defaultMarketAnalysisTargetAt={
+          defaultIstanbulMarketAnalysisTargetAt(now)
+        }
+        marketAnalysisResult={marketAnalysisResult}
+        result={detailResult}
+      />
     </div>
   );
 }

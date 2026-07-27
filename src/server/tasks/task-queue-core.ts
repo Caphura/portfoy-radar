@@ -24,6 +24,9 @@ const taskRowSchema = z.object({
   task_type: z.enum([
     "conversation_follow_up",
     "appointment_preparation",
+    "analysis_collect_comparables",
+    "analysis_prepare_price_summary",
+    "analysis_advisor_review",
   ]),
   task_status: z.literal("open"),
   due_at: z.iso.datetime({ offset: true }),
@@ -97,14 +100,19 @@ const unavailableResult: TaskQueueResult = {
 };
 
 function toTask(row: z.infer<typeof taskRowSchema>): TaskQueueItem {
+  const taskTypeLabels: Record<typeof row.task_type, string> = {
+    conversation_follow_up: "Görüşme takibi",
+    appointment_preparation: "Randevu hazırlığı",
+    analysis_collect_comparables: "Emsalleri topla",
+    analysis_prepare_price_summary: "Fiyat özetini hazırla",
+    analysis_advisor_review: "Danışman değerlendirmesi",
+  };
+
   return {
     id: row.task_id,
     opportunityId: row.opportunity_id,
     type: row.task_type,
-    typeLabel:
-      row.task_type === "appointment_preparation"
-        ? "Randevu hazırlığı"
-        : "Görüşme takibi",
+    typeLabel: taskTypeLabels[row.task_type],
     dueAt: row.due_at,
     createdAt: row.created_at,
     isCurrentNextAction: row.is_current_next_action,

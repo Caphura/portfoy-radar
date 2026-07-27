@@ -119,6 +119,40 @@ describe("görev kuyruğu DTO çözümleyicisi", () => {
     });
   });
 
+  it("üç pazar analizi görevini ayrı ve açıklanabilir etiketlerle gösterir", async () => {
+    const result = await resolveTaskQueueRows(
+      async () => ({
+        data: [
+          row(1, "2026-07-27T09:00:00.000Z", {
+            task_type: "analysis_collect_comparables",
+            stage: "analysis_preparing",
+          }),
+          row(2, "2026-07-28T09:00:00.000Z", {
+            task_type: "analysis_prepare_price_summary",
+            stage: "analysis_preparing",
+          }),
+          row(3, "2026-07-29T09:00:00.000Z", {
+            task_type: "analysis_advisor_review",
+            stage: "analysis_preparing",
+          }),
+        ],
+        error: null,
+      }),
+      new Date("2026-07-26T08:00:00.000Z"),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        upcoming: [
+          { typeLabel: "Emsalleri topla" },
+          { typeLabel: "Fiyat özetini hazırla" },
+          { typeLabel: "Danışman değerlendirmesi" },
+        ],
+      },
+    });
+  });
+
   it("RLS ve servis hatalarını güvenli Türkçe sonuçlara dönüştürür", async () => {
     const forbidden = await resolveTaskQueueRows(async () => ({
       data: null,

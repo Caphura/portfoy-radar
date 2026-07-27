@@ -230,6 +230,58 @@ describe("resolveOpportunityDetail", () => {
     );
   });
 
+  it("analiz ve emsal olaylarını ham kimlik veya konum taşımadan Türkçeleştirir", async () => {
+    const result = await resolveOpportunityDetail(async () => ({
+      data: {
+        ...detailRow,
+        timeline: [
+          {
+            id: "50000000-0000-4000-8000-000000000008",
+            event_type: "market_analysis.requested",
+            details: {
+              market_analysis_id: "private-analysis-reference",
+              transaction_type: "sale",
+              currency: "TRY",
+              subject_area_sqm: 90,
+              target_at: "2026-07-30T09:00:00.000Z",
+              task_count: 3,
+            },
+            occurred_at: "2026-07-27T09:00:00.000Z",
+          },
+          {
+            id: "50000000-0000-4000-8000-000000000009",
+            event_type: "market_analysis.comparable_added",
+            details: {
+              comparable_id: "private-comparable-reference",
+              comparable_count: 2,
+              transaction_type: "sale",
+              currency: "TRY",
+            },
+            occurred_at: "2026-07-27T10:00:00.000Z",
+          },
+        ],
+      },
+      error: null,
+    }));
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        timeline: [
+          {
+            title: "Pazar analizi başlatıldı",
+            detail: expect.stringContaining("90 m²"),
+          },
+          {
+            title: "Manuel emsal eklendi",
+            detail: "2 emsal · Satılık · TRY",
+          },
+        ],
+      },
+    });
+    expect(JSON.stringify(result)).not.toContain("private-");
+  });
+
   it("Ulaşılamadı sonucunu aşamaya çevirmeden takip planıyla Türkçeleştirir", async () => {
     const result = await resolveOpportunityDetail(async () => ({
       data: {

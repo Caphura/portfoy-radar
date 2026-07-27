@@ -908,6 +908,209 @@ export type Database = {
           },
         ]
       }
+      market_analyses: {
+        Row: {
+          created_at: string
+          created_by: string
+          currency: string
+          id: string
+          opportunity_id: string
+          status: Database["public"]["Enums"]["market_analysis_status"]
+          subject_area_sqm: number
+          subject_property_id: string
+          target_at: string
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          currency?: string
+          id?: string
+          opportunity_id: string
+          status?: Database["public"]["Enums"]["market_analysis_status"]
+          subject_area_sqm: number
+          subject_property_id: string
+          target_at: string
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          currency?: string
+          id?: string
+          opportunity_id?: string
+          status?: Database["public"]["Enums"]["market_analysis_status"]
+          subject_area_sqm?: number
+          subject_property_id?: string
+          target_at?: string
+          transaction_type?: Database["public"]["Enums"]["listing_transaction_type"]
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_analyses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "market_analyses_property_workspace_fkey"
+            columns: ["workspace_id", "subject_property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "market_analyses_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_comparables: {
+        Row: {
+          area_sqm: number
+          asking_price: number
+          created_at: string
+          created_by: string
+          currency: string
+          id: string
+          market_analysis_id: string
+          neighborhood: string
+          observed_on: string
+          opportunity_id: string
+          price_per_sqm: number | null
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+          workspace_id: string
+        }
+        Insert: {
+          area_sqm: number
+          asking_price: number
+          created_at?: string
+          created_by: string
+          currency: string
+          id?: string
+          market_analysis_id: string
+          neighborhood: string
+          observed_on: string
+          opportunity_id: string
+          price_per_sqm?: number | null
+          transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+          workspace_id: string
+        }
+        Update: {
+          area_sqm?: number
+          asking_price?: number
+          created_at?: string
+          created_by?: string
+          currency?: string
+          id?: string
+          market_analysis_id?: string
+          neighborhood?: string
+          observed_on?: string
+          opportunity_id?: string
+          price_per_sqm?: number | null
+          transaction_type?: Database["public"]["Enums"]["listing_transaction_type"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_comparables_analysis_context_fkey"
+            columns: [
+              "workspace_id",
+              "market_analysis_id",
+              "opportunity_id",
+              "transaction_type",
+              "currency",
+            ]
+            isOneToOne: false
+            referencedRelation: "current_workspace_market_analysis_detail"
+            referencedColumns: [
+              "workspace_id",
+              "market_analysis_id",
+              "opportunity_id",
+              "transaction_type",
+              "currency",
+            ]
+          },
+          {
+            foreignKeyName: "market_comparables_analysis_context_fkey"
+            columns: [
+              "workspace_id",
+              "market_analysis_id",
+              "opportunity_id",
+              "transaction_type",
+              "currency",
+            ]
+            isOneToOne: false
+            referencedRelation: "market_analyses"
+            referencedColumns: [
+              "workspace_id",
+              "id",
+              "opportunity_id",
+              "transaction_type",
+              "currency",
+            ]
+          },
+          {
+            foreignKeyName: "market_comparables_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_comparables_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunities: {
         Row: {
           archived_at: string | null
@@ -1324,6 +1527,7 @@ export type Database = {
           opportunity_id: string
           source_appointment_id: string | null
           source_conversation_id: string | null
+          source_market_analysis_id: string | null
           status: Database["public"]["Enums"]["task_status"]
           task_type: Database["public"]["Enums"]["task_type"]
           updated_at: string
@@ -1339,6 +1543,7 @@ export type Database = {
           opportunity_id: string
           source_appointment_id?: string | null
           source_conversation_id?: string | null
+          source_market_analysis_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           task_type: Database["public"]["Enums"]["task_type"]
           updated_at?: string
@@ -1354,6 +1559,7 @@ export type Database = {
           opportunity_id?: string
           source_appointment_id?: string | null
           source_conversation_id?: string | null
+          source_market_analysis_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           task_type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
@@ -1391,6 +1597,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_market_analysis_opportunity_workspace_fkey"
+            columns: [
+              "workspace_id",
+              "source_market_analysis_id",
+              "opportunity_id",
+            ]
+            isOneToOne: false
+            referencedRelation: "current_workspace_market_analysis_detail"
+            referencedColumns: [
+              "workspace_id",
+              "market_analysis_id",
+              "opportunity_id",
+            ]
+          },
+          {
+            foreignKeyName: "tasks_market_analysis_opportunity_workspace_fkey"
+            columns: [
+              "workspace_id",
+              "source_market_analysis_id",
+              "opportunity_id",
+            ]
+            isOneToOne: false
+            referencedRelation: "market_analyses"
+            referencedColumns: ["workspace_id", "id", "opportunity_id"]
           },
           {
             foreignKeyName: "tasks_workspace_id_fkey"
@@ -1590,6 +1822,81 @@ export type Database = {
           },
         ]
       }
+      current_workspace_market_analysis_detail: {
+        Row: {
+          analysis_created_at: string | null
+          analysis_status:
+            | Database["public"]["Enums"]["market_analysis_status"]
+            | null
+          base_estimate: number | null
+          comparable_area_sqm: number | null
+          comparable_asking_price: number | null
+          comparable_count: number | null
+          comparable_created_at: string | null
+          comparable_id: string | null
+          comparable_neighborhood: string | null
+          comparable_observed_on: string | null
+          comparable_price_per_sqm: number | null
+          currency: string | null
+          market_analysis_id: string | null
+          max_price_per_sqm: number | null
+          median_price_per_sqm: number | null
+          min_price_per_sqm: number | null
+          opportunity_id: string | null
+          subject_area_sqm: number | null
+          suggested_price_high: number | null
+          suggested_price_low: number | null
+          target_at: string | null
+          transaction_type:
+            | Database["public"]["Enums"]["listing_transaction_type"]
+            | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_contactable_opportunities"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_opportunity_detail"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_priority_call_queue"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "current_workspace_radar"
+            referencedColumns: ["workspace_id", "opportunity_id"]
+          },
+          {
+            foreignKeyName: "market_analyses_opportunity_workspace_fkey"
+            columns: ["workspace_id", "opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "market_analyses_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       current_workspace_open_tasks: {
         Row: {
           city: string | null
@@ -1781,6 +2088,21 @@ export type Database = {
       }
     }
     Functions: {
+      add_market_comparable: {
+        Args: {
+          requested_area_sqm: number
+          requested_asking_price: number
+          requested_market_analysis_id: string
+          requested_neighborhood: string
+          requested_observed_on: string
+        }
+        Returns: {
+          comparable_count: number
+          comparable_id: string
+          market_analysis_id: string
+          opportunity_id: string
+        }[]
+      }
       bootstrap_workspace: {
         Args: { requested_name: string }
         Returns: {
@@ -1975,6 +2297,23 @@ export type Database = {
           requires_follow_up: boolean
         }[]
       }
+      request_market_analysis: {
+        Args: {
+          requested_currency: string
+          requested_opportunity_id: string
+          requested_target_at: string
+          requested_transaction_type: Database["public"]["Enums"]["listing_transaction_type"]
+        }
+        Returns: {
+          advisor_review_task_id: string
+          collect_comparables_task_id: string
+          market_analysis_id: string
+          opportunity_id: string
+          prepare_price_summary_task_id: string
+          subject_area_sqm: number
+          target_at: string
+        }[]
+      }
       reschedule_task: {
         Args: { requested_due_at: string; requested_task_id: string }
         Returns: {
@@ -2080,6 +2419,7 @@ export type Database = {
         | "keep_separate"
       listing_status: "active" | "inactive" | "closed"
       listing_transaction_type: "sale" | "rent"
+      market_analysis_status: "draft" | "finalized" | "cancelled"
       opportunity_next_action_type:
         | "call"
         | "verify"
@@ -2118,7 +2458,12 @@ export type Database = {
         | "linked_existing_property"
         | "created_separate"
       task_status: "open" | "completed" | "cancelled"
-      task_type: "conversation_follow_up" | "appointment_preparation"
+      task_type:
+        | "conversation_follow_up"
+        | "appointment_preparation"
+        | "analysis_collect_comparables"
+        | "analysis_prepare_price_summary"
+        | "analysis_advisor_review"
       workspace_role: "owner" | "advisor" | "viewer"
     }
     CompositeTypes: {
@@ -2272,6 +2617,7 @@ export const Constants = {
       ],
       listing_status: ["active", "inactive", "closed"],
       listing_transaction_type: ["sale", "rent"],
+      market_analysis_status: ["draft", "finalized", "cancelled"],
       opportunity_next_action_type: [
         "call",
         "verify",
@@ -2315,7 +2661,13 @@ export const Constants = {
         "created_separate",
       ],
       task_status: ["open", "completed", "cancelled"],
-      task_type: ["conversation_follow_up", "appointment_preparation"],
+      task_type: [
+        "conversation_follow_up",
+        "appointment_preparation",
+        "analysis_collect_comparables",
+        "analysis_prepare_price_summary",
+        "analysis_advisor_review",
+      ],
       workspace_role: ["owner", "advisor", "viewer"],
     },
   },

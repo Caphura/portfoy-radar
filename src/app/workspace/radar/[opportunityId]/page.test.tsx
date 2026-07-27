@@ -1,8 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const { getOpportunityDetailMock, getWorkspaceAccessMock, redirectMock } =
-  vi.hoisted(() => ({
+const {
+  getMarketAnalysisMock,
+  getOpportunityDetailMock,
+  getWorkspaceAccessMock,
+  redirectMock,
+} = vi.hoisted(() => ({
+    getMarketAnalysisMock: vi.fn(),
     getOpportunityDetailMock: vi.fn(),
     getWorkspaceAccessMock: vi.fn(),
     redirectMock: vi.fn(),
@@ -10,6 +15,10 @@ const { getOpportunityDetailMock, getWorkspaceAccessMock, redirectMock } =
 
 vi.mock("@/server/opportunity-detail/get-opportunity-detail", () => ({
   getOpportunityDetail: getOpportunityDetailMock,
+}));
+
+vi.mock("@/server/market-analysis/get-market-analysis", () => ({
+  getMarketAnalysis: getMarketAnalysisMock,
 }));
 
 vi.mock("@/server/workspace/access", () => ({
@@ -22,6 +31,10 @@ vi.mock("@/features/conversations/conversation-form", () => ({
 
 vi.mock("@/features/appointments/appointment-form", () => ({
   AppointmentForm: () => <section aria-label="Randevu oluşturma formu" />,
+}));
+
+vi.mock("@/features/market-analysis/market-analysis-panel", () => ({
+  MarketAnalysisPanel: () => <section aria-label="Pazar analizi paneli" />,
 }));
 
 vi.mock("@/features/communication-blocks/do-not-call-control", () => ({
@@ -40,6 +53,7 @@ const opportunityId = "20000000-0000-4000-8000-000000000001";
 describe("OpportunityDetailPage", () => {
   afterEach(() => {
     cleanup();
+    getMarketAnalysisMock.mockReset();
     getOpportunityDetailMock.mockReset();
     getWorkspaceAccessMock.mockReset();
     redirectMock.mockReset();
@@ -64,6 +78,7 @@ describe("OpportunityDetailPage", () => {
     ).rejects.toThrow("NEXT_REDIRECT");
     expect(redirectMock).toHaveBeenCalledWith("/giris");
     expect(getOpportunityDetailMock).not.toHaveBeenCalled();
+    expect(getMarketAnalysisMock).not.toHaveBeenCalled();
   });
 
   it("yetkili workspace ve rota kimliğiyle fırsat detayını sunucuda sorgular", async () => {
@@ -84,6 +99,7 @@ describe("OpportunityDetailPage", () => {
           "Fırsat bulunamadı veya bu çalışma alanından erişilemiyor.",
       },
     });
+    getMarketAnalysisMock.mockResolvedValue({ ok: true, data: null });
 
     render(
       await OpportunityDetailPage({
@@ -92,6 +108,10 @@ describe("OpportunityDetailPage", () => {
     );
 
     expect(getOpportunityDetailMock).toHaveBeenCalledWith(
+      workspaceId,
+      opportunityId,
+    );
+    expect(getMarketAnalysisMock).toHaveBeenCalledWith(
       workspaceId,
       opportunityId,
     );
@@ -114,6 +134,7 @@ describe("OpportunityDetailPage", () => {
     );
 
     expect(getOpportunityDetailMock).not.toHaveBeenCalled();
+    expect(getMarketAnalysisMock).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Fırsat ayrıntıları kullanılamıyor",
     );

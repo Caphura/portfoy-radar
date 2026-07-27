@@ -81,6 +81,43 @@ describe("takvim DTO çözümleyicisi", () => {
     });
   });
 
+  it("pazar analizi görevlerini takvimde ayrı Türkçe başlıklarla gösterir", async () => {
+    const result = await resolveCalendarRows(
+      async () => ({
+        data: [
+          {
+            ...taskRow(1, "2026-07-28T09:00:00.000Z"),
+            task_type: "analysis_collect_comparables",
+            stage: "analysis_preparing",
+          },
+          {
+            ...taskRow(2, "2026-07-29T09:00:00.000Z"),
+            task_type: "analysis_prepare_price_summary",
+            stage: "analysis_preparing",
+          },
+          {
+            ...taskRow(3, "2026-07-30T09:00:00.000Z"),
+            task_type: "analysis_advisor_review",
+            stage: "analysis_preparing",
+          },
+        ],
+        error: null,
+      }),
+      new Date("2026-07-27T08:00:00.000Z"),
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        upcoming: [
+          { title: "Emsalleri topla" },
+          { title: "Fiyat özetini hazırla" },
+          { title: "Danışman değerlendirmesi" },
+        ],
+      },
+    });
+  });
+
   it("bozuk satır ile RLS hatasını güvenli Türkçe sonuca çevirir", async () => {
     const malformed = await resolveCalendarRows(async () => ({
       data: [

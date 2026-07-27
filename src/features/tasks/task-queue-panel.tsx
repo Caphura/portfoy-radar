@@ -315,8 +315,8 @@ export function TaskQueuePanel({
       </p>
       <h2 className="mt-2 text-xl font-black">Görevler ve gecikmiş takipler</h2>
       <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-        Açık ve iletişime uygun görüşme takipleri ile randevu hazırlıkları
-        Türkiye saatine göre sıralanır.
+        Açık ve iletişime uygun görüşme takipleri, randevu hazırlıkları ve
+        pazar analizi adımları Türkiye saatine göre sıralanır.
       </p>
 
       {!result.ok ? (

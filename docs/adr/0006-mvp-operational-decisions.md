@@ -120,3 +120,14 @@ görev önerileri yalnızca bu sözleşmeye katılacaktır.
 - PWA testi yetkili yanıtların Cache Storage içinde bulunmadığını denetleyecek.
 - Bağımlılık ve route incelemesi yasaklı gönderim/tarama kabiliyeti eklenmediğini
   doğrulayacak.
+
+## Uygulama durumu
+
+2026-07-27 tarihli pazar analizi diliminde kullanıcı fırsat detayından satılık
+veya kiralık analiz başlatabilir ve emsalleri yalnız manuel girebilir. Analiz,
+konu gayrimenkulün net; yoksa brüt m² değerini anlık görüntü olarak saklar.
+Emsal işlem türü ve para birimi analizden miras alınır; kayan nokta yerine
+PostgreSQL `numeric` ile fiyat/m² hesaplanır. Güvenli görünüm aynı bağlam için
+minimum, medyan ve maksimum fiyat/m² değerlerini, medyan × konu m² temel
+tahminini ve ±%5 başlangıç bandını üretir. Harici emsal çekme, CSV, aralık
+değiştirme/finalizasyon ve otomatik değerleme iddiası bu küçük dilimde yoktur.

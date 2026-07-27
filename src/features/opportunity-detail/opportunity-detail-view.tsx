@@ -3,10 +3,12 @@ import Link from "next/link";
 import { AppointmentForm } from "@/features/appointments/appointment-form";
 import { DoNotCallControl } from "@/features/communication-blocks/do-not-call-control";
 import { ConversationForm } from "@/features/conversations/conversation-form";
+import { MarketAnalysisPanel } from "@/features/market-analysis/market-analysis-panel";
 import type {
   OpportunityDetailResult,
   OpportunityTimelineItem,
 } from "@/server/opportunity-detail/opportunity-detail-core";
+import type { MarketAnalysisResult } from "@/server/market-analysis/market-analysis-core";
 import type { RadarOpportunity } from "@/server/radar/radar-core";
 
 type OpportunityDetailViewProps = {
@@ -18,6 +20,10 @@ type OpportunityDetailViewProps = {
   canCreateAppointment?: boolean;
   defaultAppointmentStartsAt?: string;
   defaultAppointmentEndsAt?: string;
+  marketAnalysisResult?: MarketAnalysisResult;
+  canManageMarketAnalysis?: boolean;
+  defaultMarketAnalysisTargetAt?: string;
+  defaultComparableObservedOn?: string;
 };
 
 const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
@@ -133,6 +139,10 @@ export function OpportunityDetailView({
   canCreateAppointment = false,
   defaultAppointmentStartsAt = "",
   defaultAppointmentEndsAt = "",
+  marketAnalysisResult,
+  canManageMarketAnalysis = false,
+  defaultMarketAnalysisTargetAt = "",
+  defaultComparableObservedOn = "",
 }: OpportunityDetailViewProps) {
   if (!result.ok) {
     const notFound = result.error.code === "NOT_FOUND";
@@ -198,6 +208,21 @@ export function OpportunityDetailView({
           {formatPrice(opportunity)}
         </p>
       </section>
+
+      {marketAnalysisResult ? (
+        <MarketAnalysisPanel
+          canManage={canManageMarketAnalysis}
+          defaultCurrency={opportunity.listing?.currency ?? "TRY"}
+          defaultObservedOn={defaultComparableObservedOn}
+          defaultTargetAt={defaultMarketAnalysisTargetAt}
+          defaultTransactionType={
+            opportunity.listing?.transactionType ?? "sale"
+          }
+          opportunityId={opportunity.id}
+          result={marketAnalysisResult}
+          unavailable={opportunity.closed || communicationBlock.active}
+        />
+      ) : null}
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="space-y-5">
