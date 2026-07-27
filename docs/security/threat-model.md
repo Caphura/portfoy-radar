@@ -1,8 +1,8 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 2.4
-- Tarih: 2026-07-27
+- Sürüm: 2.5
+- Tarih: 2026-07-28
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
 
@@ -140,17 +140,19 @@ Güven sınırları:
 | Risk veya karar | Geçici durum | Kapatma ölçütü | Sahip |
 | --- | --- | --- | --- |
 | Supabase Auth, workspace RLS ve MVP alan tabloları hazır | Teknik release kapısı migration/test eşleşmesini, temiz şema kurulumunu, PostgreSQL lint'i, pgTAP/RLS'yi ve uygulama DAL testlerini çalıştırıyor | Her yeni iş tablosunda migration + pgTAP + DAL + iki-workspace negatif testleri başarılı | Mühendislik |
-| Şifreleme/KMS uygulama katmanı hazır; üretim secret manager bağlantısı henüz yok | Yerelde ayrı ve sürümlü keyring'ler kullanılıyor; canlı PII depolanmıyor | Üretim secret enjeksiyonu, erişim politikası ve rotasyon tatbikatı başarılı | Güvenlik |
+| Şifreleme/KMS: üretim secret manager ve sürümlü keyring rotasyonu kanıtlandı | Production-only hassas değişkenler, modern Supabase anahtarları, ayrı PII/HMAC/medya keyring'leri ve geri dönüş kopyası kullanılıyor; legacy API/JWT anahtarları iptal edildi | [Production secret manager ve rotasyon kanıtı](./evidence/2026-07-28-production-secret-manager-rotation.md); olay sonrası veya en geç 90 günde yeniden denetim | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |
 | Hassas medya ve kesin konum kanıtı onaysız | `FIELD_OBSERVATION_MODE` staging'de `disabled`, yerelde yalnız sentetik | Cihaz kabulü, EXIF/şifreleme, imha ve Storage geri yükleme kanıtları başarılı | Güvenlik |
 | Ele geçirilmiş danışman cihazı | Teknik olarak tamamen önlenemez | Ekran kilidi, oturum iptali ve MFA yol haritası | Ürün sahibi |
 
-İlk beş satır kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
+Üretim bölgesi/KVKK, yedekten dönüş ve hassas medya/kesin konum satırları
+kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
 
-Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Sonraki dört satır
-`release-v2` politikasında kanıt referansı olmadan onaylanamaz; eksik veya bozuk
-politika canlı PII assertion'ını başarısız kılar.
+Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Dört manuel
+`release-v2` kapısından `secret-manager` kanıtla kapatılmıştır; kalan üç kapı
+kanıt referansı olmadan onaylanamaz. Eksik veya bozuk politika canlı PII
+assertion'ını başarısız kılar.
 
 ## Doğrulama ve bakım
 

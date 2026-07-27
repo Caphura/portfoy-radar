@@ -6,8 +6,13 @@
       "id": "secret-manager",
       "label": "Üretim secret manager ve anahtar rotasyonu",
       "owner": "Güvenlik",
-      "status": "open",
-      "closureCriteria": "Üretim secret enjeksiyonu, en az yetkili erişim politikası ve anahtar rotasyon tatbikatı başarılı olmalıdır."
+      "status": "approved",
+      "closureCriteria": "Üretim secret enjeksiyonu, en az yetkili erişim politikası ve anahtar rotasyon tatbikatı başarılı olmalıdır.",
+      "evidence": {
+        "reference": "SEC-2026-07-28-SECRET-MANAGER",
+        "approvedAt": "2026-07-28T02:18:13+03:00",
+        "approvedByRole": "Güvenlik"
+      }
     },
     {
       "id": "data-region-kvkk",
