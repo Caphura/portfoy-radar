@@ -19,6 +19,10 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 - [Tehdit modeli](./security/threat-model.md)
 - [İş kuralı izlenebilirlik matrisi](./product/requirements-traceability.md)
 
+## Operasyonel güvenlik kanıtları
+
+- [2026-07-27 staging anahtar rotasyonu tatbikatı](./security/evidence/2026-07-27-staging-key-rotation.md)
+
 ## Değişiklik süreci
 
 1. Kabul edilmiş bir karar sessizce değiştirilmez.
