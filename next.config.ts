@@ -51,6 +51,34 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source:
+          "/api/workspace/field-observations/:observationId/photo",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer",
+          },
+        ],
+      },
+      {
+        source:
+          "/api/workspace/field-observations/:observationId/maps",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer",
+          },
+        ],
+      },
     ];
   },
 };
