@@ -25,8 +25,13 @@
       "id": "backup-restore",
       "label": "Yedekten dönüş tatbikatı",
       "owner": "Operasyon",
-      "status": "open",
-      "closureCriteria": "Production DB ve şifreli Storage nesnelerini kapsayan günlük yedek, 30 günlük saklama ve izole geri yükleme raporu kaydedilmelidir."
+      "status": "approved",
+      "closureCriteria": "Production DB ve şifreli Storage nesnelerini kapsayan günlük yedek, 30 günlük saklama ve izole geri yükleme raporu kaydedilmelidir.",
+      "evidence": {
+        "reference": "OPS-2026-07-28-BACKUP-RESTORE",
+        "approvedAt": "2026-07-28T12:35:00+03:00",
+        "approvedByRole": "Operasyon"
+      }
     },
     {
       "id": "sensitive-media-location",

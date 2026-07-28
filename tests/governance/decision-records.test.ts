@@ -186,3 +186,44 @@ describe("sentetik-only Production kararı", () => {
     expect(decision.match(/`disabled`/g)).toHaveLength(2);
   });
 });
+
+describe("Production yedekleme ve geri yükleme kanıtı", () => {
+  const evidencePath =
+    "docs/security/evidence/2026-07-28-production-backup-restore-drill.md";
+  const evidence = readRepositoryFile(evidencePath);
+  const releasePolicy = JSON.parse(
+    readRepositoryFile("config/release-policy.json"),
+  ) as {
+    manualGates: Array<{
+      id: string;
+      status: string;
+      evidence?: { reference?: string };
+    }>;
+  };
+
+  it("backup-restore kapısını ölçülmüş kanıt referansıyla onaylar", () => {
+    const backupGate = releasePolicy.manualGates.find(
+      (gate) => gate.id === "backup-restore",
+    );
+
+    expect(backupGate?.status).toBe("approved");
+    expect(backupGate?.evidence?.reference).toBe(
+      "OPS-2026-07-28-BACKUP-RESTORE",
+    );
+    expect(evidence).toContain("30346632246");
+    expect(evidence).toContain("37 tablo/metadata metriğinin tamamı");
+    expect(evidence).toMatch(/fark\s+sayısı sıfırdır/);
+    expect(evidence).toContain("Artifact saklama: GitHub metadata'sıyla 30 gün");
+    expect(evidence).toContain("`--network none`");
+  });
+
+  it("non-empty medya kanıtı yokken hassas medya kapısını açık tutar", () => {
+    expect(evidence).toContain("Manifestte Storage nesnesi | 0");
+    expect(evidence).toContain("`sensitive-media-location`");
+    expect(
+      releasePolicy.manualGates.find(
+        (gate) => gate.id === "sensitive-media-location",
+      )?.status,
+    ).toBe("open");
+  });
+});

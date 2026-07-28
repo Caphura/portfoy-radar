@@ -55,8 +55,8 @@ erişemez.
 
 - Owner, **Raporlar > Güvenlik ve release kapısı** bölümünde
   `Canlı PII engelli` durumunu görmelidir.
-- Aşağıdaki üç üretim kanıtı açık kalır:
-  `secret-manager`, `data-region-kvkk`, `backup-restore`.
+- Aşağıdaki iki üretim kanıtı açık kalır:
+  `data-region-kvkk`, `sensitive-media-location`.
 - Sentetik Preview profili ve staging tatbikatları üretim kapılarını kapatmaz.
 - Gerçek operasyonel kanıtlar sağlanana kadar aşağıdaki komutun başarısız olması
   beklenir:
@@ -70,7 +70,7 @@ erişemez.
 - Güvenlik kanıtları:
   [sentetik Preview profili](../security/evidence/2026-07-27-synthetic-preview-profile.md),
   [anahtar rotasyonu](../security/evidence/2026-07-27-staging-key-rotation.md) ve
-  [yedekten dönüş tatbikatı](../security/evidence/2026-07-27-staging-backup-restore-drill.md).
+  [Production yedekten dönüş tatbikatı](../security/evidence/2026-07-28-production-backup-restore-drill.md).
 
 ## PWA doğrulaması
 
