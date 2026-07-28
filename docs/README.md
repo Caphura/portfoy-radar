@@ -22,6 +22,7 @@ ya da yeni bir ADR ile karar açıkça değiştirilmelidir.
 
 ## Operasyonel güvenlik kanıtları
 
+- [2026-07-28 sentetik-only Production kararı](./security/evidence/2026-07-28-synthetic-production-decision.md)
 - [2026-07-28 Production secret manager ve anahtar rotasyonu](./security/evidence/2026-07-28-production-secret-manager-rotation.md)
 - [2026-07-27 staging anahtar rotasyonu tatbikatı](./security/evidence/2026-07-27-staging-key-rotation.md)
 - [2026-07-27 sentetik Preview kullanım profili](./security/evidence/2026-07-27-synthetic-preview-profile.md)
