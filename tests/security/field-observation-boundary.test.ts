@@ -64,10 +64,11 @@ describe("hassas saha verisi güvenlik sınırı", () => {
     const config = read("next.config.ts");
 
     expect(config).toContain("outputFileTracingIncludes");
-    expect(config).toContain("./node_modules/sharp/**/*");
-    expect(config).toContain("./node_modules/@img/sharp-linux-x64/**/*");
     expect(config).toContain(
-      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+      "./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*",
+    );
+    expect(config).toContain(
+      "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*",
     );
   });
 
