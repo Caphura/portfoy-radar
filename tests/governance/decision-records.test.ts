@@ -227,3 +227,29 @@ describe("Production yedekleme ve geri yükleme kanıtı", () => {
     ).toBe("open");
   });
 });
+
+describe("hassas medya ve kesin konum yerel kanıtı", () => {
+  const evidencePath =
+    "docs/security/evidence/2026-07-28-sensitive-media-location-local-drill.md";
+  const evidence = readRepositoryFile(evidencePath);
+  const releasePolicy = JSON.parse(
+    readRepositoryFile("config/release-policy.json"),
+  ) as {
+    manualGates: Array<{ id: string; status: string }>;
+  };
+
+  it("teknik tatbikatı kaydeder ama cihaz kabulü olmadan kapıyı açık tutar", () => {
+    expect(evidence).toContain("SEC-2026-07-28-SENSITIVE-MEDIA-LOCAL");
+    expect(evidence).toContain("1067 × 1600 JPEG");
+    expect(evidence).toContain("EXIF / XMP / ICC / IPTC");
+    expect(evidence).toContain("claimed=0");
+    expect(evidence).toContain("Fiziksel iPhone");
+    expect(evidence).toContain("Fiziksel Android");
+
+    expect(
+      releasePolicy.manualGates.find(
+        (gate) => gate.id === "sensitive-media-location",
+      )?.status,
+    ).toBe("open");
+  });
+});

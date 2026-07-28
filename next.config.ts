@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
@@ -48,6 +54,34 @@ const nextConfig: NextConfig = {
           {
             key: "Service-Worker-Allowed",
             value: "/",
+          },
+        ],
+      },
+      {
+        source:
+          "/api/workspace/field-observations/:observationId/photo",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer",
+          },
+        ],
+      },
+      {
+        source:
+          "/api/workspace/field-observations/:observationId/maps",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer",
           },
         ],
       },
