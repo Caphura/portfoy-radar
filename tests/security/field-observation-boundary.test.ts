@@ -60,6 +60,17 @@ describe("hassas saha verisi güvenlik sınırı", () => {
     expect(detailPage).toContain("/api/workspace/field-observations/");
   });
 
+  it("Vercel function paketine sharp ve Linux libvips çalışma zamanı dahil edilir", () => {
+    const config = read("next.config.ts");
+
+    expect(config).toContain("outputFileTracingIncludes");
+    expect(config).toContain("./node_modules/sharp/**/*");
+    expect(config).toContain("./node_modules/@img/sharp-linux-x64/**/*");
+    expect(config).toContain(
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    );
+  });
+
   it("yedek workflow'u yalnız age ciphertext artifact'ı 30 gün tutar", () => {
     const workflow = read(
       ".github/workflows/encrypted-production-backup.yml",
