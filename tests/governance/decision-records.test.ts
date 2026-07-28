@@ -153,3 +153,36 @@ describe("tehdit modeli", () => {
     );
   });
 });
+
+describe("sentetik-only Production kararı", () => {
+  const decisionPath =
+    "docs/security/evidence/2026-07-28-synthetic-production-decision.md";
+  const decision = readRepositoryFile(decisionPath);
+  const releasePolicy = JSON.parse(
+    readRepositoryFile("config/release-policy.json"),
+  ) as {
+    manualGates: Array<{ id: string; status: string }>;
+  };
+
+  it("gerçek veriyi yasaklar ve KVKK kapısını açık tutar", () => {
+    expect(decision).toContain("OPS-2026-07-28-SYNTHETIC-ONLY");
+    expect(decision).toContain("Gerçek veya belirlenebilir kişilere ait");
+    expect(decision).toContain("`FIELD_OBSERVATION_MODE=disabled`");
+    expect(decision).toContain("data-region-kvkk` onaylanamaz");
+
+    expect(
+      releasePolicy.manualGates.find(
+        (gate) => gate.id === "data-region-kvkk",
+      )?.status,
+    ).toBe("open");
+  });
+
+  it("yerel, Preview ve Production ortam sınırlarını ayrı kaydeder", () => {
+    for (const environment of ["Local", "Preview", "Production"]) {
+      expect(decision).toContain(`| ${environment} |`);
+    }
+
+    expect(decision).toContain("`synthetic`");
+    expect(decision.match(/`disabled`/g)).toHaveLength(2);
+  });
+});

@@ -1,7 +1,7 @@
 # Portföy Radar tehdit modeli
 
 - Durum: Kabul edildi
-- Sürüm: 2.5
+- Sürüm: 2.6
 - Tarih: 2026-07-28
 - Sahip: Güvenlik ve mühendislik
 - Yöntem: STRIDE ve kötüye kullanım senaryoları
@@ -141,7 +141,7 @@ Güven sınırları:
 | --- | --- | --- | --- |
 | Supabase Auth, workspace RLS ve MVP alan tabloları hazır | Teknik release kapısı migration/test eşleşmesini, temiz şema kurulumunu, PostgreSQL lint'i, pgTAP/RLS'yi ve uygulama DAL testlerini çalıştırıyor | Her yeni iş tablosunda migration + pgTAP + DAL + iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS: üretim secret manager ve sürümlü keyring rotasyonu kanıtlandı | Production-only hassas değişkenler, modern Supabase anahtarları, ayrı PII/HMAC/medya keyring'leri ve geri dönüş kopyası kullanılıyor; legacy API/JWT anahtarları iptal edildi | [Production secret manager ve rotasyon kanıtı](./evidence/2026-07-28-production-secret-manager-rotation.md); olay sonrası veya en geç 90 günde yeniden denetim | Güvenlik |
-| Üretim bölgesi ve KVKK metinleri onaysız | Sadece geliştirme verisi | Ürün sahibi/hukuk onayı kaydedilmiş | Ürün sahibi |
+| Üretim bölgesi ve KVKK metinleri onaysız | [Sentetik-only Production kararı](./evidence/2026-07-28-synthetic-production-decision.md) yürürlükte; Vercel Hobby ve yurtdışı Supabase ortamına gerçek kişi verisi girilmiyor | Uygun yurtdışı aktarım güvencesi veya Türkiye içi barındırma ile veri envanteri, aydınlatma ve saklama/imha politikası onaylanmış | Ürün sahibi |
 | Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |
 | Hassas medya ve kesin konum kanıtı onaysız | `FIELD_OBSERVATION_MODE` staging'de `disabled`, yerelde yalnız sentetik | Cihaz kabulü, EXIF/şifreleme, imha ve Storage geri yükleme kanıtları başarılı | Güvenlik |
 | Ele geçirilmiş danışman cihazı | Teknik olarak tamamen önlenemez | Ekran kilidi, oturum iptali ve MFA yol haritası | Ürün sahibi |
