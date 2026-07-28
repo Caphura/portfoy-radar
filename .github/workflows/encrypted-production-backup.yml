@@ -33,8 +33,19 @@ jobs:
       - name: Bağımlılıkları kilit dosyasından kur
         run: pnpm install --frozen-lockfile
 
-      - name: age ve PostgreSQL istemcisini kur
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq age postgresql-client
+      - name: age ve PostgreSQL 17 istemcisini kur
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age ca-certificates curl
+          sudo install -d -m 0755 /usr/share/postgresql-common/pgdg
+          curl --fail --silent --show-error \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc >/dev/null
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          pg_dump --version | grep -Eq '^pg_dump \(PostgreSQL\) 17\.'
 
       - name: DB ve şifreli Storage yedeğini age ile sar
         env:

@@ -62,6 +62,10 @@ describe("hassas saha verisi güvenlik sınırı", () => {
 
     expect(workflow).toContain("retention-days: 30");
     expect(workflow).toContain("portfoy-radar-production.tar.age");
+    expect(workflow).toContain("postgresql-client-17");
+    expect(workflow).toContain(
+      "pg_dump --version | grep -Eq '^pg_dump \\(PostgreSQL\\) 17\\.'",
+    );
     expect(workflow).not.toContain("AGE_BACKUP_IDENTITY");
     expect(backupScript).toContain('"age"');
     expect(backupScript).toContain("manifest.json");
