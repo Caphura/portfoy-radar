@@ -142,17 +142,17 @@ Güven sınırları:
 | Supabase Auth, workspace RLS ve MVP alan tabloları hazır | Teknik release kapısı migration/test eşleşmesini, temiz şema kurulumunu, PostgreSQL lint'i, pgTAP/RLS'yi ve uygulama DAL testlerini çalıştırıyor | Her yeni iş tablosunda migration + pgTAP + DAL + iki-workspace negatif testleri başarılı | Mühendislik |
 | Şifreleme/KMS: üretim secret manager ve sürümlü keyring rotasyonu kanıtlandı | Production-only hassas değişkenler, modern Supabase anahtarları, ayrı PII/HMAC/medya keyring'leri ve geri dönüş kopyası kullanılıyor; legacy API/JWT anahtarları iptal edildi | [Production secret manager ve rotasyon kanıtı](./evidence/2026-07-28-production-secret-manager-rotation.md); olay sonrası veya en geç 90 günde yeniden denetim | Güvenlik |
 | Üretim bölgesi ve KVKK metinleri onaysız | [Sentetik-only Production kararı](./evidence/2026-07-28-synthetic-production-decision.md) yürürlükte; Vercel Hobby ve yurtdışı Supabase ortamına gerçek kişi verisi girilmiyor | Uygun yurtdışı aktarım güvencesi veya Türkiye içi barındırma ile veri envanteri, aydınlatma ve saklama/imha politikası onaylanmış | Ürün sahibi |
-| Yedekten dönüş tatbikatı yapılmadı | Kalıcı üretim verisi yok | Başarılı geri dönüş raporu | Operasyon |
+| Yedekten dönüş tatbikatı kanıtlandı | [Production yedekleme ve geri yükleme kanıtı](./evidence/2026-07-28-production-backup-restore-drill.md): günlük workflow, 30 gün ciphertext saklama, ağsız PostgreSQL 17.6 restore ve 37 metrikte sıfır fark | En az üç ayda bir restore tatbikatı; ilk non-empty Storage nesnesi `sensitive-media-location` kapsamında ayrıca doğrulanır | Operasyon |
 | Hassas medya ve kesin konum kanıtı onaysız | `FIELD_OBSERVATION_MODE` staging'de `disabled`, yerelde yalnız sentetik | Cihaz kabulü, EXIF/şifreleme, imha ve Storage geri yükleme kanıtları başarılı | Güvenlik |
 | Ele geçirilmiş danışman cihazı | Teknik olarak tamamen önlenemez | Ekran kilidi, oturum iptali ve MFA yol haritası | Ürün sahibi |
 
-Üretim bölgesi/KVKK, yedekten dönüş ve hassas medya/kesin konum satırları
-kapanmadan canlı kişisel veriyle üretim yayını yapılmaz.
+Üretim bölgesi/KVKK ve hassas medya/kesin konum satırları kapanmadan canlı
+kişisel veriyle üretim yayını yapılmaz.
 
 Teknik ilk satır CI'da her değişiklikte yeniden doğrulanır. Dört manuel
-`release-v2` kapısından `secret-manager` kanıtla kapatılmıştır; kalan üç kapı
-kanıt referansı olmadan onaylanamaz. Eksik veya bozuk politika canlı PII
-assertion'ını başarısız kılar.
+`release-v2` kapısından `secret-manager` ve `backup-restore` kanıtla
+kapatılmıştır; kalan iki kapı kanıt referansı olmadan onaylanamaz. Eksik veya
+bozuk politika canlı PII assertion'ını başarısız kılar.
 
 ## Doğrulama ve bakım
 
